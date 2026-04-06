@@ -14,15 +14,23 @@ use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 class SecurityController extends AbstractController
 {
     #[Route('/login', name: 'app_login')]
-    public function login(AuthenticationUtils $authenticationUtils): Response
+    public function login(Request $request, AuthenticationUtils $authenticationUtils): Response
     {
         if ($this->getUser()) {
             return $this->redirectToRoute('app_home');
         }
 
-        return $this->render('security/login.html.twig', [
-            'last_username' => $authenticationUtils->getLastUsername(),
-            'error' => $authenticationUtils->getLastAuthenticationError(),
+        $error = $authenticationUtils->getLastAuthenticationError();
+        $lastUsername = $authenticationUtils->getLastUsername();
+
+        if ($request->isMethod('GET') && !$error) {
+            return $this->redirectToRoute('app_home', ['auth' => 'login']);
+        }
+
+        return $this->render('landing.html.twig', [
+            'auth' => 'login',
+            'last_username' => $lastUsername,
+            'error' => $error ? $error->getMessage() : null,
         ]);
     }
 
@@ -39,6 +47,10 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('app_home');
         }
 
+        if ($request->isMethod('GET')) {
+            return $this->redirectToRoute('app_home', ['auth' => 'register']);
+        }
+
         if ($request->isMethod('POST')) {
             $email = (string) $request->request->get('email');
             $nom = (string) $request->request->get('nom');
@@ -47,14 +59,16 @@ class SecurityController extends AbstractController
             $role = (string) $request->request->get('role', 'participant');
 
             if (!$email || !$plainPassword || !$nom || !$prenom) {
-                return $this->render('security/register.html.twig', [
+                return $this->render('landing.html.twig', [
+                    'auth' => 'register',
                     'error' => 'Tous les champs sont requis.',
                 ]);
             }
 
             $existingUser = $doctrine->getRepository(User::class)->findOneBy(['email' => $email]);
             if ($existingUser) {
-                return $this->render('security/register.html.twig', [
+                return $this->render('landing.html.twig', [
+                    'auth' => 'register',
                     'error' => 'Cet email existe déjà.',
                 ]);
             }
@@ -75,6 +89,6 @@ class SecurityController extends AbstractController
             return $this->redirectToRoute('app_login');
         }
 
-        return $this->render('security/register.html.twig');
+        return $this->redirectToRoute('app_home', ['auth' => 'register']);
     }
 }

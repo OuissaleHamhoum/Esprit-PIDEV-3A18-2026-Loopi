@@ -1206,8 +1206,8 @@
     <li><a href="#comment">Comment ça marche</a></li>
   </ul>
   <div class="nav-actions">
-    <a href="/login" class="btn-ghost">Se connecter</a>
-    <a href="/register" class="btn-solid">Rejoindre</a>
+    <a href="#" class="btn-ghost" onclick="openModal('login'); return false;">Se connecter</a>
+    <a href="#" class="btn-solid" onclick="openModal('signup'); return false;">Rejoindre</a>
   </div>
 </nav>
 
@@ -1530,7 +1530,8 @@
       </div>
       <div class="col-title">Rejoignez la prochaine collecte</div>
       <div style="margin-top: 16px;">
-        <a href="#" onclick="openModal('signup'); return false;"
+        <a href="#"
+           onclick="openModal('signup'); return false;"
            style="display:inline-block; padding:10px 20px; border:1px solid rgba(255,255,255,0.2); border-radius:50px; color:rgba(255,255,255,0.7); text-decoration:none; font-size:0.82rem; transition:all 0.2s;"
            onmouseover="this.style.borderColor='rgba(255,255,255,0.6)'; this.style.color='white';"
            onmouseout="this.style.borderColor='rgba(255,255,255,0.2)'; this.style.color='rgba(255,255,255,0.7)';">
@@ -1626,8 +1627,8 @@
     <div class="section-title" style="text-align:center; color:var(--forest); max-width:600px; margin:0 auto 20px;">Prêt à transformer les déchets en art ?</div>
     <p style="color: rgba(30,58,47,0.6); margin-bottom:32px; font-size:1rem;">Créez votre compte gratuit et commencez à collecter, créer, et soutenir l'art éco-responsable en Tunisie.</p>
     <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
-      <a href="/register" class="btn-large btn-primary">Créer un compte</a>
-      <a href="/login" class="btn-large" style="background:white; color:var(--forest); border:2px solid transparent;">Se connecter</a>
+      <a href="#" class="btn-large btn-primary" onclick="openModal('signup'); return false;">Créer un compte</a>
+      <a href="#" class="btn-large" style="background:white; color:var(--forest); border:2px solid transparent;" onclick="openModal('login'); return false;">Se connecter</a>
     </div>
   </div>
 </section>
@@ -1688,9 +1689,12 @@
       <!-- LOGIN -->
       <div class="form-panel active" id="loginPanel">
         <form method="post" action="/login">
+          {% if error is defined and error %}
+            <div class="form-error" style="color:#f55; margin-bottom:16px; text-align:center;">{{ error }}</div>
+          {% endif %}
           <div class="form-group">
             <label>Adresse email</label>
-            <input type="email" name="_username" placeholder="votre@email.com" required>
+            <input type="email" name="_username" value="{{ last_username|default('')|e }}" placeholder="votre@email.com" required>
           </div>
           <div class="form-group">
             <label>Mot de passe</label>
@@ -1707,6 +1711,9 @@
       <!-- SIGNUP -->
       <div class="form-panel" id="signupPanel">
         <form method="post" action="/register">
+          {% if error is defined and error and auth == 'register' %}
+            <div class="form-error" style="color:#f55; margin-bottom:16px; text-align:center;">{{ error }}</div>
+          {% endif %}
           <div class="form-row">
             <div class="form-group">
               <label>Nom</label>
@@ -1738,8 +1745,8 @@
                 <div class="r-name">organisateur</div>
               </div>
               <div class="role-btn" onclick="selectRole(this)">
-                <div class="r-icon">♻️</div>
-                <div class="r-name">donateur</div>
+                <div class="r-icon">🛡️</div>
+                <div class="r-name">admin</div>
               </div>
             </div>
           </div>
@@ -1780,6 +1787,15 @@
     const role = el.querySelector('.r-name').textContent.trim().toLowerCase();
     document.getElementById('roleInput').value = role;
   }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const initialAuth = '{{ auth|default('') }}';
+    const params = new URLSearchParams(window.location.search);
+    const authParam = params.get('auth');
+    const activeAuth = initialAuth || authParam;
+    if (activeAuth === 'login') openModal('login');
+    if (activeAuth === 'register') openModal('signup');
+  });
 
   // Heart toggle
   function heartClick(btn) {
