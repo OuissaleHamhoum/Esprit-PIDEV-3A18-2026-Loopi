@@ -2,12 +2,19 @@
   <div id="page-coupons" style="display:none">
     <div class="blk">
       <div class="blk-title">Gestion des coupons <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="showToast('Créer un coupon')">+ Créer coupon</button></div>
+      <div class="search-bar">
+        <input id="couponSearch" class="search-input" placeholder="🔍 Rechercher par code ou utilisateur…">
+        <select id="couponStatusFilter" class="filter">
+          <option value="">Tous les statuts</option>
+          <option value="unused">Non utilisés</option>
+          <option value="used">Utilisés</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="refreshCouponsTable()">🔄 Actualiser</button>
+      </div>
       <table class="tbl">
         <thead><tr><th>Code</th><th>Réduction</th><th>Assigné à</th><th>Don lié</th><th>Date expiration</th><th>Utilisé</th><th>Actions</th></tr></thead>
-        <tbody>
-          <tr><td style="font-weight:700;color:var(--moss)">ECO10</td><td style="color:var(--success);font-weight:700">10%</td><td style="color:var(--muted)">Test Participant</td><td style="color:var(--muted)">Donation #1</td><td style="color:var(--muted)">10 Mar 2026</td><td><span class="badge b-pending">Non utilisé</span></td><td><button class="btn btn-danger btn-sm" onclick="showToast('Supprimer coupon?')">Suppr.</button></td></tr>
-          <tr><td style="font-weight:700;color:var(--sand)">GREEN15</td><td style="color:var(--success);font-weight:700">15%</td><td style="color:var(--muted)">Ali Ben</td><td style="color:var(--muted)">Donation #2</td><td style="color:var(--muted)">9 Avr 2026</td><td><span class="badge b-pending">Non utilisé</span></td><td><button class="btn btn-danger btn-sm" onclick="showToast('Supprimer coupon?')">Suppr.</button></td></tr>
-        </tbody>
+        <tbody id="couponsTableBody"></tbody>
       </table>
+      <div id="couponsEmptyState" style="display:none;padding:18px;color:var(--muted)">Aucun coupon trouvé.</div>
     </div>
   </div>

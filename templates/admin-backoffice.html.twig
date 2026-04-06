@@ -124,12 +124,20 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
 .act-time{font-size:.66rem;color:var(--muted);margin-top:1px}
 
 /* MODAL */
-.moverlay{display:none;position:fixed;inset:0;background:rgba(17,21,16,.55);backdrop-filter:blur(5px);z-index:2000;align-items:center;justify-content:center}
-.moverlay.open{display:flex}
-.modal{background:white;border-radius:18px;width:500px;max-width:94vw;padding:26px;border:1px solid var(--border);animation:sUp .25s ease}
-@keyframes sUp{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
-.modal-hd{font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--forest);margin-bottom:18px;display:flex;justify-content:space-between;align-items:center}
-.modal-close{background:none;border:none;color:var(--muted);font-size:1.1rem;cursor:pointer}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(17,21,16,0.7);backdrop-filter:blur(6px);z-index:2000;align-items:center;justify-content:center;animation:fadeIn .2s ease}
+.modal-overlay.open{display:flex}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.modal{background:white;border-radius:24px;width:460px;max-width:92vw;overflow:hidden;animation:slideUp .25s ease;position:relative}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-header{background:var(--cream);padding:32px 32px 24px;text-align:center;border-bottom:1px solid rgba(30,58,47,.07);position:relative}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:var(--forest);margin:0}
+.modal-close{position:absolute;top:20px;right:20px;background:transparent;border:none;color:var(--muted);font-size:1.3rem;cursor:pointer}
+.modal-body{padding:28px 32px 32px}
+.modal-footer{display:flex;gap:10px;justify-content:flex-end;margin-top:16px}
+.modal-footer .btn-ghost{min-width:120px}
+.modal-footer .btn-submit{width:auto;flex:1}
+.btn-submit{width:100%;padding:13px 16px;background:var(--forest);color:white;border:none;border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.92rem;font-weight:700;cursor:pointer;transition:all .18s;letter-spacing:.02em}
+.btn-submit:hover{background:var(--moss);transform:translateY(-1px)}
 .fg{margin-bottom:12px}
 .fg label{display:block;font-size:.73rem;font-weight:600;color:var(--forest);margin-bottom:4px}
 .fg input,.fg select,.fg textarea{width:100%;padding:9px 12px;border:1.5px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--text);outline:none;transition:border-color .2s;background:var(--bg)}
@@ -215,37 +223,42 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
 </main>
 
 <!-- MODAL AJOUTER UTILISATEUR -->
-<div class="moverlay" id="userModal" onclick="if(event.target===this)closeUserModal()">
+<div class="modal-overlay" id="userModal" onclick="if(event.target===this)closeUserModal()">
   <div class="modal">
-    <div class="modal-hd" id="userModalTitle">Ajouter un utilisateur <button class="modal-close" onclick="closeUserModal()">✕</button></div>
-    <div id="userFormErrors" style="color:#b91c1c;font-size:.82rem;margin-bottom:12px;display:none"></div>
-    <input type="hidden" id="userId">
-    <input type="hidden" id="userPhoto">
-    
-    <!-- Photo Section -->
-    <div class="photo-section">
-      <div class="photo-preview empty" id="photoPreview">📸</div>
-      <div class="photo-buttons" id="photoButtons">
-        <button type="button" onclick="startCamera()">📷 Caméra</button>
-        <button type="button" onclick="document.getElementById('photoFile').click()">📤 Télécharger</button>
-        <button type="button" onclick="clearPhoto()">✕ Effacer</button>
+    <div class="modal-header">
+      <div class="modal-title" id="userModalTitle">Ajouter un utilisateur</div>
+      <button class="modal-close" onclick="closeUserModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="userFormErrors" style="color:#b91c1c;font-size:.82rem;margin-bottom:12px;display:none"></div>
+      <input type="hidden" id="userId">
+      <input type="hidden" id="userPhoto">
+      
+      <!-- Photo Section -->
+      <div class="photo-section">
+        <div class="photo-preview empty" id="photoPreview">📸</div>
+        <div class="photo-buttons" id="photoButtons">
+          <button type="button" onclick="startCamera()">📷 Caméra</button>
+          <button type="button" onclick="document.getElementById('photoFile').click()">📤 Télécharger</button>
+          <button type="button" onclick="clearPhoto()">✕ Effacer</button>
+        </div>
+        <input type="file" id="photoFile" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
       </div>
-      <input type="file" id="photoFile" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
-    </div>
-    
-    <div class="frow2">
-      <div class="fg"><label>Nom</label><input id="userNom" placeholder="Dupont"></div>
-      <div class="fg"><label>Prénom</label><input id="userPrenom" placeholder="Marie"></div>
-    </div>
-    <div class="fg"><label>Email</label><input type="email" id="userEmail" placeholder="marie@loopi.tn"></div>
-    <div class="fg"><label>Mot de passe</label><input type="password" id="userPassword" placeholder="••••••••"></div>
-    <div class="frow2">
-      <div class="fg"><label>Rôle</label><select id="userRole"><option value="participant">Participant</option><option value="organisateur">Organisateur</option><option value="admin">Admin</option></select></div>
-      <div class="fg"><label>Genre</label><select id="userGenre"><option value="">Aucun</option><option value="Masculin">Masculin</option><option value="Féminin">Féminin</option></select></div>
-    </div>
-    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
-      <button class="btn btn-ghost" type="button" onclick="closeUserModal()">Annuler</button>
-      <button class="btn btn-primary" type="button" id="userModalSubmit" onclick="submitUserForm(event)">Créer le compte</button>
+      
+      <div class="frow2">
+        <div class="fg"><label>Nom</label><input id="userNom" placeholder="Dupont"></div>
+        <div class="fg"><label>Prénom</label><input id="userPrenom" placeholder="Marie"></div>
+      </div>
+      <div class="fg"><label>Email</label><input type="email" id="userEmail" placeholder="marie@loopi.tn"></div>
+      <div class="fg" id="passwordField"><label>Mot de passe</label><input type="password" id="userPassword" placeholder="••••••••"></div>
+      <div class="frow2">
+        <div class="fg"><label>Rôle</label><select id="userRole"><option value="participant">Participant</option><option value="organisateur">Organisateur</option><option value="admin">Admin</option></select></div>
+        <div class="fg"><label>Genre</label><select id="userGenre"><option value="">Aucun</option><option value="Masculin">Masculin</option><option value="Féminin">Féminin</option></select></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-ghost" type="button" onclick="closeUserModal()">Annuler</button>
+        <button class="btn-submit" type="button" id="userModalSubmit" onclick="submitUserForm(event)">Créer le compte</button>
+      </div>
     </div>
   </div>
 </div>
@@ -271,6 +284,7 @@ const breadcrumbs = {
   feedbacks:'Avis & Feedbacks', settings:'Paramètres', notifs:'Notifications'
 };
 let adminUsers = [];
+let adminEvents = [];
 let userModalMode = 'create';
 
 function goPage(name, navEl) {
@@ -279,8 +293,30 @@ function goPage(name, navEl) {
   document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
   document.getElementById('breadcrumb-text').textContent = breadcrumbs[name] || name;
-  if (name === 'users') {
-    refreshUserTable();
+
+  // Load data based on page
+  switch (name) {
+    case 'users':
+      refreshUserTable();
+      break;
+    case 'events':
+      fetchAdminEvents();
+      break;
+    case 'products':
+      refreshProductTable();
+      break;
+    case 'collections':
+      refreshCollections();
+      break;
+    case 'donations':
+      refreshDonationsTable();
+      break;
+    case 'coupons':
+      refreshCouponsTable();
+      break;
+    case 'feedbacks':
+      refreshFeedbacksTable();
+      break;
   }
 }
 
@@ -297,17 +333,21 @@ function openUserModal(mode, id = null) {
   const submitButton = document.getElementById('userModalSubmit');
   const formErrors = document.getElementById('userFormErrors');
   const photoButtons = document.getElementById('photoButtons');
+  const passwordField = document.getElementById('passwordField');
 
   formErrors.style.display = 'none';
   formErrors.textContent = '';
 
   if (mode === 'create') {
-    title.innerHTML = 'Ajouter un utilisateur <button class="modal-close" onclick="closeUserModal()">✕</button>';
+    title.textContent = 'Ajouter un utilisateur';
     submitButton.textContent = 'Créer le compte';
+    submitButton.className = 'btn-submit';
     submitButton.style.display = 'inline-flex';
     photoButtons.style.display = 'flex';
+    if (passwordField) passwordField.style.display = 'block';
     fillUserForm({ nom: '', prenom: '', email: '', password: '', role: 'participant', genre: '' });
     setFormDisabled(false);
+    document.getElementById('userPassword').placeholder = '••••••••';
   } else {
     const user = adminUsers.find(u => u.id === id);
     if (!user) {
@@ -317,17 +357,21 @@ function openUserModal(mode, id = null) {
     fillUserForm(user);
 
     if (mode === 'edit') {
-      title.innerHTML = 'Modifier un utilisateur <button class="modal-close" onclick="closeUserModal()">✕</button>';
+      title.textContent = 'Modifier un utilisateur';
       submitButton.textContent = 'Enregistrer';
+      submitButton.className = 'btn-submit';
       submitButton.style.display = 'inline-flex';
       photoButtons.style.display = 'flex';
+      if (passwordField) passwordField.style.display = 'block';
       setFormDisabled(false);
       document.getElementById('userPassword').placeholder = 'Laisser vide pour conserver le mot de passe';
     } else {
-      title.innerHTML = 'Détails utilisateur <button class="modal-close" onclick="closeUserModal()">✕</button>';
+      title.textContent = 'Détails utilisateur';
       submitButton.textContent = 'Fermer';
+      submitButton.className = 'btn btn-ghost';
       submitButton.style.display = 'inline-flex';
       photoButtons.style.display = 'none';
+      if (passwordField) passwordField.style.display = 'none';
       setFormDisabled(true);
     }
   }
@@ -370,6 +414,8 @@ function resetUserForm() {
   fillUserForm({ nom: '', prenom: '', email: '', password: '', role: 'participant', genre: '' });
   document.getElementById('userPassword').placeholder = '••••••••';
   document.getElementById('photoButtons').style.display = 'flex';
+  const passwordField = document.getElementById('passwordField');
+  if (passwordField) passwordField.style.display = 'block';
   setFormDisabled(false);
   clearPhoto();
 }
@@ -571,8 +617,8 @@ function renderUsersTable(users) {
       <td style="color:var(--muted)">${formatDate(user.createdAt)}</td>
       <td style="color:var(--muted)">${formatDate(user.updatedAt)}</td>
       <td style="display:flex;gap:5px;flex-wrap:wrap">
-        <button class="btn btn-ghost btn-sm" onclick="openUserModal('show', ${user.id})">Voir</button>
-        <button class="btn btn-ghost btn-sm" onclick="openUserModal('edit', ${user.id})">Éditer</button>
+        <button class="btn btn-outline btn-sm" onclick="openUserModal('show', ${user.id})">Voir</button>
+        <button class="btn btn-primary btn-sm" onclick="openUserModal('edit', ${user.id})">Éditer</button>
         <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">Suppr.</button>
       </td>
     </tr>
@@ -648,6 +694,145 @@ function exportUsersCsv() {
   URL.revokeObjectURL(url);
 }
 
+async function fetchAdminEvents() {
+  const url = '/api/admin/events';
+  console.log('[Admin Events] Fetching:', url);
+
+  try {
+    const response = await fetch(url);
+    console.log('[Admin Events] Response status:', response.status, response.statusText);
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        showToast('Session expirée. Veuillez vous reconnecter.');
+        window.location.href = '/logout';
+        return;
+      } else if (response.status === 403) {
+        showToast('Accès refusé. Vous devez être administrateur.');
+        return;
+      } else if (response.status === 404) {
+        showToast('Endpoint non trouvé.');
+        return;
+      }
+    }
+
+    const result = await response.json();
+    console.log('[Admin Events] API Response:', result);
+
+    if (result.success) {
+      adminEvents = result.events || [];
+      renderEventsTable(adminEvents);
+    } else {
+      showToast('Erreur lors du chargement des événements: ' + (result.message || 'Erreur inconnue'));
+    }
+  } catch (error) {
+    showToast('Erreur de connexion: ' + error.message);
+    console.error('[Admin Events] Error:', error);
+  }
+}
+
+function renderEventsTable(events) {
+  const tbody = document.getElementById('eventsTableBody');
+  const alert = document.getElementById('eventsAlert');
+  const summary = document.getElementById('eventsSummary');
+  
+  if (!tbody || !alert || !summary) return;
+
+  if (events.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">Aucun événement trouvé.</td></tr>';
+    alert.style.display = 'none';
+    summary.textContent = '';
+    return;
+  }
+
+  // Compter les événements en attente (pour l'instant, tous sont validés)
+  const pendingCount = events.filter(e => e.statut === 'en_attente').length;
+  
+  if (pendingCount > 0) {
+    alert.innerHTML = `⚠️ ${pendingCount} événement(s) en attente de validation par l'administrateur.`;
+    alert.style.display = 'block';
+  } else {
+    alert.style.display = 'none';
+  }
+
+  summary.textContent = `${events.length} événement(s) enregistré(s)`;
+
+  tbody.innerHTML = events.map(event => {
+    const statusBadge = event.statut === 'validé' 
+      ? '<span class="badge b-active">Validé</span>' 
+      : '<span class="badge b-pending">En attente</span>';
+    
+    const actions = event.statut === 'validé'
+      ? `<div style="display:flex;gap:5px">
+          <button class="btn btn-ghost btn-sm" onclick="viewEventDetails(${event.id})">Voir</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectEvent(${event.id})">Rejeter</button>
+        </div>`
+      : `<div style="display:flex;gap:5px">
+          <button class="btn btn-success btn-sm" onclick="validateEvent(${event.id})">✓ Valider</button>
+          <button class="btn btn-danger btn-sm" onclick="rejectEvent(${event.id})">✕ Rejeter</button>
+        </div>`;
+
+    return `
+      <tr>
+        <td style="font-weight:600">${event.titre}</td>
+        <td style="color:var(--muted)">${event.organisateur}</td>
+        <td style="color:var(--muted)">${formatDate(event.date_evenement)}</td>
+        <td style="color:var(--muted)">${event.lieu || '-'}</td>
+        <td style="color:var(--muted)">${event.capacite_max || '-'}</td>
+        <td>${statusBadge}</td>
+        <td>${actions}</td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function validateEvent(id) {
+  try {
+    const response = await fetch(`/api/admin/events/${id}/validate`, { method: 'POST' });
+    const result = await response.json();
+    
+    if (result.success) {
+      showToast('Événement validé avec succès ✓');
+      fetchAdminEvents(); // Recharger la liste
+    } else {
+      showToast('Erreur: ' + (result.message || 'Impossible de valider l\'événement'));
+    }
+  } catch (error) {
+    showToast('Erreur de connexion: ' + error.message);
+  }
+}
+
+async function rejectEvent(id) {
+  if (!confirm('Confirmer le rejet de cet événement ?')) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/admin/events/${id}/reject`, { method: 'POST' });
+    const result = await response.json();
+    
+    if (result.success) {
+      showToast('Événement rejeté avec succès');
+      fetchAdminEvents(); // Recharger la liste
+    } else {
+      showToast('Erreur: ' + (result.message || 'Impossible de rejeter l\'événement'));
+    }
+  } catch (error) {
+    showToast('Erreur de connexion: ' + error.message);
+  }
+}
+
+function viewEventDetails(id) {
+  const event = adminEvents.find(e => e.id === id);
+  if (!event) {
+    showToast('Événement introuvable');
+    return;
+  }
+  
+  // Pour l'instant, juste afficher un toast avec les détails
+  showToast(`Détails: ${event.titre} - ${event.description || 'Pas de description'}`);
+}
+
 function formatDate(value) {
   if (!value) {
     return '-';
@@ -664,6 +849,7 @@ window.addEventListener('DOMContentLoaded', () => {
   const searchInput = document.getElementById('userSearch');
   const roleFilter = document.getElementById('userRoleFilter');
   const usersPage = document.getElementById('page-users');
+  const eventsPage = document.getElementById('page-events');
   
   if (searchInput) {
     searchInput.addEventListener('input', refreshUserTable);
@@ -672,12 +858,498 @@ window.addEventListener('DOMContentLoaded', () => {
     roleFilter.addEventListener('change', refreshUserTable);
   }
 
+  // Products page event listeners
+  const productSearch = document.getElementById('productSearch');
+  const productCategoryFilter = document.getElementById('productCategoryFilter');
+  const productOrganisateurFilter = document.getElementById('productOrganisateurFilter');
+
+  if (productSearch) productSearch.addEventListener('input', refreshProductTable);
+  if (productCategoryFilter) productCategoryFilter.addEventListener('change', refreshProductTable);
+  if (productOrganisateurFilter) productOrganisateurFilter.addEventListener('change', refreshProductTable);
+
+  // Collections page event listeners
+  const collectionSearch = document.getElementById('collectionSearch');
+  const collectionOrganisateurFilter = document.getElementById('collectionOrganisateurFilter');
+
+  if (collectionSearch) collectionSearch.addEventListener('input', refreshCollections);
+  if (collectionOrganisateurFilter) collectionOrganisateurFilter.addEventListener('change', refreshCollections);
+
+  // Donations page event listeners
+  const donationSearch = document.getElementById('donationSearch');
+  const donationStatusFilter = document.getElementById('donationStatusFilter');
+
+  if (donationSearch) donationSearch.addEventListener('input', refreshDonationsTable);
+  if (donationStatusFilter) donationStatusFilter.addEventListener('change', refreshDonationsTable);
+
+  // Coupons page event listeners
+  const couponSearch = document.getElementById('couponSearch');
+  const couponStatusFilter = document.getElementById('couponStatusFilter');
+
+  if (couponSearch) couponSearch.addEventListener('input', refreshCouponsTable);
+  if (couponStatusFilter) couponStatusFilter.addEventListener('change', refreshCouponsTable);
+
+  // Feedbacks page event listeners
+  const feedbackSearch = document.getElementById('feedbackSearch');
+  const feedbackRatingFilter = document.getElementById('feedbackRatingFilter');
+
+  if (feedbackSearch) feedbackSearch.addEventListener('input', refreshFeedbacksTable);
+  if (feedbackRatingFilter) feedbackRatingFilter.addEventListener('change', refreshFeedbacksTable);
+
   // Initialize users table on first page load if users page is currently visible
   if (usersPage && usersPage.style.display !== 'none') {
     console.log('[Admin] Users page visible, loading users...');
     refreshUserTable();
   }
+
+  // Initialize events table on first page load if events page is currently visible
+  if (eventsPage && eventsPage.style.display !== 'none') {
+    console.log('[Admin] Events page visible, loading events...');
+    fetchAdminEvents();
+  }
+
+  // Initialize products table on first page load if products page is currently visible
+  if (document.getElementById('page-products') && document.getElementById('page-products').style.display !== 'none') {
+    refreshProductTable();
+  }
+
+  // Initialize collections on first page load if collections page is currently visible
+  if (document.getElementById('page-collections') && document.getElementById('page-collections').style.display !== 'none') {
+    refreshCollections();
+  }
+
+  // Initialize donations table on first page load if donations page is currently visible
+  if (document.getElementById('page-donations') && document.getElementById('page-donations').style.display !== 'none') {
+    refreshDonationsTable();
+  }
+
+  // Initialize coupons table on first page load if coupons page is currently visible
+  if (document.getElementById('page-coupons') && document.getElementById('page-coupons').style.display !== 'none') {
+    refreshCouponsTable();
+  }
+
+  // Initialize feedbacks table on first page load if feedbacks page is currently visible
+  if (document.getElementById('page-feedbacks') && document.getElementById('page-feedbacks').style.display !== 'none') {
+    refreshFeedbacksTable();
+  }
+
+  // Initialize products table on first page load if products page is currently visible
+  if (document.getElementById('page-products') && document.getElementById('page-products').style.display !== 'none') {
+    refreshProductTable();
+  }
+
+  // Initialize collections on first page load if collections page is currently visible
+  if (document.getElementById('page-collections') && document.getElementById('page-collections').style.display !== 'none') {
+    refreshCollections();
+  }
+
+  // Initialize donations table on first page load if donations page is currently visible
+  if (document.getElementById('page-donations') && document.getElementById('page-donations').style.display !== 'none') {
+    refreshDonationsTable();
+  }
+
+  // Initialize coupons table on first page load if coupons page is currently visible
+  if (document.getElementById('page-coupons') && document.getElementById('page-coupons').style.display !== 'none') {
+    refreshCouponsTable();
+  }
+
+  // Initialize feedbacks table on first page load if feedbacks page is currently visible
+  if (document.getElementById('page-feedbacks') && document.getElementById('page-feedbacks').style.display !== 'none') {
+    refreshFeedbacksTable();
+  }
 });
+
+// ─── PRODUCTS MANAGEMENT ───
+
+async function refreshProductTable() {
+  const search = document.getElementById('productSearch').value.trim();
+  const category = document.getElementById('productCategoryFilter').value;
+  const organisateur = document.getElementById('productOrganisateurFilter').value;
+
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  if (category) params.append('category', category);
+  if (organisateur) params.append('organisateur', organisateur);
+
+  try {
+    const response = await fetch(`/api/admin/products?${params}`);
+    const result = await response.json();
+
+    if (result.success) {
+      populateProductsTable(result.data);
+      populateProductFilters(result.data);
+      document.getElementById('productsSummary').textContent = `${result.data.length} œuvres en galerie`;
+    } else {
+      showToast('Erreur lors du chargement des produits');
+    }
+  } catch (error) {
+    console.error('Error fetching products:', error);
+    showToast('Erreur réseau');
+  }
+}
+
+function populateProductsTable(products) {
+  const tbody = document.getElementById('productsTableBody');
+  const emptyState = document.getElementById('productsEmptyState');
+
+  if (products.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+
+  tbody.innerHTML = products.map(product => `
+    <tr>
+      <td style="font-weight:600">${product.nomProduit}</td>
+      <td><span class="badge b-org">${product.category || 'N/A'}</span></td>
+      <td style="color:var(--muted)">${product.organisateur || 'N/A'}</td>
+      <td style="color:var(--muted)">${product.createdAt || 'N/A'}</td>
+      <td style="color:var(--danger)">♥ ${product.favoris}</td>
+      <td style="color:var(--sand)">★ ${product.noteMoyenne}</td>
+      <td>
+        <div style="display:flex;gap:5px">
+          <button class="btn btn-ghost btn-sm" onclick="showToast('Voir détails')">Voir</button>
+          <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.id})">Suppr.</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function populateProductFilters(products) {
+  const categoryFilter = document.getElementById('productCategoryFilter');
+  const organisateurFilter = document.getElementById('productOrganisateurFilter');
+
+  // Populate categories
+  const categories = [...new Set(products.map(p => p.category).filter(Boolean))];
+  categoryFilter.innerHTML = '<option value="">Toutes catégories</option>' +
+    categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+
+  // Populate organisateurs
+  const organisateurs = [...new Set(products.map(p => p.organisateur).filter(Boolean))];
+  organisateurFilter.innerHTML = '<option value="">Tous organisateurs</option>' +
+    organisateurs.map(org => `<option value="${org}">${org}</option>`).join('');
+}
+
+async function deleteProduct(id) {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer ce produit ?')) return;
+
+  try {
+    const response = await fetch(`/api/admin/products/${id}`, { method: 'DELETE' });
+    const result = await response.json();
+
+    if (result.success) {
+      showToast('Produit supprimé');
+      refreshProductTable();
+    } else {
+      showToast('Erreur lors de la suppression');
+    }
+  } catch (error) {
+    showToast('Erreur réseau');
+  }
+}
+
+// ─── COLLECTIONS MANAGEMENT ───
+
+async function refreshCollections() {
+  const search = document.getElementById('collectionSearch').value.trim();
+  const organisateur = document.getElementById('collectionOrganisateurFilter').value;
+
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  if (organisateur) params.append('organisateur', organisateur);
+
+  try {
+    const response = await fetch(`/api/admin/collections?${params}`);
+    const result = await response.json();
+
+    if (result.success) {
+      populateCollectionsCards(result.data);
+      populateCollectionsDetails(result.data);
+      populateCollectionFilters(result.data);
+      document.getElementById('collectionsSummary').textContent = `${result.data.length} collections actives`;
+    } else {
+      showToast('Erreur lors du chargement des collections');
+    }
+  } catch (error) {
+    console.error('Error fetching collections:', error);
+    showToast('Erreur réseau');
+  }
+}
+
+function populateCollectionsCards(collections) {
+  const container = document.getElementById('collectionsCards');
+
+  const activeCollections = collections.filter(c => c.status === 'active').length;
+  const totalDonations = collections.reduce((sum, c) => sum + (c.currentAmount || 0), 0);
+
+  container.innerHTML = `
+    <div class="sc">
+      <div class="sc-head">
+        <div class="sc-icon" style="background:rgba(30,58,47,.07)">♻️</div>
+        <span class="badge b-active">Actives</span>
+      </div>
+      <div class="sc-val">${activeCollections}</div>
+      <div class="sc-lbl">Collections ouvertes</div>
+    </div>
+    <div class="sc">
+      <div class="sc-head">
+        <div class="sc-icon" style="background:rgba(16,185,129,.08)">✓</div>
+        <span class="badge b-active">+${collections.length}</span>
+      </div>
+      <div class="sc-val">${collections.length}</div>
+      <div class="sc-lbl">Collections totales</div>
+    </div>
+    <div class="sc">
+      <div class="sc-head">
+        <div class="sc-icon" style="background:rgba(201,169,110,.1)">⚖️</div>
+      </div>
+      <div class="sc-val">${totalDonations.toFixed(1)}</div>
+      <div class="sc-lbl">kg collectés</div>
+    </div>
+  `;
+}
+
+function populateCollectionsDetails(collections) {
+  const container = document.getElementById('collectionsDetails');
+
+  if (collections.length === 0) {
+    container.innerHTML = '<div class="blk"><div style="text-align:center;padding:30px;color:var(--muted)">Aucune collection trouvée.</div></div>';
+    return;
+  }
+
+  // Show first 2 collections as examples
+  const displayCollections = collections.slice(0, 2);
+
+  container.innerHTML = displayCollections.map(collection => {
+    const progress = collection.progress || 0;
+    const progressColor = progress > 50 ? 'var(--moss)' : progress > 25 ? 'var(--sand)' : '#e8c48a';
+
+    return `
+      <div class="blk">
+        <div class="blk-title">${collection.title} — ${collection.materialType}</div>
+        <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin:12px 0">
+          <div style="width:${Math.min(progress, 100)}%;height:100%;background:linear-gradient(to right,${progressColor},#${progressColor === 'var(--moss)' ? '7a9e7e' : progressColor === 'var(--sand)' ? 'e8c48a' : 'e8c48a'});border-radius:4px"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:.78rem;margin-bottom:14px">
+          <span style="color:${progress > 50 ? 'var(--success)' : 'var(--warn)'};font-weight:700">${collection.currentAmount} ${collection.unit}</span>
+          <span style="color:var(--muted)">/ ${collection.goalAmount} ${collection.unit} · ${progress.toFixed(0)}%</span>
+        </div>
+        <div style="text-align:center;padding:30px 0;color:var(--muted);font-size:.82rem">
+          ${collection.currentAmount > 0 ? 'Donations en cours...' : 'Aucune donation pour l\'instant.'}
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function populateCollectionFilters(collections) {
+  const organisateurFilter = document.getElementById('collectionOrganisateurFilter');
+
+  // Populate organisateurs
+  const organisateurs = [...new Set(collections.map(c => c.organisateur).filter(Boolean))];
+  organisateurFilter.innerHTML = '<option value="">Tous les organisateurs</option>' +
+    organisateurs.map(org => `<option value="${org}">${org}</option>`).join('');
+}
+
+// ─── DONATIONS MANAGEMENT ───
+
+async function refreshDonationsTable() {
+  const search = document.getElementById('donationSearch').value.trim();
+  const status = document.getElementById('donationStatusFilter').value;
+
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  if (status) params.append('status', status);
+
+  try {
+    const response = await fetch(`/api/admin/donations?${params}`);
+    const result = await response.json();
+
+    if (result.success) {
+      populateDonationsTable(result.data);
+      const confirmed = result.data.filter(d => d.status === 'confirmé').length;
+      const pending = result.data.filter(d => d.status === 'en_attente').length;
+      document.getElementById('donationsSummary').textContent = `${confirmed} confirmées · ${pending} en attente`;
+    } else {
+      showToast('Erreur lors du chargement des donations');
+    }
+  } catch (error) {
+    console.error('Error fetching donations:', error);
+    showToast('Erreur réseau');
+  }
+}
+
+function populateDonationsTable(donations) {
+  const tbody = document.getElementById('donationsTableBody');
+  const emptyState = document.getElementById('donationsEmptyState');
+
+  if (donations.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+
+  tbody.innerHTML = donations.map(donation => {
+    const userInitial = donation.donateur ? donation.donateur.prenom.charAt(0).toUpperCase() : '?';
+    const userName = donation.donateur ? `${donation.donateur.prenom} ${donation.donateur.nom}` : 'Anonyme';
+
+    return `
+      <tr>
+        <td>
+          <div class="user-cell">
+            <div class="uc-av" style="background:linear-gradient(135deg,#5a8a7a,#3d6b5a)">${userInitial}</div>
+            <div><div class="uc-name">${userName}</div></div>
+          </div>
+        </td>
+        <td style="color:var(--muted)">${donation.collection || 'N/A'}</td>
+        <td style="color:var(--success);font-weight:700">${donation.amount} ${donation.unit || ''}</td>
+        <td style="color:var(--muted)">${donation.donationDate || 'N/A'}</td>
+        <td><span class="badge ${donation.status === 'confirmé' ? 'b-active' : 'b-pending'}">${donation.status === 'confirmé' ? 'Confirmé' : 'En attente'}</span></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="showToast('Voir donation')">Voir</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+// ─── COUPONS MANAGEMENT ───
+
+async function refreshCouponsTable() {
+  const search = document.getElementById('couponSearch').value.trim();
+  const status = document.getElementById('couponStatusFilter').value;
+
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  if (status) params.append('status', status);
+
+  try {
+    const response = await fetch(`/api/admin/coupons?${params}`);
+    const result = await response.json();
+
+    if (result.success) {
+      populateCouponsTable(result.data);
+    } else {
+      showToast('Erreur lors du chargement des coupons');
+    }
+  } catch (error) {
+    console.error('Error fetching coupons:', error);
+    showToast('Erreur réseau');
+  }
+}
+
+function populateCouponsTable(coupons) {
+  const tbody = document.getElementById('couponsTableBody');
+  const emptyState = document.getElementById('couponsEmptyState');
+
+  if (coupons.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+
+  tbody.innerHTML = coupons.map(coupon => `
+    <tr>
+      <td style="font-weight:700;color:var(--moss)">${coupon.code}</td>
+      <td style="color:var(--success);font-weight:700">${coupon.discountPercent}%</td>
+      <td style="color:var(--muted)">${coupon.user || 'N/A'}</td>
+      <td style="color:var(--muted)">${coupon.donation || 'N/A'}</td>
+      <td style="color:var(--muted)">${coupon.expirationDate || 'N/A'}</td>
+      <td><span class="badge ${coupon.used ? 'b-danger' : 'b-pending'}">${coupon.used ? 'Utilisé' : 'Non utilisé'}</span></td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteCoupon(${coupon.id})">Suppr.</button></td>
+    </tr>
+  `).join('');
+}
+
+async function deleteCoupon(id) {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer ce coupon ?')) return;
+
+  try {
+    const response = await fetch(`/api/admin/coupons/${id}`, { method: 'DELETE' });
+    const result = await response.json();
+
+    if (result.success) {
+      showToast('Coupon supprimé');
+      refreshCouponsTable();
+    } else {
+      showToast('Erreur lors de la suppression');
+    }
+  } catch (error) {
+    showToast('Erreur réseau');
+  }
+}
+
+// ─── FEEDBACKS MANAGEMENT ───
+
+async function refreshFeedbacksTable() {
+  const search = document.getElementById('feedbackSearch').value.trim();
+  const rating = document.getElementById('feedbackRatingFilter').value;
+
+  const params = new URLSearchParams();
+  if (search) params.append('search', search);
+  if (rating) params.append('rating', rating);
+
+  try {
+    const response = await fetch(`/api/admin/feedbacks?${params}`);
+    const result = await response.json();
+
+    if (result.success) {
+      populateFeedbacksTable(result.data);
+      document.getElementById('feedbacksSummary').textContent = `${result.data.length} avis`;
+    } else {
+      showToast('Erreur lors du chargement des avis');
+    }
+  } catch (error) {
+    console.error('Error fetching feedbacks:', error);
+    showToast('Erreur réseau');
+  }
+}
+
+function populateFeedbacksTable(feedbacks) {
+  const tbody = document.getElementById('feedbacksTableBody');
+  const emptyState = document.getElementById('feedbacksEmptyState');
+
+  if (feedbacks.length === 0) {
+    tbody.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+
+  tbody.innerHTML = feedbacks.map(feedback => `
+    <tr>
+      <td style="font-weight:600">${feedback.produit || 'N/A'}</td>
+      <td style="color:var(--muted)">${feedback.user || 'Anonyme'}</td>
+      <td style="color:var(--sand)">★ ${feedback.note}/5</td>
+      <td style="color:var(--muted);font-size:.75rem;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${feedback.commentaire}">${feedback.commentaire}</td>
+      <td style="color:var(--muted)">${feedback.dateCommentaire || 'N/A'}</td>
+      <td><button class="btn btn-danger btn-sm" onclick="deleteFeedback(${feedback.id})">Suppr.</button></td>
+    </tr>
+  `).join('');
+}
+
+async function deleteFeedback(id) {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer cet avis ?')) return;
+
+  try {
+    const response = await fetch(`/api/admin/feedbacks/${id}`, { method: 'DELETE' });
+    const result = await response.json();
+
+    if (result.success) {
+      showToast('Avis supprimé');
+      refreshFeedbacksTable();
+    } else {
+      showToast('Erreur lors de la suppression');
+    }
+  } catch (error) {
+    showToast('Erreur réseau');
+  }
+}
 
 document.addEventListener('keydown', e => {
   document.querySelectorAll('.moverlay.open').forEach(m => { if (e.key === 'Escape') m.classList.remove('open'); });

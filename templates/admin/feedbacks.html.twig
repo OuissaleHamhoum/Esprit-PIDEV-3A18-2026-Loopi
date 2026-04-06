@@ -1,15 +1,24 @@
 <!-- ─── PAGE: FEEDBACKS ─── -->
   <div id="page-feedbacks" style="display:none">
     <div class="blk">
-      <div class="blk-title">Avis & Feedbacks <span class="sub">Modération des commentaires</span></div>
+      <div class="blk-title">Avis & Feedbacks <span class="sub" id="feedbacksSummary">Modération des commentaires</span></div>
       <div class="alert alert-info">ℹ️ Les avis avec des mots inappropriés sont automatiquement signalés.</div>
+      <div class="search-bar">
+        <input id="feedbackSearch" class="search-input" placeholder="🔍 Rechercher par produit ou utilisateur…">
+        <select id="feedbackRatingFilter" class="filter">
+          <option value="">Toutes les notes</option>
+          <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+          <option value="4">⭐⭐⭐⭐ (4)</option>
+          <option value="3">⭐⭐⭐ (3)</option>
+          <option value="2">⭐⭐ (2)</option>
+          <option value="1">⭐ (1)</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="refreshFeedbacksTable()">🔄 Actualiser</button>
+      </div>
       <table class="tbl">
         <thead><tr><th>Produit</th><th>Utilisateur</th><th>Note</th><th>Commentaire</th><th>Date</th><th>Actions</th></tr></thead>
-        <tbody>
-          <tr><td style="font-weight:600">🪵 3D Mosaic</td><td style="color:var(--muted)">Test Participant</td><td style="color:var(--sand)">★ 5/5</td><td style="color:var(--muted);font-size:.75rem">Magnifique, l'art du recyclage à son meilleur !</td><td style="color:var(--muted)">15 Fév 2026</td><td><button class="btn btn-danger btn-sm" onclick="showToast('Supprimer avis?')">Suppr.</button></td></tr>
-          <tr><td style="font-weight:600">🫙 Glass Artwork</td><td style="color:var(--muted)">Marie Dupont</td><td style="color:var(--sand)">★ 4/5</td><td style="color:var(--muted);font-size:.75rem">Très beau travail, le verre recyclé est impressionnant.</td><td style="color:var(--muted)">12 Fév 2026</td><td><button class="btn btn-danger btn-sm" onclick="showToast('Supprimer avis?')">Suppr.</button></td></tr>
-          <tr><td style="font-weight:600">🪑 Chaise Artisanale</td><td style="color:var(--muted)">Ali Ben</td><td style="color:var(--sand)">★ 5/5</td><td style="color:var(--muted);font-size:.75rem">On ne croirait jamais que c'est du recyclé !</td><td style="color:var(--muted)">10 Fév 2026</td><td><button class="btn btn-danger btn-sm" onclick="showToast('Supprimer avis?')">Suppr.</button></td></tr>
-        </tbody>
+        <tbody id="feedbacksTableBody"></tbody>
       </table>
+      <div id="feedbacksEmptyState" style="display:none;padding:18px;color:var(--muted)">Aucun avis trouvé.</div>
     </div>
   </div>
