@@ -1674,7 +1674,7 @@
 </footer>
 
 <!-- ── AUTH MODAL ── -->
-<div class="modal-overlay" id="authModal" onclick="closeModalOutside(event)">
+<div class="modal-overlay" id="authModal" onclick="closeModalOutside(event)" data-csrf="{{ csrf_token('authenticate') }}">
   <div class="modal">
     <button class="modal-close" onclick="closeModal()">✕</button>
     <div class="modal-header">
@@ -1688,20 +1688,19 @@
     <div class="modal-body">
       <!-- LOGIN -->
       <div class="form-panel active" id="loginPanel">
-        <form method="post" action="/login">
-          {% if error is defined and error %}
-            <div class="form-error" style="color:#f55; margin-bottom:16px; text-align:center;">{{ error }}</div>
-          {% endif %}
+        <div id="loginErrorContainer" style="color:#f55; margin-bottom:16px; text-align:center; display:none;"></div>
+        <form id="loginForm" onsubmit="handleLoginSubmit(event)">
           <div class="form-group">
             <label>Adresse email</label>
-            <input type="email" name="_username" value="{{ last_username|default('')|e }}" placeholder="votre@email.com" required>
+            <input type="email" id="loginEmail" placeholder="votre@email.com" required>
+            <small id="loginEmailError" style="color:#f55; display:none;"></small>
           </div>
           <div class="form-group">
             <label>Mot de passe</label>
-            <input type="password" name="_password" placeholder="••••••••" required>
+            <input type="password" id="loginPassword" placeholder="••••••••" required>
+            <small id="loginPasswordError" style="color:#f55; display:none;"></small>
           </div>
-          <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
-          <button class="btn-submit" type="submit">Se connecter</button>
+          <button class="btn-submit" type="submit" id="loginBtn">Se connecter</button>
         </form>
         <div class="form-divider">ou</div>
         <div style="text-align:center; font-size:0.8rem; color:var(--muted)">
@@ -1710,31 +1709,33 @@
       </div>
       <!-- SIGNUP -->
       <div class="form-panel" id="signupPanel">
-        <form method="post" action="/register">
-          {% if error is defined and error and auth == 'register' %}
-            <div class="form-error" style="color:#f55; margin-bottom:16px; text-align:center;">{{ error }}</div>
-          {% endif %}
+        <div id="signupErrorContainer" style="color:#f55; margin-bottom:16px; text-align:center; display:none;"></div>
+        <form id="signupForm" onsubmit="handleSignupSubmit(event)">
           <div class="form-row">
             <div class="form-group">
               <label>Nom</label>
-              <input type="text" name="nom" placeholder="Votre nom" required>
+              <input type="text" id="signupNom" placeholder="Votre nom" required>
+              <small id="signupNomError" style="color:#f55; display:none;"></small>
             </div>
             <div class="form-group">
               <label>Prénom</label>
-              <input type="text" name="prenom" placeholder="Votre prénom" required>
+              <input type="text" id="signupPrenom" placeholder="Votre prénom" required>
+              <small id="signupPrenomError" style="color:#f55; display:none;"></small>
             </div>
           </div>
           <div class="form-group">
             <label>Email</label>
-            <input type="email" name="email" placeholder="votre@email.com" required>
+            <input type="email" id="signupEmail" placeholder="votre@email.com" required>
+            <small id="signupEmailError" style="color:#f55; display:none;"></small>
           </div>
           <div class="form-group">
             <label>Mot de passe</label>
-            <input type="password" name="password" placeholder="Min. 6 caractères" required>
+            <input type="password" id="signupPassword" placeholder="Min. 6 caractères" required>
+            <small id="signupPasswordError" style="color:#f55; display:none;"></small>
           </div>
           <div class="form-group">
             <label>Je suis…</label>
-            <input type="hidden" id="roleInput" name="role" value="participant">
+            <input type="hidden" id="roleInput" value="participant">
             <div class="role-select-group">
               <div class="role-btn selected" onclick="selectRole(this)">
                 <div class="r-icon">👤</div>
@@ -1750,7 +1751,7 @@
               </div>
             </div>
           </div>
-          <button class="btn-submit" type="submit">Rejoindre Loopi</button>
+          <button class="btn-submit" type="submit" id="signupBtn">Rejoindre Loopi</button>
         </form>
         <div class="form-divider">ou</div>
         <div style="text-align:center; font-size:0.8rem; color:var(--muted)">
@@ -1786,6 +1787,206 @@
     el.classList.add('selected');
     const role = el.querySelector('.r-name').textContent.trim().toLowerCase();
     document.getElementById('roleInput').value = role;
+  }
+
+  // Clear error messages
+  function clearErrors(prefix) {
+    document.querySelectorAll(`[id^="${prefix}"][id$="Error"]`).forEach(el => {
+      el.textContent = '';
+      el.style.display = 'none';
+    });
+    const container = document.getElementById(`${prefix}ErrorContainer`);
+    if (container) {
+      container.textContent = '';
+      container.style.display = 'none';
+    }
+  }
+
+  function showError(fieldId, message) {
+    const el = document.getElementById(fieldId);
+    if (el) {
+      el.textContent = message;
+      el.style.display = 'block';
+    }
+  }
+
+  // Email validation helper
+  function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  }
+
+  // HTML escape to prevent XSS
+  function escapeHtml(text) {
+    const map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
+    };
+    return text.replace(/[&<>"']/g, m => map[m]);
+  }
+
+  // Login AJAX handler
+  async function handleLoginSubmit(event) {
+    event.preventDefault();
+    clearErrors('login');
+
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const btn = document.getElementById('loginBtn');
+
+    // Client-side validation
+    if (!email) {
+      showError('loginEmailError', 'Email est requis.');
+      return;
+    }
+    if (!password) {
+      showError('loginPasswordError', 'Mot de passe est requis.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Connexion en cours...';
+
+    try {
+      // First: Validate credentials via API
+      const response = await fetch('/api/login-validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Credentials valid - now do actual login via form to establish session
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/login';
+        form.style.display = 'none';
+        
+        const csrfToken = document.getElementById('authModal').getAttribute('data-csrf');
+        form.innerHTML = `
+          <input type="hidden" name="_username" value="${escapeHtml(email)}">
+          <input type="hidden" name="_password" value="${escapeHtml(password)}">
+          <input type="hidden" name="_csrf_token" value="${escapeHtml(csrfToken)}">
+        `;
+        
+        document.body.appendChild(form);
+        form.submit();
+      } else {
+        // Show errors
+        if (data.errors) {
+          Object.entries(data.errors).forEach(([field, msg]) => {
+            showError(`login${field.charAt(0).toUpperCase() + field.slice(1)}Error`, msg);
+          });
+        } else if (data.message) {
+          document.getElementById('loginErrorContainer').textContent = data.message;
+          document.getElementById('loginErrorContainer').style.display = 'block';
+        }
+      }
+    } catch (error) {
+      console.error('Login error:', error);
+      document.getElementById('loginErrorContainer').textContent = 'Erreur serveur. Réessayez plus tard.';
+      document.getElementById('loginErrorContainer').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Se connecter';
+    }
+  }
+
+  // Signup AJAX handler
+  async function handleSignupSubmit(event) {
+    event.preventDefault();
+    clearErrors('signup');
+
+    const nom = document.getElementById('signupNom').value.trim();
+    const prenom = document.getElementById('signupPrenom').value.trim();
+    const email = document.getElementById('signupEmail').value.trim();
+    const password = document.getElementById('signupPassword').value;
+    const role = document.getElementById('roleInput').value;
+    const btn = document.getElementById('signupBtn');
+
+    // Client-side validation
+    let hasErrors = false;
+
+    if (!nom) {
+      showError('signupNomError', 'Nom est requis.');
+      hasErrors = true;
+    } else if (nom.length < 2) {
+      showError('signupNomError', 'Nom doit contenir au moins 2 caractères.');
+      hasErrors = true;
+    }
+
+    if (!prenom) {
+      showError('signupPrenomError', 'Prénom est requis.');
+      hasErrors = true;
+    } else if (prenom.length < 2) {
+      showError('signupPrenomError', 'Prénom doit contenir au moins 2 caractères.');
+      hasErrors = true;
+    }
+
+    if (!email) {
+      showError('signupEmailError', 'Email est requis.');
+      hasErrors = true;
+    } else if (!isValidEmail(email)) {
+      showError('signupEmailError', 'Email invalide.');
+      hasErrors = true;
+    }
+
+    if (!password) {
+      showError('signupPasswordError', 'Mot de passe est requis.');
+      hasErrors = true;
+    } else if (password.length < 6) {
+      showError('signupPasswordError', 'Mot de passe doit contenir au moins 6 caractères.');
+      hasErrors = true;
+    }
+
+    if (hasErrors) return;
+
+    btn.disabled = true;
+    btn.textContent = 'Création en cours...';
+
+    try {
+      const response = await fetch('/api/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ nom, prenom, email, password, role })
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        // Successful registration
+        document.getElementById('signupForm').reset();
+        document.getElementById('roleInput').value = 'participant';
+        document.querySelectorAll('.role-btn').forEach((b, i) => {
+          b.classList.toggle('selected', i === 0);
+        });
+        switchTab('login');
+        document.getElementById('loginErrorContainer').textContent = data.message || 'Compte créé! Connectez-vous maintenant.';
+        document.getElementById('loginErrorContainer').style.display = 'block';
+        document.getElementById('loginEmail').focus();
+      } else {
+        // Show errors
+        if (data.errors) {
+          Object.entries(data.errors).forEach(([field, msg]) => {
+            showError(`signup${field.charAt(0).toUpperCase() + field.slice(1)}Error`, msg);
+          });
+        } else if (data.message) {
+          document.getElementById('signupErrorContainer').textContent = data.message;
+          document.getElementById('signupErrorContainer').style.display = 'block';
+        }
+      }
+    } catch (error) {
+      console.error('Signup error:', error);
+      document.getElementById('signupErrorContainer').textContent = 'Erreur serveur. Réessayez plus tard.';
+      document.getElementById('signupErrorContainer').style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Rejoindre Loopi';
+    }
   }
 
   document.addEventListener('DOMContentLoaded', () => {
