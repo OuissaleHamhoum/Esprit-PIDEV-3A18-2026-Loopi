@@ -1,22 +1,25 @@
 <!-- ─── PAGE: USERS ─── -->
   <div id="page-users" style="display:none">
     <div class="blk" style="margin-bottom:16px">
-      <div class="blk-title">Gestion des utilisateurs <span class="sub">11 comptes enregistrés</span></div>
+      <div class="blk-title">Gestion des utilisateurs <span class="sub" id="usersSummary">0 comptes enregistrés</span></div>
       <div class="search-bar">
-        <input class="search-input" placeholder="🔍 Rechercher un utilisateur…">
-        <select class="filter"><option>Tous les rôles</option><option>Admin</option><option>Organisateur</option><option>Participant</option></select>
-        <button class="btn btn-ghost btn-sm" onclick="showToast('Export CSV en cours…')">📥 Exporter</button>
-        <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openModal('userModal')">+ Ajouter</button>
+        <input id="userSearch" class="search-input" placeholder="🔍 Rechercher par nom, email…">
+        <select id="userRoleFilter" class="filter">
+          <option value="">Tous les rôles</option>
+          <option value="admin">Admin</option>
+          <option value="organisateur">Organisateur</option>
+          <option value="participant">Participant</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="exportUsersCsv()">📥 Exporter CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('csvImportInput').click()">📤 Importer CSV</button>
+        <button class="btn btn-ghost btn-sm" onclick="refreshUserTable()">🔄 Actualiser</button>
+        <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openUserModal('create')">+ Ajouter</button>
+        <input type="file" id="csvImportInput" accept=".csv" style="display:none" onchange="handleCsvImport(event)">
       </div>
       <table class="tbl">
         <thead><tr><th>Utilisateur</th><th>Email</th><th>Rôle</th><th>Genre</th><th>Inscription</th><th>Dernière MAJ</th><th>Actions</th></tr></thead>
-        <tbody>
-          <tr><td><div class="user-cell"><div class="uc-av" style="background:linear-gradient(135deg,#B05A2F,#d4783c)">A</div><div><div class="uc-name">Admin System</div></div></div></td><td style="color:var(--muted)">admin@loopi.tn</td><td><span class="badge b-admin">Admin</span></td><td style="color:var(--muted)">M</td><td style="color:var(--muted)">8 Fév 2026</td><td style="color:var(--muted)">2 Mar 2026</td><td><button class="btn btn-ghost btn-sm" onclick="showToast('Éditer Admin')">Éditer</button></td></tr>
-          <tr><td><div class="user-cell"><div class="uc-av" style="background:linear-gradient(135deg,var(--moss),var(--forest))">E</div><div><div class="uc-name">Eco Organisateur</div></div></div></td><td style="color:var(--muted)">organisateur@loopi.tn</td><td><span class="badge b-org">Organisateur</span></td><td style="color:var(--muted)">M</td><td style="color:var(--muted)">8 Fév 2026</td><td style="color:var(--muted)">2 Mar 2026</td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="showToast('Éditer')">Éditer</button><button class="btn btn-danger btn-sm" onclick="showToast('Suspendre?')">Susp.</button><button class="btn btn-danger btn-sm" onclick="showToast('Supprimer?')">Suppr.</button></div></td></tr>
-          <tr><td><div class="user-cell"><div class="uc-av" style="background:linear-gradient(135deg,#5a8a7a,#3d6b5a)">T</div><div><div class="uc-name">Test Participant</div></div></div></td><td style="color:var(--muted)">participant@loopi.tn</td><td><span class="badge b-part">Participant</span></td><td style="color:var(--muted)">F</td><td style="color:var(--muted)">8 Fév 2026</td><td style="color:var(--muted)">2 Mar 2026</td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="showToast('Éditer')">Éditer</button><button class="btn btn-danger btn-sm" onclick="showToast('Supprimer?')">Suppr.</button></div></td></tr>
-          <tr><td><div class="user-cell"><div class="uc-av" style="background:linear-gradient(135deg,#8a7a5a,#6b5a3d)">B</div><div><div class="uc-name">Ali Ben</div></div></div></td><td style="color:var(--muted)">ben.ali@email.com</td><td><span class="badge b-part">Participant</span></td><td style="color:var(--muted)">M</td><td style="color:var(--muted)">8 Fév 2026</td><td style="color:var(--muted)">8 Fév 2026</td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="showToast('Éditer')">Éditer</button><button class="btn btn-danger btn-sm" onclick="showToast('Supprimer?')">Suppr.</button></div></td></tr>
-          <tr><td><div class="user-cell"><div class="uc-av" style="background:linear-gradient(135deg,#7a8a9a,#4a6a7a)">M</div><div><div class="uc-name">Marie Dupont</div></div></div></td><td style="color:var(--muted)">marie.dupont@email.com</td><td><span class="badge b-part">Participant</span></td><td style="color:var(--muted)">F</td><td style="color:var(--muted)">8 Fév 2026</td><td style="color:var(--muted)">8 Fév 2026</td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="showToast('Éditer')">Éditer</button><button class="btn btn-danger btn-sm" onclick="showToast('Supprimer?')">Suppr.</button></div></td></tr>
-        </tbody>
+        <tbody id="usersTableBody"></tbody>
       </table>
+      <div id="usersEmptyState" style="display:none;padding:18px;color:var(--muted)">Aucun utilisateur trouvé. Essayez de réinitialiser ou de modifier le filtre.</div>
     </div>
   </div>

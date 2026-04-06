@@ -96,7 +96,7 @@ nav.snav{padding:12px 10px;flex:1;overflow-y:auto}
 .tbl tr:last-child td{border-bottom:none}
 .tbl tr:hover td{background:rgba(30,58,47,.02)}
 .user-cell{display:flex;align-items:center;gap:9px}
-.uc-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:white;flex-shrink:0}
+.uc-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:white;flex-shrink:0;overflow:hidden;background-size:cover;background-position:center}
 .uc-name{font-weight:600;color:var(--forest);font-size:.8rem}
 .uc-email{font-size:.66rem;color:var(--muted)}
 
@@ -148,6 +148,26 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
 
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 .content>*{animation:fadeUp .35s ease both}
+
+/* PHOTO SECTION */
+.photo-section{margin-bottom:16px;padding:14px;background:var(--bg);border-radius:10px;border:1.5px solid var(--border)}
+.photo-preview{width:140px;height:140px;border-radius:12px;margin:0 auto 12px;overflow:hidden;background:var(--cream);display:flex;align-items:center;justify-content:center;border:2px solid var(--border)}
+.photo-preview img{width:100%;height:100%;object-fit:cover}
+.photo-preview.empty{background:linear-gradient(135deg,var(--moss),var(--sage));color:white;font-size:3rem}
+.photo-buttons{display:flex;gap:8px;justify-content:center}
+.photo-buttons button{padding:6px 12px;font-size:.75rem;border-radius:7px;border:1.5px solid var(--border);background:white;color:var(--forest);cursor:pointer;transition:all .18s;font-weight:500}
+.photo-buttons button:hover{background:var(--forest);color:white;border-color:var(--forest)}
+#photoCanvas{display:none}
+#cameraModal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:10000;align-items:center;justify-content:center;flex-direction:column}
+#cameraModal.active{display:flex}
+.camera-container{background:white;border-radius:14px;padding:14px;max-width:500px}
+.camera-container video{width:100%;border-radius:10px;margin-bottom:12px;display:block}
+.camera-buttons{display:flex;gap:8px;justify-content:center}
+.camera-buttons button{padding:8px 16px;border-radius:8px;border:none;font-weight:600;cursor:pointer;font-size:.8rem}
+.camera-buttons .capture{background:var(--forest);color:white}
+.camera-buttons .capture:hover{background:var(--moss)}
+.camera-buttons .cancel{background:var(--bg);color:var(--forest);border:1px solid var(--border)}
+.camera-buttons .cancel:hover{background:var(--border)}
 </style>
 </head>
 <body>
@@ -175,7 +195,7 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
     </div>
     <div class="h-right">
       <div class="h-notif" onclick="showToast('3 nouvelles notifications')">🔔<span class="dot"></span></div>
-      <button class="btn btn-primary btn-sm" onclick="openModal('userModal')">+ Ajouter utilisateur</button>
+      <button class="btn btn-primary btn-sm" onclick="openUserModal('create')">+ Ajouter utilisateur</button>
     </div>
   </div>
 
@@ -195,27 +215,54 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
 </main>
 
 <!-- MODAL AJOUTER UTILISATEUR -->
-<div class="moverlay" id="userModal" onclick="if(event.target===this)closeModal('userModal')">
+<div class="moverlay" id="userModal" onclick="if(event.target===this)closeUserModal()">
   <div class="modal">
-    <div class="modal-hd">Ajouter un utilisateur <button class="modal-close" onclick="closeModal('userModal')">✕</button></div>
-    <div class="frow2">
-      <div class="fg"><label>Nom</label><input placeholder="Dupont"></div>
-      <div class="fg"><label>Prénom</label><input placeholder="Marie"></div>
+    <div class="modal-hd" id="userModalTitle">Ajouter un utilisateur <button class="modal-close" onclick="closeUserModal()">✕</button></div>
+    <div id="userFormErrors" style="color:#b91c1c;font-size:.82rem;margin-bottom:12px;display:none"></div>
+    <input type="hidden" id="userId">
+    <input type="hidden" id="userPhoto">
+    
+    <!-- Photo Section -->
+    <div class="photo-section">
+      <div class="photo-preview empty" id="photoPreview">📸</div>
+      <div class="photo-buttons" id="photoButtons">
+        <button type="button" onclick="startCamera()">📷 Caméra</button>
+        <button type="button" onclick="document.getElementById('photoFile').click()">📤 Télécharger</button>
+        <button type="button" onclick="clearPhoto()">✕ Effacer</button>
+      </div>
+      <input type="file" id="photoFile" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
     </div>
-    <div class="fg"><label>Email</label><input type="email" placeholder="marie@loopi.tn"></div>
-    <div class="fg"><label>Mot de passe</label><input type="password" placeholder="••••••••"></div>
+    
     <div class="frow2">
-      <div class="fg"><label>Rôle</label><select><option>participant</option><option>organisateur</option><option>admin</option></select></div>
-      <div class="fg"><label>Genre</label><select><option>Masculin</option><option>Féminin</option></select></div>
+      <div class="fg"><label>Nom</label><input id="userNom" placeholder="Dupont"></div>
+      <div class="fg"><label>Prénom</label><input id="userPrenom" placeholder="Marie"></div>
+    </div>
+    <div class="fg"><label>Email</label><input type="email" id="userEmail" placeholder="marie@loopi.tn"></div>
+    <div class="fg"><label>Mot de passe</label><input type="password" id="userPassword" placeholder="••••••••"></div>
+    <div class="frow2">
+      <div class="fg"><label>Rôle</label><select id="userRole"><option value="participant">Participant</option><option value="organisateur">Organisateur</option><option value="admin">Admin</option></select></div>
+      <div class="fg"><label>Genre</label><select id="userGenre"><option value="">Aucun</option><option value="Masculin">Masculin</option><option value="Féminin">Féminin</option></select></div>
     </div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:6px">
-      <button class="btn btn-ghost" onclick="closeModal('userModal')">Annuler</button>
-      <button class="btn btn-primary" onclick="closeModal('userModal');showToast('Utilisateur créé avec succès ✓')">Créer le compte</button>
+      <button class="btn btn-ghost" type="button" onclick="closeUserModal()">Annuler</button>
+      <button class="btn btn-primary" type="button" id="userModalSubmit" onclick="submitUserForm(event)">Créer le compte</button>
     </div>
   </div>
 </div>
 
 <div class="toast" id="toast"></div>
+
+<!-- Camera Modal -->
+<div id="cameraModal">
+  <div class="camera-container">
+    <video id="cameraVideo" playsinline></video>
+    <canvas id="photoCanvas" style="display:none"></canvas>
+    <div class="camera-buttons">
+      <button type="button" class="capture" onclick="capturePhoto()">📸 Capturer</button>
+      <button type="button" class="cancel" onclick="closeCamera()">Annuler</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const breadcrumbs = {
@@ -223,24 +270,494 @@ const breadcrumbs = {
   products:'Produits', collections:'Collections', donations:'Donations', coupons:'Coupons',
   feedbacks:'Avis & Feedbacks', settings:'Paramètres', notifs:'Notifications'
 };
+let adminUsers = [];
+let userModalMode = 'create';
+
 function goPage(name, navEl) {
   document.querySelectorAll('[id^=page-]').forEach(p => p.style.display = 'none');
   document.getElementById('page-' + name).style.display = 'block';
   document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
   document.getElementById('breadcrumb-text').textContent = breadcrumbs[name] || name;
+  if (name === 'users') {
+    refreshUserTable();
+  }
 }
+
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function closeUserModal() {
+  resetUserForm();
+  closeModal('userModal');
+}
+
+function openUserModal(mode, id = null) {
+  userModalMode = mode;
+  const title = document.getElementById('userModalTitle');
+  const submitButton = document.getElementById('userModalSubmit');
+  const formErrors = document.getElementById('userFormErrors');
+  const photoButtons = document.getElementById('photoButtons');
+
+  formErrors.style.display = 'none';
+  formErrors.textContent = '';
+
+  if (mode === 'create') {
+    title.innerHTML = 'Ajouter un utilisateur <button class="modal-close" onclick="closeUserModal()">✕</button>';
+    submitButton.textContent = 'Créer le compte';
+    submitButton.style.display = 'inline-flex';
+    photoButtons.style.display = 'flex';
+    fillUserForm({ nom: '', prenom: '', email: '', password: '', role: 'participant', genre: '' });
+    setFormDisabled(false);
+  } else {
+    const user = adminUsers.find(u => u.id === id);
+    if (!user) {
+      showToast('Utilisateur introuvable.');
+      return;
+    }
+    fillUserForm(user);
+
+    if (mode === 'edit') {
+      title.innerHTML = 'Modifier un utilisateur <button class="modal-close" onclick="closeUserModal()">✕</button>';
+      submitButton.textContent = 'Enregistrer';
+      submitButton.style.display = 'inline-flex';
+      photoButtons.style.display = 'flex';
+      setFormDisabled(false);
+      document.getElementById('userPassword').placeholder = 'Laisser vide pour conserver le mot de passe';
+    } else {
+      title.innerHTML = 'Détails utilisateur <button class="modal-close" onclick="closeUserModal()">✕</button>';
+      submitButton.textContent = 'Fermer';
+      submitButton.style.display = 'inline-flex';
+      photoButtons.style.display = 'none';
+      setFormDisabled(true);
+    }
+  }
+
+  openModal('userModal');
+}
+
+function setFormDisabled(disabled) {
+  ['userNom', 'userPrenom', 'userEmail', 'userPassword', 'userRole', 'userGenre'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.disabled = disabled;
+  });
+}
+
+function fillUserForm(user) {
+  document.getElementById('userId').value = user.id || '';
+  document.getElementById('userNom').value = user.nom || '';
+  document.getElementById('userPrenom').value = user.prenom || '';
+  document.getElementById('userEmail').value = user.email || '';
+  document.getElementById('userPassword').value = '';
+  document.getElementById('userRole').value = user.role || 'participant';
+  document.getElementById('userGenre').value = user.genre || '';
+  document.getElementById('userPhoto').value = '';
+  
+  // Display photo if exists
+  const preview = document.getElementById('photoPreview');
+  if (user.photoUrl && user.photoUrl !== '/uploads/users/default.jpg') {
+    preview.innerHTML = `<img src="${user.photoUrl}?t=${Date.now()}" alt="Photo" style="width:100%;height:100%;object-fit:cover">`;
+    preview.classList.remove('empty');
+  } else {
+    preview.innerHTML = '📸';
+    preview.classList.add('empty');
+  }
+}
+
+function resetUserForm() {
+  document.getElementById('userFormErrors').style.display = 'none';
+  document.getElementById('userFormErrors').textContent = '';
+  userModalMode = 'create';
+  fillUserForm({ nom: '', prenom: '', email: '', password: '', role: 'participant', genre: '' });
+  document.getElementById('userPassword').placeholder = '••••••••';
+  document.getElementById('photoButtons').style.display = 'flex';
+  setFormDisabled(false);
+  clearPhoto();
+}
+
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
+
+function handleCsvImport(event) {
+  const file = event.target.files[0];
+  if (!file) {
+    return;
+  }
+  importUsersCsv(file);
+  event.target.value = '';
+}
+
+async function importUsersCsv(file) {
+  const formData = new FormData();
+  formData.append('csv', file);
+  try {
+    const response = await fetch('/api/admin/users/import', {
+      method: 'POST',
+      body: formData
+    });
+    const result = await response.json();
+    if (result.success) {
+      showToast(result.message || 'Import terminé.');
+      refreshUserTable();
+    } else {
+      showToast(result.message || 'Erreur lors de l\'import CSV.');
+    }
+  } catch (error) {
+    showToast('Erreur réseau lors de l\'import.');
+  }
+}
+
+async function submitUserForm(event) {
+  event.preventDefault();
+  const errorsElement = document.getElementById('userFormErrors');
+  errorsElement.style.display = 'none';
+  errorsElement.textContent = '';
+
+  const userId = document.getElementById('userId').value;
+  const nom = document.getElementById('userNom').value.trim();
+  const prenom = document.getElementById('userPrenom').value.trim();
+  const email = document.getElementById('userEmail').value.trim();
+  const password = document.getElementById('userPassword').value;
+  const role = document.getElementById('userRole').value;
+  const genre = document.getElementById('userGenre').value;
+  const photo = document.getElementById('userPhoto').value;
+
+  if (userModalMode === 'show') {
+    closeUserModal();
+    return;
+  }
+
+  const payload = { nom, prenom, email, role, genre };
+  if (password) {
+    payload.password = password;
+  }
+  if (photo) {
+    payload.photo = photo;
+  }
+
+  const method = userModalMode === 'edit' ? 'PUT' : 'POST';
+  const url = userModalMode === 'edit' ? `/api/admin/user/${userId}` : '/api/admin/user';
+
+  console.log('[User Form] Mode:', userModalMode, 'URL:', url, 'Payload:', payload);
+
+  if (!nom || !prenom || !email || (userModalMode === 'create' && !password)) {
+    errorsElement.style.display = 'block';
+    errorsElement.textContent = 'Tous les champs obligatoires doivent être remplis. Le mot de passe est requis lors de la création.';
+    return;
+  }
+
+  try {
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    console.log('[User Form] Response status:', response.status, response.statusText);
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        errorsElement.style.display = 'block';
+        errorsElement.textContent = 'Vous n\'êtes pas autorisé. Veuillez vous reconnecter.';
+        return;
+      } else if (response.status === 403) {
+        errorsElement.style.display = 'block';
+        errorsElement.textContent = 'Vous n\'avez pas les permissions requises.';
+        return;
+      }
+    }
+
+    const result = await response.json();
+    console.log('[User Form] API Response:', result);
+
+    if (result.success) {
+      showToast(userModalMode === 'edit' ? 'Utilisateur mis à jour.' : 'Utilisateur créé.');
+      closeUserModal();
+      refreshUserTable();
+    } else {
+      errorsElement.style.display = 'block';
+      if (result.errors) {
+        errorsElement.innerHTML = Object.values(result.errors).join('<br>');
+      } else {
+        errorsElement.textContent = result.message || 'Erreur lors du traitement du formulaire.';
+      }
+    }
+  } catch (error) {
+    errorsElement.style.display = 'block';
+    errorsElement.textContent = 'Erreur réseau: ' + error.message;
+    console.error('[User Form] Error:', error);
+  }
+}
+
+async function refreshUserTable() {
+  const search = document.getElementById('userSearch').value.trim();
+  const role = document.getElementById('userRoleFilter').value;
+  await fetchAdminUsers(search, role);
+}
+
+async function fetchAdminUsers(search = '', role = '') {
+  const params = new URLSearchParams();
+  if (search) params.set('q', search);
+  if (role) params.set('role', role);
+
+  const url = '/api/admin/users?' + params.toString();
+  console.log('[Admin Users] Fetching:', url);
+
+  try {
+    const response = await fetch(url);
+    console.log('[Admin Users] Response status:', response.status, response.statusText);
+
+    if (!response.ok) {
+      if (response.status === 401) {
+        showToast('Session expirée. Veuillez vous reconnecter.');
+        window.location.href = '/logout';
+        return;
+      } else if (response.status === 403) {
+        showToast('Accès refusé. Vous devez être administrateur.');
+        return;
+      } else if (response.status === 404) {
+        showToast('Endpoint API non trouvé. Veuillez vérifier la configuration.');
+        console.error('API endpoint not found:', response.status);
+        return;
+      }
+    }
+
+    const result = await response.json();
+    console.log('[Admin Users] API Response:', result);
+    
+    if (!result.success) {
+      showToast('Impossible de charger les utilisateurs: ' + (result.message || 'Erreur inconnue'));
+      console.error('Load users error:', result);
+      return;
+    }
+    adminUsers = result.users || [];
+    console.log('[Admin Users] Loaded:', adminUsers.length, 'users');
+    renderUsersTable(adminUsers);
+  } catch (error) {
+    showToast('Erreur de connexion: ' + error.message);
+    console.error('Fetch error:', error);
+  }
+}
+
+function renderUsersTable(users) {
+  const tbody = document.getElementById('usersTableBody');
+  const emptyState = document.getElementById('usersEmptyState');
+  const summary = document.getElementById('usersSummary');
+  if (!tbody || !emptyState || !summary) return;
+
+  if (!users.length) {
+    tbody.innerHTML = '';
+    emptyState.style.display = 'block';
+    summary.textContent = '0 comptes enregistrés';
+    return;
+  }
+
+  emptyState.style.display = 'none';
+  summary.textContent = `${users.length} comptes enregistrés`;
+  tbody.innerHTML = users.map(user => {
+    const avatarHtml = user.photoUrl && user.photoUrl !== '/uploads/users/default.jpg' 
+      ? `<div class="uc-av" style="background-image:url('${user.photoUrl}?t=${Date.now()}');background-size:cover;background-position:center"></div>`
+      : `<div class="uc-av" style="background:linear-gradient(135deg, #6b8a70, #3d6b5a)">${user.nom ? user.nom.charAt(0).toUpperCase() : '?'}</div>`;
+    
+    return `
+    <tr>
+      <td><div class="user-cell">${avatarHtml}<div><div class="uc-name">${user.displayName}</div><div class="uc-email">${user.email}</div></div></div></td>
+      <td style="color:var(--muted)">${user.email}</td>
+      <td><span class="badge ${getRoleClass(user.role)}">${getRoleLabel(user.role)}</span></td>
+      <td style="color:var(--muted)">${user.genre || '-'}</td>
+      <td style="color:var(--muted)">${formatDate(user.createdAt)}</td>
+      <td style="color:var(--muted)">${formatDate(user.updatedAt)}</td>
+      <td style="display:flex;gap:5px;flex-wrap:wrap">
+        <button class="btn btn-ghost btn-sm" onclick="openUserModal('show', ${user.id})">Voir</button>
+        <button class="btn btn-ghost btn-sm" onclick="openUserModal('edit', ${user.id})">Éditer</button>
+        <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">Suppr.</button>
+      </td>
+    </tr>
+  `}).join('');
+}
+
+function getRoleClass(role) {
+  return role === 'admin' ? 'b-admin' : role === 'organisateur' ? 'b-org' : 'b-part';
+}
+
+function getRoleLabel(role) {
+  if (role === 'admin') return 'Admin';
+  if (role === 'organisateur') return 'Organisateur';
+  return 'Participant';
+}
+
+async function deleteUser(id) {
+  if (!confirm('Confirmer la suppression de cet utilisateur ?')) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/admin/user/${id}`, { method: 'DELETE' });
+    const result = await response.json();
+    if (result.success) {
+      showToast('Utilisateur supprimé.');
+      refreshUserTable();
+    } else {
+      showToast(result.message || 'Impossible de supprimer cet utilisateur.');
+    }
+  } catch (error) {
+    showToast('Erreur réseau lors de la suppression.');
+  }
+}
+
+function escapeCsv(value) {
+  if (value == null) return '';
+  const text = String(value).replace(/"/g, '""');
+  return text.includes(',') || text.includes('"') || text.includes('\n') ? `"${text}"` : text;
+}
+
+function exportUsersCsv() {
+  if (!adminUsers.length) {
+    showToast('Aucun utilisateur à exporter');
+    return;
+  }
+
+  const rows = [
+    ['Nom', 'Prénom', 'Email', 'Rôle', 'Genre', 'Inscription', 'Dernière MAJ']
+  ];
+
+  adminUsers.forEach(user => {
+    rows.push([
+      user.nom,
+      user.prenom,
+      user.email,
+      getRoleLabel(user.role),
+      user.genre || '',
+      formatDate(user.createdAt),
+      formatDate(user.updatedAt)
+    ]);
+  });
+
+  const csvContent = rows.map(row => row.map(escapeCsv).join(',')).join('\n');
+  const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `loopi-users-${new Date().toISOString().slice(0,10)}.csv`;
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  URL.revokeObjectURL(url);
+}
+
+function formatDate(value) {
+  if (!value) {
+    return '-';
+  }
+  try {
+    return new Date(value).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' });
+  } catch (e) {
+    return value;
+  }
+}
+
+window.addEventListener('DOMContentLoaded', () => {
+  console.log('[Admin] DOM Content Loaded');
+  const searchInput = document.getElementById('userSearch');
+  const roleFilter = document.getElementById('userRoleFilter');
+  const usersPage = document.getElementById('page-users');
+  
+  if (searchInput) {
+    searchInput.addEventListener('input', refreshUserTable);
+  }
+  if (roleFilter) {
+    roleFilter.addEventListener('change', refreshUserTable);
+  }
+
+  // Initialize users table on first page load if users page is currently visible
+  if (usersPage && usersPage.style.display !== 'none') {
+    console.log('[Admin] Users page visible, loading users...');
+    refreshUserTable();
+  }
+});
+
 document.addEventListener('keydown', e => {
   document.querySelectorAll('.moverlay.open').forEach(m => { if (e.key === 'Escape') m.classList.remove('open'); });
 });
+
+// PHOTO HANDLING FUNCTIONS
+let cameraStream = null;
+
+function startCamera() {
+  const modal = document.getElementById('cameraModal');
+  const video = document.getElementById('cameraVideo');
+  
+  modal.classList.add('active');
+  
+  navigator.mediaDevices.getUserMedia({ 
+    video: { facingMode: 'user' },
+    audio: false 
+  }).then(stream => {
+    cameraStream = stream;
+    video.srcObject = stream;
+    video.play();
+  }).catch(error => {
+    console.error('Camera error:', error);
+    alert('Impossible d\'accéder à la caméra. Veuillez vérifier les permissions.');
+    modal.classList.remove('active');
+  });
+}
+
+function capturePhoto() {
+  const canvas = document.getElementById('photoCanvas');
+  const video = document.getElementById('cameraVideo');
+  const ctx = canvas.getContext('2d');
+  
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  ctx.drawImage(video, 0, 0);
+  
+  const photoData = canvas.toDataURL('image/jpeg', 0.8);
+  document.getElementById('userPhoto').value = photoData;
+  
+  // Display preview
+  const preview = document.getElementById('photoPreview');
+  preview.innerHTML = `<img src="${photoData}" alt="Photo">`;
+  preview.classList.remove('empty');
+  
+  closeCamera();
+}
+
+function closeCamera() {
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+  document.getElementById('cameraModal').classList.remove('active');
+  document.getElementById('cameraVideo').srcObject = null;
+}
+
+function handlePhotoUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const photoData = e.target.result;
+    document.getElementById('userPhoto').value = photoData;
+    
+    // Display preview
+    const preview = document.getElementById('photoPreview');
+    preview.innerHTML = `<img src="${photoData}" alt="Photo">`;
+    preview.classList.remove('empty');
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearPhoto() {
+  document.getElementById('userPhoto').value = '';
+  document.getElementById('photoPreview').innerHTML = '📸';
+  document.getElementById('photoPreview').classList.add('empty');
+  document.getElementById('photoFile').value = '';
+}
 </script>
 </body>
 </html>
