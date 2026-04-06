@@ -1,0 +1,15 @@
+<!-- ─── PAGE: EVENTS ─── -->
+  <div id="page-events" style="display:none">
+    <div class="blk" style="margin-bottom:16px">
+      <div class="blk-title">Gestion des événements <span class="sub">Validation & Modération</span></div>
+      <div class="alert alert-warn">⚠️ 2 événements en attente de validation par l'administrateur.</div>
+      <table class="tbl">
+        <thead><tr><th>Titre</th><th>Organisateur</th><th>Date</th><th>Lieu</th><th>Cap.</th><th>Validation</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr><td style="font-weight:600">Nettoyage de Plage</td><td style="color:var(--muted)">Eco Organisateur</td><td style="color:var(--muted)">15 Juin 2024</td><td style="color:var(--muted)">Plage Sousse</td><td style="color:var(--muted)">50</td><td><span class="badge b-active">Validé</span></td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="showToast('Voir détails')">Voir</button><button class="btn btn-danger btn-sm" onclick="showToast('Rejeter événement')">Rejeter</button></div></td></tr>
+          <tr><td style="font-weight:600">Atelier Recyclage</td><td style="color:var(--muted)">Eco Organisateur</td><td style="color:var(--muted)">20 Juin 2024</td><td style="color:var(--muted)">Centre Tunis</td><td style="color:var(--muted)">30</td><td><span class="badge b-pending">En attente</span></td><td><div style="display:flex;gap:5px"><button class="btn btn-success btn-sm" onclick="showToast('Événement validé ✓')">✓ Valider</button><button class="btn btn-danger btn-sm" onclick="showToast('Événement rejeté')">✕ Rejeter</button></div></td></tr>
+          <tr><td style="font-weight:600">Collecte Métal Tunis</td><td style="color:var(--muted)">THENI Org</td><td style="color:var(--muted)">12 Juil 2026</td><td style="color:var(--muted)">Tunis</td><td style="color:var(--muted)">40</td><td><span class="badge b-pending">En attente</span></td><td><div style="display:flex;gap:5px"><button class="btn btn-success btn-sm" onclick="showToast('Événement validé ✓')">✓ Valider</button><button class="btn btn-danger btn-sm" onclick="showToast('Événement rejeté')">✕ Rejeter</button></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>

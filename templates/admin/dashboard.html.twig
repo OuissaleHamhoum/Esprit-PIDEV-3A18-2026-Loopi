@@ -1,0 +1,127 @@
+<!-- ─── PAGE: DASHBOARD ─── -->
+  <div id="page-dashboard">
+    <div class="cards-grid">
+      <div class="sc">
+        <div class="sc-accent" style="background:var(--forest)"></div>
+        <div class="sc-head">
+          <div class="sc-icon" style="background:rgba(30,58,47,.07)">👥</div>
+          <span class="sc-delta" style="background:rgba(16,185,129,.1);color:var(--success)">+22%</span>
+        </div>
+        <div class="sc-val">11</div>
+        <div class="sc-lbl">Utilisateurs enregistrés</div>
+      </div>
+      <div class="sc">
+        <div class="sc-accent" style="background:var(--moss)"></div>
+        <div class="sc-head">
+          <div class="sc-icon" style="background:rgba(61,107,79,.08)">📅</div>
+          <span class="sc-delta" style="background:rgba(16,185,129,.1);color:var(--success)">Actifs</span>
+        </div>
+        <div class="sc-val">2</div>
+        <div class="sc-lbl">Événements créés</div>
+      </div>
+      <div class="sc">
+        <div class="sc-accent" style="background:var(--sand)"></div>
+        <div class="sc-head">
+          <div class="sc-icon" style="background:rgba(201,169,110,.1)">🎨</div>
+          <span class="sc-delta" style="background:rgba(16,185,129,.1);color:var(--success)">+3 récents</span>
+        </div>
+        <div class="sc-val">11</div>
+        <div class="sc-lbl">Produits en galerie</div>
+      </div>
+      <div class="sc">
+        <div class="sc-accent" style="background:var(--rust)"></div>
+        <div class="sc-head">
+          <div class="sc-icon" style="background:rgba(176,90,47,.09)">♻️</div>
+          <span class="sc-delta" style="background:rgba(245,158,11,.1);color:var(--warn)">2 actives</span>
+        </div>
+        <div class="sc-val">32.8</div>
+        <div class="sc-lbl">kg collectés (total)</div>
+      </div>
+    </div>
+
+    <div class="g23">
+      <div>
+        <div class="g2" style="margin-bottom:0">
+          <div class="blk">
+            <div class="blk-title">Inscriptions par rôle <span class="sub">Tous les utilisateurs</span></div>
+            <div class="donut-wrap">
+              <div class="donut"></div>
+              <div class="donut-labels">
+                <div class="dl"><div class="dl-dot" style="background:var(--forest)"></div> Admin (1 · 9%)</div>
+                <div class="dl"><div class="dl-dot" style="background:var(--moss)"></div> Organisateurs (3 · 27%)</div>
+                <div class="dl"><div class="dl-dot" style="background:var(--sage)"></div> Participants (7 · 64%)</div>
+              </div>
+            </div>
+          </div>
+          <div class="blk">
+            <div class="blk-title">Activité hebdomadaire <span class="sub">7 derniers jours</span></div>
+            <div class="chart-bars">
+              <div class="b-col"><div class="b" style="background:linear-gradient(to top,var(--moss),var(--sage));height:35%"></div><div class="b-l">L</div></div>
+              <div class="b-col"><div class="b" style="background:linear-gradient(to top,var(--moss),var(--sage));height:60%"></div><div class="b-l">M</div></div>
+              <div class="b-col"><div class="b" style="background:linear-gradient(to top,var(--moss),var(--sage));height:48%"></div><div class="b-l">M</div></div>
+              <div class="b-col"><div class="b" style="background:linear-gradient(to top,var(--moss),var(--sage));height:82%"></div><div class="b-l">J</div></div>
+              <div class="b-col"><div class="b" style="background:linear-gradient(to top,var(--sand),#e8c48a);height:70%"></div><div class="b-l">V</div></div>
+              <div class="b-col"><div class="b" style="background:linear-gradient(to top,var(--sand),#e8c48a);height:95%"></div><div class="b-l">S</div></div>
+              <div class="b-col"><div class="b" style="background:linear-gradient(to top,var(--moss),var(--sage));height:42%"></div><div class="b-l">D</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="blk" style="margin-top:18px">
+          <div class="blk-title">Utilisateurs récents <span class="sub" style="cursor:pointer;color:var(--moss)" onclick="goPage('users',null)">Gérer tous →</span></div>
+          <table class="tbl">
+            <thead><tr><th>Utilisateur</th><th>Rôle</th><th>Inscription</th><th>Statut</th><th>Actions</th></tr></thead>
+            <tbody>
+              <tr><td><div class="user-cell"><div class="uc-av" style="background:linear-gradient(135deg,#B05A2F,#d4783c)">A</div><div><div class="uc-name">Admin System</div><div class="uc-email">admin@loopi.tn</div></div></div></td><td><span class="badge b-admin">Admin</span></td><td style="color:var(--muted)">8 Fév 2026</td><td><span class="badge b-active">Actif</span></td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="showToast('Modifier Admin')">Éditer</button></div></td></tr>
+              <tr><td><div class="user-cell"><div class="uc-av" style="background:linear-gradient(135deg,var(--moss),var(--forest))">E</div><div><div class="uc-name">Eco Organisateur</div><div class="uc-email">organisateur@loopi.tn</div></div></div></td><td><span class="badge b-org">Organisateur</span></td><td style="color:var(--muted)">8 Fév 2026</td><td><span class="badge b-active">Actif</span></td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="showToast('Modifier Eco')">Éditer</button><button class="btn btn-danger btn-sm" onclick="showToast('Suspendre: Eco?')">Susp.</button></div></td></tr>
+              <tr><td><div class="user-cell"><div class="uc-av" style="background:linear-gradient(135deg,#5a8a7a,#3d6b5a)">T</div><div><div class="uc-name">Test Participant</div><div class="uc-email">participant@loopi.tn</div></div></div></td><td><span class="badge b-part">Participant</span></td><td style="color:var(--muted)">8 Fév 2026</td><td><span class="badge b-active">Actif</span></td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="showToast('Modifier Test')">Éditer</button><button class="btn btn-danger btn-sm" onclick="showToast('Supprimer?')">Suppr.</button></div></td></tr>
+              <tr><td><div class="user-cell"><div class="uc-av" style="background:linear-gradient(135deg,#8a7a5a,#6b5a3d)">B</div><div><div class="uc-name">Ali Ben</div><div class="uc-email">ben.ali@email.com</div></div></div></td><td><span class="badge b-part">Participant</span></td><td style="color:var(--muted)">8 Fév 2026</td><td><span class="badge b-active">Actif</span></td><td><div style="display:flex;gap:5px"><button class="btn btn-ghost btn-sm" onclick="showToast('Modifier Ben')">Éditer</button><button class="btn btn-danger btn-sm" onclick="showToast('Supprimer?')">Suppr.</button></div></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div class="blk">
+          <div class="blk-title">Activité en direct</div>
+          <div class="act-item">
+            <div class="act-icon" style="background:rgba(16,185,129,.1)">♻️</div>
+            <div class="act-body"><div class="act-text"><strong>Test Participant</strong> a donné 24.6 kg de verre</div><div class="act-time">Il y a 2h</div></div>
+          </div>
+          <div class="act-item">
+            <div class="act-icon" style="background:rgba(61,107,79,.1)">🎨</div>
+            <div class="act-body"><div class="act-text"><strong>Eco Organisateur</strong> a publié un produit</div><div class="act-time">Il y a 5h</div></div>
+          </div>
+          <div class="act-item">
+            <div class="act-icon" style="background:rgba(59,130,246,.1)">👤</div>
+            <div class="act-body"><div class="act-text">Nouveau compte: <strong>marie.dupont</strong></div><div class="act-time">Il y a 1j</div></div>
+          </div>
+          <div class="act-item">
+            <div class="act-icon" style="background:rgba(245,158,11,.1)">📅</div>
+            <div class="act-body"><div class="act-text"><strong>Atelier Recyclage</strong> — 12 inscrits</div><div class="act-time">Il y a 2j</div></div>
+          </div>
+          <div class="act-item">
+            <div class="act-icon" style="background:rgba(220,53,69,.08)">⭐</div>
+            <div class="act-body"><div class="act-text">Avis 5★ sur <strong>3D Mosaic</strong></div><div class="act-time">Il y a 3j</div></div>
+          </div>
+        </div>
+        <div class="blk">
+          <div class="blk-title">Donations récentes</div>
+          <div style="font-size:.78rem">
+            <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--forest);font-weight:600">Piece Mario (Verre)</span><span style="color:var(--success);font-weight:700">24.6 kg</span></div>
+            <div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Collection Verre</span><span style="color:var(--success);font-weight:700">5.8 kg</span></div>
+            <div style="display:flex;justify-content:space-between;padding:7px 0"><span style="color:var(--muted)">Collection Verre</span><span style="color:var(--success);font-weight:700">2.4 kg</span></div>
+          </div>
+          <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--border);display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)"><span>Total confirmé:</span><span style="color:var(--forest);font-weight:700">32.8 kg</span></div>
+        </div>
+        <div class="blk">
+          <div class="blk-title">Santé système</div>
+          <div style="font-size:.78rem;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--muted)">Base de données</span><span class="badge b-active">✓ Opérationnel</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--muted)">Galerie images</span><span class="badge b-active">✓ Opérationnel</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--muted)">Notifications</span><span class="badge b-pending">⚠ 3 en attente</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:center"><span style="color:var(--muted)">Sauvegardes</span><span class="badge b-active">✓ Dernière: auj.</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
