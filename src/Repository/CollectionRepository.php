@@ -31,4 +31,16 @@ class CollectionRepository extends ServiceEntityRepository
             ->getQuery()
             ->getResult();
     }
+
+    /** Campagnes actives pour le front participant. */
+    public function findActivePublic(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->leftJoin('c.owner', 'u')->addSelect('u')
+            ->andWhere('c.status = :st')
+            ->setParameter('st', 'active')
+            ->orderBy('c.id', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
 }

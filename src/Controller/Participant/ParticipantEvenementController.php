@@ -16,7 +16,7 @@ final class ParticipantEvenementController extends AbstractController
     public function index(EvenementRepository $evenementRepository): Response
     {
         return $this->render('participant/evenement/index.html.twig', [
-            'events' => $evenementRepository->findBy([], ['dateEvenement' => 'DESC']),
+            'events' => $evenementRepository->findApprovedOrdered(),
         ]);
     }
 }

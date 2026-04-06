@@ -16,7 +16,7 @@ final class ParticipantCampagneController extends AbstractController
     public function index(CollectionRepository $collectionRepository): Response
     {
         return $this->render('participant/campagne/index.html.twig', [
-            'collections' => $collectionRepository->findBy([], ['id' => 'DESC']),
+            'collections' => $collectionRepository->findActivePublic(),
         ]);
     }
 }

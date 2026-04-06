@@ -1,33 +1,58 @@
 /**
- * Loopi — charte unique front-office / back-office
+ * Loopi — charte alignée palette « nature » (réf. Bladna / Esprit PIDEV)
  */
 :root {
-    --loopi-deep: #064e4a;
-    --loopi-forest: #0f766e;
-    --loopi-leaf: #14b8a6;
-    --loopi-lagoon: #5eead4;
-    --loopi-mint: #ccfbf1;
-    --loopi-cream: #f8faf9;
-    --loopi-sand: #f1f5f4;
-    --loopi-warm: #ea580c;
-    --loopi-amber: #fbbf24;
+    --forest-green: #2d5a3d;
+    --leaf-green: #4a7c59;
+    --sage-green: #87a96b;
+    --mint-green: #b8d4b8;
+    --light-sage: #e8f5e9;
+    --pale-green: #f1f8e9;
+    --earth-brown: #8b7355;
+    --warm-sand: #d4c4b0;
+    --cream: #faf8f5;
+    --sky-blue: #87ceeb;
+    --water-blue: #5ba4a4;
+    --charcoal: #2c3e2d;
+    --dark-text: #1a2e1a;
+    --muted-text: #5f6b5f;
+    --light-border: #e0e8e0;
+    --sunset-orange: #e8985e;
+    --berry-red: #c45b5b;
+    --golden-yellow: #d4a84b;
+    --shadow-sm: 0 2px 8px rgba(45, 90, 61, 0.08);
+    --shadow-md: 0 4px 16px rgba(45, 90, 61, 0.12);
+    --shadow-lg-nature: 0 8px 32px rgba(45, 90, 61, 0.16);
+
+    /* Alias Loopi (templates & composants existants) */
+    --loopi-deep: var(--forest-green);
+    --loopi-forest: var(--leaf-green);
+    --loopi-leaf: var(--water-blue);
+    --loopi-lagoon: var(--mint-green);
+    --loopi-mint: var(--light-sage);
+    --loopi-cream: var(--cream);
+    --loopi-sand: var(--pale-green);
+    --loopi-warm: var(--sunset-orange);
+    --loopi-amber: var(--golden-yellow);
     --loopi-indigo: #4f46e5;
-    --loopi-rose: #e11d48;
-    --loopi-text: #134e4a;
-    --loopi-muted: #64748b;
-    --shadow: 0 4px 24px rgba(6, 78, 74, 0.1);
-    --shadow-lg: 0 12px 40px rgba(6, 78, 74, 0.12);
-    --loopi-org-sidebar-1: #0c2744;
-    --loopi-org-sidebar-2: #0a1929;
-    --loopi-org-bar-1: #1d4ed8;
-    --loopi-org-bar-2: #2563eb;
-    --loopi-par-sidebar-1: #064e3b;
-    --loopi-par-sidebar-2: #022c22;
-    --loopi-par-bar-1: #047857;
-    --loopi-par-bar-2: #10b981;
-    --loopi-auth-1: #0f2740;
-    --loopi-auth-2: #1e4976;
-    --loopi-auth-3: #0a1f33;
+    --loopi-rose: var(--berry-red);
+    --loopi-text: var(--dark-text);
+    --loopi-muted: var(--muted-text);
+    --shadow: var(--shadow-md);
+    --shadow-lg: var(--shadow-lg-nature);
+
+    /* Sidebars & barres : tons forêt (même famille que la navbar publique) */
+    --loopi-org-sidebar-1: #2d5a3d;
+    --loopi-org-sidebar-2: #1a3d28;
+    --loopi-org-bar-1: var(--leaf-green);
+    --loopi-org-bar-2: var(--sage-green);
+    --loopi-par-sidebar-1: #234d35;
+    --loopi-par-sidebar-2: #153824;
+    --loopi-par-bar-1: var(--leaf-green);
+    --loopi-par-bar-2: var(--mint-green);
+    --loopi-auth-1: #243d2e;
+    --loopi-auth-2: var(--forest-green);
+    --loopi-auth-3: #15261c;
 }
 
 /* ——— Logos ——— */
@@ -165,12 +190,12 @@
 }
 .loopi-dash-sidebar--org .nav-link.active,
 .loopi-dash-sidebar--org .nav-link.is-active {
-    background: rgba(37, 99, 235, 0.4);
+    background: rgba(255, 255, 255, 0.18);
     color: #fff !important;
 }
 .loopi-dash-sidebar--participant .nav-link.active,
 .loopi-dash-sidebar--participant .nav-link.is-active {
-    background: rgba(16, 185, 129, 0.35);
+    background: rgba(255, 255, 255, 0.2);
     color: #fff !important;
 }
 
@@ -211,7 +236,7 @@
 }
 
 .loopi-dash-topbar-title {
-    font-family: Outfit, system-ui, sans-serif;
+    font-family: Poppins, system-ui, sans-serif;
     font-weight: 700;
     font-size: 1.15rem;
     letter-spacing: 0.02em;
@@ -224,7 +249,47 @@
     min-width: 0;
 }
 .loopi-dash-body--tint-green {
-    background: linear-gradient(165deg, #ecfdf5 0%, var(--loopi-cream) 100%);
+    background: linear-gradient(165deg, var(--light-sage) 0%, var(--cream) 100%);
+}
+
+/* Blocs type dashboard Bladna */
+.loopi-eco-banner {
+    border: none;
+    border-radius: 1.15rem;
+    background: linear-gradient(125deg, var(--light-sage) 0%, var(--cream) 45%, var(--mint-green) 100%);
+    color: var(--dark-text);
+    box-shadow: var(--shadow-md);
+    border-left: 4px solid var(--leaf-green);
+}
+.loopi-stat-card {
+    border: none;
+    border-radius: 1rem;
+    background: #fff;
+    box-shadow: var(--shadow-md);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border-left: 3px solid var(--mint-green);
+}
+.loopi-stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg-nature);
+}
+.loopi-stat-card .loopi-stat-icon {
+    font-size: 2rem;
+    opacity: 0.45;
+    color: var(--forest-green);
+}
+.btn-loopi-nature-outline {
+    border: 1px solid var(--leaf-green);
+    color: var(--forest-green);
+    background: #fff;
+    font-weight: 600;
+    border-radius: 0.65rem;
+    font-size: 0.8rem;
+    padding: 0.35rem 0.75rem;
+}
+.btn-loopi-nature-outline:hover {
+    background: var(--light-sage);
+    color: var(--forest-green);
 }
 
 /* En-tête de page interne (évite répétition de titres) */
@@ -233,7 +298,7 @@
 }
 .loopi-page-header h1,
 .loopi-page-header .loopi-page-title {
-    font-family: Outfit, system-ui, sans-serif;
+    font-family: Poppins, system-ui, sans-serif;
     font-weight: 700;
     font-size: 1.35rem;
     color: var(--loopi-text);

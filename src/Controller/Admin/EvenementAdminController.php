@@ -18,10 +18,49 @@ use Symfony\Component\Routing\Attribute\Route;
 final class EvenementAdminController extends AbstractController
 {
     #[Route('', name: 'admin_evenements')]
-    public function index(EvenementRepository $evenementRepository): Response
+    public function index(Request $request, EvenementRepository $evenementRepository): Response
     {
+        $raw = $request->query->get('statut');
+        $filter = \is_string($raw) && $raw !== '' ? $raw : null;
+        if ($filter !== null && !\in_array($filter, ['en_attente', 'approuve', 'refuse'], true)) {
+            $filter = null;
+        }
+
         return $this->render('admin/evenement/index.html.twig', [
-            'events' => $evenementRepository->findBy([], ['dateEvenement' => 'DESC']),
+            'events' => $evenementRepository->findForAdminList($filter),
+            'filter' => $filter,
+        ]);
+    }
+
+    #[Route('/{id}/validation', name: 'admin_evenements_validation', methods: ['POST'], requirements: ['id' => '\d+'])]
+    public function validation(Request $request, Evenement $evenement, EntityManagerInterface $em): Response
+    {
+        if (!$this->isCsrfTokenValid('event_validation'.$evenement->getId(), (string) $request->request->get('_token'))) {
+            $this->addFlash('danger', 'Session expirée ou jeton invalide.');
+
+            return $this->redirectToRoute('admin_evenements');
+        }
+        $action = (string) $request->request->get('action');
+        $now = new \DateTimeImmutable();
+        if ($action === 'approve') {
+            $evenement->setStatutValidation('approuve');
+            $evenement->setDateValidation($now);
+            $this->addFlash('success', 'Événement approuvé — visible sur le site et pour les participants.');
+        } elseif ($action === 'refuse') {
+            $evenement->setStatutValidation('refuse');
+            $evenement->setDateValidation($now);
+            $this->addFlash('success', 'Événement refusé.');
+        } else {
+            $this->addFlash('danger', 'Action non reconnue.');
+
+            return $this->redirectToRoute('admin_evenements');
+        }
+        $em->flush();
+
+        $redirectFilter = $request->request->get('redirect_filter');
+
+        return $this->redirectToRoute('admin_evenements', [
+            'statut' => \is_string($redirectFilter) && $redirectFilter !== '' ? $redirectFilter : null,
         ]);
     }
 
@@ -40,6 +79,10 @@ final class EvenementAdminController extends AbstractController
             $e->setCreatedAt(new \DateTimeImmutable());
             if ($e->getDateSoumission() === null) {
                 $e->setDateSoumission(new \DateTimeImmutable());
+            }
+            if (($e->getStatutValidation() ?? '') === '') {
+                $e->setStatutValidation('approuve');
+                $e->setDateValidation(new \DateTimeImmutable());
             }
             $em->persist($e);
             $em->flush();

@@ -20,7 +20,8 @@
             <a class="nav-link {{ app.request.attributes.get('_route') starts with 'admin_produits' ? 'is-active' : '' }}" href="{{ path('admin_produits') }}"><i class="bi bi-palette me-2"></i>Gestion galerie</a>
 
             <span class="loopi-dash-nav-label">Événements</span>
-            <a class="nav-link {{ app.request.attributes.get('_route') starts with 'admin_evenements' ? 'is-active' : '' }}" href="{{ path('admin_evenements') }}"><i class="bi bi-calendar-event me-2"></i>Gestion événements</a>
+            <a class="nav-link {{ app.request.attributes.get('_route') == 'admin_evenements' and not app.request.query.get('statut') ? 'is-active' : '' }}" href="{{ path('admin_evenements') }}"><i class="bi bi-calendar-event me-2"></i>Tous les événements</a>
+            <a class="nav-link {{ app.request.query.get('statut') == 'en_attente' ? 'is-active' : '' }}" href="{{ path('admin_evenements', { statut: 'en_attente' }) }}"><i class="bi bi-hourglass-split me-2"></i>À valider</a>
 
             <span class="loopi-dash-nav-label">Collections</span>
             <a class="nav-link {{ app.request.attributes.get('_route') starts with 'admin_collections' ? 'is-active' : '' }}" href="{{ path('admin_collections') }}"><i class="bi bi-recycle me-2"></i>Tableau collection</a>
