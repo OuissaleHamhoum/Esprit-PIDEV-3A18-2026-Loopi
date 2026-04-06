@@ -1,0 +1,55 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+{% set _route = app.request.attributes.get('_route') %}
+<div class="loopi-dash-shell">
+    <aside class="loopi-dash-sidebar loopi-dash-sidebar--participant">
+        <div class="loopi-dash-sidebar-head">
+            <a href="{{ path('app_participant_dashboard') }}" class="d-block mb-3">
+                <img src="{{ asset('images/branding/logo.png') }}" alt="Loopi" class="loopi-logo-img loopi-logo-img--sidebar">
+            </a>
+            <div class="small text-white-50 text-uppercase fw-semibold mb-2" style="letter-spacing:.1em;">Participant</div>
+            <div class="d-flex align-items-center gap-3">
+                <div class="rounded-circle bg-white bg-opacity-10 d-flex align-items-center justify-content-center flex-shrink-0" style="width:44px;height:44px;font-weight:700;">
+                    {{ app.user.prenom|slice(0,1)|upper }}
+                </div>
+                <div class="small lh-sm text-truncate">
+                    <div class="fw-semibold text-white">{{ app.user.prenom }}</div>
+                    <div class="text-white-50 text-truncate" style="max-width:160px;">{{ app.user.email }}</div>
+                </div>
+            </div>
+        </div>
+        <nav class="nav flex-column gap-0">
+            <span class="loopi-dash-nav-label">Événements</span>
+            <a class="nav-link {{ _route == 'par_evenements' ? 'is-active' : '' }}" href="{{ path('par_evenements') }}"><i class="bi bi-calendar2-event me-2"></i>Tous les événements</a>
+            <span class="loopi-dash-nav-label">Boutique</span>
+            <a class="nav-link {{ _route == 'par_galerie' ? 'is-active' : '' }}" href="{{ path('par_galerie') }}"><i class="bi bi-grid-3x3-gap me-2"></i>Galerie</a>
+            <a class="nav-link {{ _route == 'par_favoris' ? 'is-active' : '' }}" href="{{ path('par_favoris') }}"><i class="bi bi-heart me-2"></i>Mes favoris</a>
+            <span class="loopi-dash-nav-label">Collectes</span>
+            <a class="nav-link {{ _route == 'par_campagnes' ? 'is-active' : '' }}" href="{{ path('par_campagnes') }}"><i class="bi bi-recycle me-2"></i>Campagnes</a>
+            <a class="nav-link {{ _route == 'par_dons' ? 'is-active' : '' }}" href="{{ path('par_dons') }}"><i class="bi bi-gift me-2"></i>Mes dons</a>
+            <a class="nav-link {{ _route == 'par_coupons' ? 'is-active' : '' }}" href="{{ path('par_coupons') }}"><i class="bi bi-ticket-perforated me-2"></i>Mes coupons</a>
+            <span class="loopi-dash-nav-label">Compte</span>
+            <a class="nav-link {{ _route == 'app_participant_dashboard' ? 'is-active' : '' }}" href="{{ path('app_participant_dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Résumé</a>
+        </nav>
+        <div class="loopi-dash-sidebar-foot">
+            <a class="btn btn-danger w-100 rounded-3" href="{{ path('app_logout') }}"><i class="bi bi-box-arrow-right me-1"></i>Déconnexion</a>
+            <div class="d-flex align-items-center justify-content-center gap-2 mt-3">
+                <img src="{{ asset('images/branding/esprit.png') }}" alt="" class="loopi-logo-img" style="height:22px;opacity:.65;">
+            </div>
+        </div>
+    </aside>
+    <div class="loopi-dash-main">
+        <header class="loopi-dash-topbar loopi-dash-topbar--participant">
+            <span class="loopi-dash-topbar-title">LOOPI PARTICIPANT</span>
+            <div class="small text-end">
+                <div class="fw-semibold">{{ app.user.prenom }} {{ app.user.nom }}</div>
+                <div class="text-white-50 text-uppercase" style="font-size:.7rem;">Participant</div>
+            </div>
+        </header>
+        <div class="loopi-dash-body loopi-dash-body--tint-green">
+            {% block par_body %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

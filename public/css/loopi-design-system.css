@@ -1,0 +1,270 @@
+/**
+ * Loopi — charte unique front-office / back-office
+ */
+:root {
+    --loopi-deep: #064e4a;
+    --loopi-forest: #0f766e;
+    --loopi-leaf: #14b8a6;
+    --loopi-lagoon: #5eead4;
+    --loopi-mint: #ccfbf1;
+    --loopi-cream: #f8faf9;
+    --loopi-sand: #f1f5f4;
+    --loopi-warm: #ea580c;
+    --loopi-amber: #fbbf24;
+    --loopi-indigo: #4f46e5;
+    --loopi-rose: #e11d48;
+    --loopi-text: #134e4a;
+    --loopi-muted: #64748b;
+    --shadow: 0 4px 24px rgba(6, 78, 74, 0.1);
+    --shadow-lg: 0 12px 40px rgba(6, 78, 74, 0.12);
+    --loopi-org-sidebar-1: #0c2744;
+    --loopi-org-sidebar-2: #0a1929;
+    --loopi-org-bar-1: #1d4ed8;
+    --loopi-org-bar-2: #2563eb;
+    --loopi-par-sidebar-1: #064e3b;
+    --loopi-par-sidebar-2: #022c22;
+    --loopi-par-bar-1: #047857;
+    --loopi-par-bar-2: #10b981;
+    --loopi-auth-1: #0f2740;
+    --loopi-auth-2: #1e4976;
+    --loopi-auth-3: #0a1f33;
+}
+
+/* ——— Logos ——— */
+.loopi-logo-img {
+    height: auto;
+    max-width: 100%;
+    object-fit: contain;
+}
+.loopi-logo-img--nav {
+    height: 38px;
+    width: auto;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,.15));
+}
+.loopi-logo-img--sidebar {
+    height: 36px;
+    width: auto;
+    max-width: 140px;
+    filter: brightness(0) invert(1);
+    opacity: 0.95;
+}
+.loopi-logo-img--sidebar-dark {
+    filter: none;
+    opacity: 1;
+}
+.loopi-logo-img--auth {
+    height: 44px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    opacity: 0.95;
+}
+.loopi-logo-img--partner {
+    height: 36px;
+    width: auto;
+    opacity: 0.85;
+}
+.loopi-logo-img--partner-sm {
+    height: 32px;
+    width: auto;
+    opacity: 0.9;
+}
+.loopi-auth-logos {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1.75rem;
+    flex-wrap: wrap;
+    padding-top: 1rem;
+    margin-top: auto;
+    border-top: 1px solid rgba(255,255,255,0.12);
+}
+.loopi-footer-logos {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 1.25rem;
+    flex-wrap: wrap;
+    margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.12);
+}
+
+/* ——— Shell tableau de bord (admin / org / participant) ——— */
+.loopi-dash-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: calc(100vh - 76px);
+    margin-top: -1rem;
+}
+@media (min-width: 992px) {
+    .loopi-dash-shell {
+        flex-direction: row;
+        min-height: calc(100vh - 76px);
+    }
+}
+
+.loopi-dash-sidebar {
+    width: 100%;
+    max-width: 280px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    color: #fff;
+    padding: 1rem 1.25rem;
+    box-shadow: 4px 0 24px rgba(0,0,0,.08);
+}
+@media (min-width: 992px) {
+    .loopi-dash-sidebar {
+        min-height: calc(100vh - 76px);
+    }
+}
+
+.loopi-dash-sidebar--admin {
+    background: linear-gradient(180deg, var(--loopi-org-sidebar-1) 0%, var(--loopi-org-sidebar-2) 100%);
+}
+.loopi-dash-sidebar--org {
+    background: linear-gradient(180deg, var(--loopi-org-sidebar-1) 0%, var(--loopi-org-sidebar-2) 100%);
+}
+.loopi-dash-sidebar--participant {
+    background: linear-gradient(180deg, var(--loopi-par-sidebar-1) 0%, var(--loopi-par-sidebar-2) 100%);
+}
+
+.loopi-dash-sidebar-head {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.loopi-dash-nav-label {
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.5);
+    margin-bottom: 0.35rem;
+    margin-top: 0.75rem;
+}
+.loopi-dash-nav-label:first-of-type {
+    margin-top: 0;
+}
+
+.loopi-dash-sidebar .nav-link {
+    color: rgba(255,255,255,0.9) !important;
+    border-radius: 0.5rem;
+    padding: 0.5rem 0.65rem !important;
+    font-size: 0.875rem;
+    transition: background 0.15s ease;
+}
+.loopi-dash-sidebar .nav-link:hover {
+    background: rgba(255,255,255,0.08);
+    color: #fff !important;
+}
+.loopi-dash-sidebar--admin .nav-link.active,
+.loopi-dash-sidebar--admin .nav-link.is-active {
+    background: rgba(255,255,255,0.15);
+    color: #fff !important;
+}
+.loopi-dash-sidebar--org .nav-link.active,
+.loopi-dash-sidebar--org .nav-link.is-active {
+    background: rgba(37, 99, 235, 0.4);
+    color: #fff !important;
+}
+.loopi-dash-sidebar--participant .nav-link.active,
+.loopi-dash-sidebar--participant .nav-link.is-active {
+    background: rgba(16, 185, 129, 0.35);
+    color: #fff !important;
+}
+
+.loopi-dash-sidebar-foot {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+    font-size: 0.875rem;
+}
+
+.loopi-dash-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.loopi-dash-topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.85rem 1.25rem;
+    color: #fff;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+.loopi-dash-topbar--admin {
+    background: linear-gradient(90deg, var(--loopi-deep) 0%, var(--loopi-forest) 55%, var(--loopi-leaf) 100%);
+    box-shadow: 0 4px 20px rgba(6, 78, 74, 0.18);
+}
+.loopi-dash-topbar--org {
+    background: linear-gradient(90deg, var(--loopi-org-bar-1) 0%, var(--loopi-org-bar-2) 100%);
+    box-shadow: 0 4px 20px rgba(29, 78, 216, 0.22);
+}
+.loopi-dash-topbar--participant {
+    background: linear-gradient(90deg, var(--loopi-par-bar-1) 0%, var(--loopi-par-bar-2) 100%);
+    box-shadow: 0 4px 20px rgba(4, 120, 87, 0.22);
+}
+
+.loopi-dash-topbar-title {
+    font-family: Outfit, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 1.15rem;
+    letter-spacing: 0.02em;
+}
+
+.loopi-dash-body {
+    flex: 1;
+    padding: 1rem 1.25rem;
+    background: linear-gradient(165deg, var(--loopi-sand) 0%, var(--loopi-cream) 100%);
+    min-width: 0;
+}
+.loopi-dash-body--tint-green {
+    background: linear-gradient(165deg, #ecfdf5 0%, var(--loopi-cream) 100%);
+}
+
+/* En-tête de page interne (évite répétition de titres) */
+.loopi-page-header {
+    margin-bottom: 1.5rem;
+}
+.loopi-page-header h1,
+.loopi-page-header .loopi-page-title {
+    font-family: Outfit, system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 1.35rem;
+    color: var(--loopi-text);
+    margin: 0;
+}
+.loopi-page-header .loopi-page-lead {
+    color: var(--loopi-muted);
+    font-size: 0.9rem;
+    margin: 0.35rem 0 0;
+}
+
+/* Carte formulaire / tableau */
+.loopi-panel {
+    border: none;
+    border-radius: 1rem;
+    box-shadow: var(--shadow-lg, 0 12px 40px rgba(6, 78, 74, 0.12));
+    background: #fff;
+    overflow: hidden;
+}
+.loopi-panel .card-body {
+    padding: 1.35rem;
+}
+
+@media (max-width: 991.98px) {
+    .loopi-dash-sidebar {
+        max-width: 100%;
+    }
+}
+
+/* Pages authentification (split) */
+.auth-split-left {
+    min-height: 100vh;
+    background: linear-gradient(165deg, var(--loopi-auth-1) 0%, var(--loopi-auth-2) 45%, var(--loopi-auth-3) 100%);
+}

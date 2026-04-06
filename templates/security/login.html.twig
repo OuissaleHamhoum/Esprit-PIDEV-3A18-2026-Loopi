@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Connexion — Loopi{% endblock %}
+
+{% block navbar %}{% endblock %}
+{% block footer %}{% endblock %}
+{% block main_class %}py-0 flex-grow-1 d-flex flex-column{% endblock %}
+
+{% block body %}
+<div class="container-fluid px-0">
+    <div class="row g-0 min-vh-100 auth-split">
+        <div class="col-lg-5 d-none d-lg-flex flex-column text-white p-5 auth-split-left">
+            <div class="mb-4">
+                <img src="{{ asset('images/branding/logo.png') }}" alt="Loopi" class="loopi-logo-img loopi-logo-img--auth mb-3">
+                <h1 class="display-6 fw-bold mb-3">Connexion</h1>
+                <p class="lead text-white-50 mb-0">Accédez à votre espace selon votre rôle — données sécurisées et contrôles de saisie côté serveur.</p>
+            </div>
+            <div class="loopi-auth-logos mt-auto">
+                <img src="{{ asset('images/branding/esprit.png') }}" alt="Esprit" class="loopi-logo-img" style="height:32px;width:auto;opacity:.88;">
+                <img src="{{ asset('images/branding/logo.png') }}" alt="Loopi" class="loopi-logo-img loopi-logo-img--auth" style="height:36px;">
+            </div>
+            <p class="small text-white-50 mb-0 mt-3 pt-2 border-top border-white border-opacity-10">Nouveau ?
+                <a href="{{ path('app_register') }}" class="text-white fw-semibold text-decoration-underline">Créer un compte</a>
+            </p>
+        </div>
+        <div class="col-lg-7 bg-white p-4 p-lg-5 d-flex align-items-center">
+            <div class="w-100" style="max-width: 420px; margin: 0 auto;">
+                <div class="text-center mb-4">
+                    <img src="{{ asset('images/branding/logo.png') }}" alt="" class="loopi-logo-img mx-auto mb-3 d-sm-none" style="height:48px;">
+                    <div class="user-avatar mx-auto mb-3" style="width:64px;height:64px;font-size:1.5rem;border:2px solid var(--loopi-mint);">
+                        <i class="bi bi-person-check"></i>
+                    </div>
+                    <h2 class="h4 fw-bold mb-1">Bienvenue</h2>
+                    <p class="text-muted small mb-0">Email et mot de passe requis.</p>
+                </div>
+                {% if error %}
+                    <div class="alert alert-danger small border-0 rounded-3 shadow-sm" role="alert">
+                        {{ error.messageKey|trans(error.messageData|default({}), 'security') }}
+                    </div>
+                {% endif %}
+                <form method="post" action="{{ path('app_login') }}" id="login-form" novalidate>
+                    <input type="hidden" name="_csrf_token" value="{{ csrf_token('authenticate') }}">
+                    <div class="mb-3">
+                        <label class="form-label" for="email">Email</label>
+                        <input type="email" class="form-control form-control-lg rounded-3" id="email" name="email"
+                               value="{{ last_username }}" required autofocus autocomplete="username"
+                               maxlength="100" inputmode="email" placeholder="vous@exemple.com">
+                        <div class="invalid-feedback">Indiquez une adresse email valide.</div>
+                    </div>
+                    <div class="mb-4">
+                        <label class="form-label" for="password">Mot de passe</label>
+                        <input type="password" class="form-control form-control-lg rounded-3" id="password" name="password"
+                               required autocomplete="current-password" minlength="6" maxlength="128"
+                               placeholder="••••••••">
+                        <div class="invalid-feedback">Le mot de passe est obligatoire (min. 6 caractères).</div>
+                    </div>
+                    <button type="submit" class="btn btn-loopi w-100 btn-lg rounded-3">Se connecter</button>
+                </form>
+                <p class="text-center text-muted small mt-4 mb-0 d-lg-none">
+                    Pas encore de compte ?
+                    <a href="{{ path('app_register') }}" class="fw-semibold text-loopi">S’inscrire</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block body_scripts %}
+{{ parent() }}
+<script>
+(function () {
+    var f = document.getElementById('login-form');
+    if (!f) return;
+    f.addEventListener('submit', function (e) {
+        if (!f.checkValidity()) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        f.classList.add('was-validated');
+    });
+})();
+</script>
+{% endblock %}

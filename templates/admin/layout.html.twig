@@ -1,0 +1,53 @@
+{% extends 'base.html.twig' %}
+
+{% block body %}
+<div class="loopi-dash-shell">
+    <aside class="loopi-dash-sidebar loopi-dash-sidebar--admin">
+        <div class="loopi-dash-sidebar-head">
+            <a href="{{ path('admin_dashboard') }}" class="d-flex align-items-center gap-2 text-white text-decoration-none">
+                <img src="{{ asset('images/branding/logo.png') }}" alt="Loopi" class="loopi-logo-img loopi-logo-img--sidebar">
+            </a>
+            <div class="small text-white-50 text-uppercase fw-semibold mt-2" style="letter-spacing:.1em;">Administration</div>
+        </div>
+        <nav class="nav flex-column gap-0">
+            <span class="loopi-dash-nav-label">Principal</span>
+            <a class="nav-link {{ app.request.attributes.get('_route') == 'admin_dashboard' ? 'is-active' : '' }}" href="{{ path('admin_dashboard') }}"><i class="bi bi-speedometer2 me-2"></i>Tableau de bord</a>
+
+            <span class="loopi-dash-nav-label">Utilisateurs</span>
+            <a class="nav-link {{ app.request.attributes.get('_route') starts with 'admin_users' ? 'is-active' : '' }}" href="{{ path('admin_users') }}"><i class="bi bi-people me-2"></i>Gestion utilisateurs</a>
+
+            <span class="loopi-dash-nav-label">Produits</span>
+            <a class="nav-link {{ app.request.attributes.get('_route') starts with 'admin_produits' ? 'is-active' : '' }}" href="{{ path('admin_produits') }}"><i class="bi bi-palette me-2"></i>Gestion galerie</a>
+
+            <span class="loopi-dash-nav-label">Événements</span>
+            <a class="nav-link {{ app.request.attributes.get('_route') starts with 'admin_evenements' ? 'is-active' : '' }}" href="{{ path('admin_evenements') }}"><i class="bi bi-calendar-event me-2"></i>Gestion événements</a>
+
+            <span class="loopi-dash-nav-label">Collections</span>
+            <a class="nav-link {{ app.request.attributes.get('_route') starts with 'admin_collections' ? 'is-active' : '' }}" href="{{ path('admin_collections') }}"><i class="bi bi-recycle me-2"></i>Tableau collection</a>
+
+            <span class="loopi-dash-nav-label">Carte</span>
+            <a class="nav-link {{ app.request.attributes.get('_route') == 'admin_map' ? 'is-active' : '' }}" href="{{ path('admin_map') }}"><i class="bi bi-geo-alt me-2"></i>Carte des événements</a>
+        </nav>
+        <div class="loopi-dash-sidebar-foot text-white-50">
+            <a class="text-white-50 text-decoration-none d-inline-flex align-items-center gap-2" href="{{ path('app_home') }}"><i class="bi bi-house"></i>Site public</a>
+            <div class="d-flex align-items-center gap-2 mt-3 pt-2 border-top border-white border-opacity-10">
+                <img src="{{ asset('images/branding/esprit.png') }}" alt="" class="loopi-logo-img" style="height:22px;width:auto;opacity:.7;">
+            </div>
+        </div>
+    </aside>
+    <div class="loopi-dash-main">
+        <header class="loopi-dash-topbar loopi-dash-topbar--admin">
+            <div class="d-flex align-items-center gap-2">
+                <span class="loopi-dash-topbar-title">Back-office</span>
+            </div>
+            <div class="small text-end text-white">
+                <div class="fw-semibold">{{ app.user.prenom }} {{ app.user.nom }}</div>
+                <div class="text-white-50 text-uppercase" style="font-size:.7rem;">Administrateur</div>
+            </div>
+        </header>
+        <div class="loopi-dash-body">
+            {% block admin_body %}{% endblock %}
+        </div>
+    </div>
+</div>
+{% endblock %}

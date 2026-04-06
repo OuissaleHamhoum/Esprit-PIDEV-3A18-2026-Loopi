@@ -1,0 +1,67 @@
+{% extends 'organisateur/layout.html.twig' %}
+
+{% block title %}Participants — Organisateur{% endblock %}
+
+{% block org_body %}
+<h1 class="h4 fw-bold mb-2">Gestion des participants</h1>
+<p class="text-muted small mb-4">Inscriptions aux événements que vous organisez.</p>
+
+<div class="row g-2 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card loopi-panel"><div class="card-body py-3 text-center">
+            <div class="text-muted small">Total</div>
+            <div class="fs-3 fw-bold">{{ stats.total }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card loopi-panel"><div class="card-body py-3 text-center">
+            <div class="text-muted small">Inscrits</div>
+            <div class="fs-3 fw-bold text-primary">{{ stats.inscrit }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card loopi-panel"><div class="card-body py-3 text-center">
+            <div class="text-muted small">Présents</div>
+            <div class="fs-3 fw-bold text-success">{{ stats.present }}</div>
+        </div></div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card loopi-panel"><div class="card-body py-3 text-center">
+            <div class="text-muted small">Absents</div>
+            <div class="fs-3 fw-bold text-danger">{{ stats.absent }}</div>
+        </div></div>
+    </div>
+</div>
+
+<div class="card loopi-panel">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle small">
+            <thead class="table-light">
+                <tr>
+                    <th>Participant</th>
+                    <th>Email</th>
+                    <th>Événement</th>
+                    <th>Statut</th>
+                    <th>Inscription</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in participations %}
+                    <tr>
+                        <td>{{ p.user ? (p.user.prenom ~ ' ' ~ p.user.nom) : '—' }}</td>
+                        <td>{{ p.user ? p.user.email : '—' }}</td>
+                        <td>{{ p.evenement ? p.evenement.titre : '—' }}</td>
+                        <td>
+                            {% set s = p.statut %}
+                            <span class="badge {% if s == 'present' %}bg-success{% elseif s == 'absent' %}bg-danger{% else %}bg-primary{% endif %}">{{ s|upper }}</span>
+                        </td>
+                        <td>{{ p.dateInscription ? p.dateInscription|date('d/m/Y H:i') : '—' }}</td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="text-muted">Aucune participation.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

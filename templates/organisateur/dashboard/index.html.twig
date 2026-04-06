@@ -1,0 +1,34 @@
+{% extends 'organisateur/layout.html.twig' %}
+
+{% block title %}Tableau de bord — Organisateur{% endblock %}
+
+{% block org_body %}
+<h1 class="h4 fw-bold mb-4">Tableau de bord</h1>
+<p class="text-muted mb-4">Vue d’ensemble de votre activité sur Loopi.</p>
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card border-0 h-100 loopi-card-elevated">
+            <div class="card-body">
+                <div class="text-muted small">Produits (galerie)</div>
+                <div class="display-6 fw-bold text-primary">{{ nbProduits }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 h-100 loopi-card-elevated">
+            <div class="card-body">
+                <div class="text-muted small">Événements</div>
+                <div class="display-6 fw-bold text-success">{{ nbEvenements }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 h-100 loopi-card-elevated">
+            <div class="card-body">
+                <div class="text-muted small">Campagnes / collectes</div>
+                <div class="display-6 fw-bold" style="color:#2e7d32;">{{ nbCollections }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

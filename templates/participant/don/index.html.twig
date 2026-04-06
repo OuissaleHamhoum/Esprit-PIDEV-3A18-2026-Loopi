@@ -1,0 +1,34 @@
+{% extends 'participant/layout.html.twig' %}
+
+{% block title %}Mes dons — Participant{% endblock %}
+
+{% block par_body %}
+<h1 class="h4 fw-bold mb-2">Historique de dons</h1>
+<p class="text-muted mb-4">Vos contributions aux campagnes de collecte.</p>
+<div class="card loopi-panel">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle small">
+            <thead class="table-light">
+                <tr>
+                    <th>Campagne</th>
+                    <th>Montant</th>
+                    <th>Date</th>
+                    <th>Statut</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for d in dons %}
+                    <tr>
+                        <td>{{ d.collection ? d.collection.title : '—' }}</td>
+                        <td>{{ d.amount|number_format(2, ',', ' ') }} kg</td>
+                        <td>{{ d.donationDate ? d.donationDate|date('d/m/Y H:i') : '—' }}</td>
+                        <td><span class="badge bg-success">{{ d.status }}</span></td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="4" class="text-muted">Aucun don enregistré.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

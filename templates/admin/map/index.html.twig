@@ -1,0 +1,24 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Carte — Admin{% endblock %}
+
+{% block admin_body %}
+<h1 class="h4 fw-bold mb-3">Carte des événements</h1>
+<p class="text-muted small mb-3">{{ markers|length }} point(s) géolocalisé(s)</p>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<div id="map" style="height:480px;border-radius:12px;" class="shadow-sm"></div>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script>
+const markers = {{ markers|json_encode|raw }};
+const map = L.map('map').setView([36.8, 10.18], 7);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19, attribution: '&copy; OpenStreetMap' }).addTo(map);
+const group = [];
+markers.forEach(m => {
+    const mk = L.marker([m.lat, m.lng]).addTo(map).bindPopup('<b>' + (m.titre || '') + '</b><br>' + (m.lieu || ''));
+    group.push(mk);
+});
+if (group.length) {
+    map.fitBounds(L.featureGroup(group).getBounds().pad(0.2));
+}
+</script>
+{% endblock %}

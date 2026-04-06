@@ -1,0 +1,12 @@
+{# Affiche un bandeau si le formulaire Symfony contient des erreurs (complète les messages sous chaque champ). #}
+{% if form is defined and not form.vars.valid %}
+<div class="alert alert-danger border-0 rounded-3 shadow-sm mb-3 loopi-form-alert" role="alert">
+    <div class="d-flex align-items-start gap-2">
+        <i class="bi bi-exclamation-triangle-fill flex-shrink-0 mt-1"></i>
+        <div>
+            <strong>Contrôle de saisie</strong>
+            <p class="small mb-0 mt-1 text-danger-emphasis">Certains champs sont incorrects ou manquants — corrigez-les ci-dessous.</p>
+        </div>
+    </div>
+</div>
+{% endif %}

@@ -1,0 +1,36 @@
+{% extends 'participant/layout.html.twig' %}
+
+{% block title %}Mes coupons — Participant{% endblock %}
+
+{% block par_body %}
+<h1 class="h4 fw-bold mb-2">Mes coupons</h1>
+<p class="text-muted mb-4">Réductions liées à vos dons.</p>
+<div class="row g-3">
+    {% for row in coupons %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card loopi-panel h-100 border-start border-4" style="border-color:#2e7d32 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start">
+                        <div>
+                            <div class="fs-4 fw-bold font-monospace">{{ row.code }}</div>
+                            <div class="text-success fw-semibold">-{{ row.discount_percent }}%</div>
+                        </div>
+                        {% if row.used %}
+                            <span class="badge bg-secondary">Utilisé</span>
+                        {% else %}
+                            <span class="badge bg-success">Actif</span>
+                        {% endif %}
+                    </div>
+                    <hr class="my-2">
+                    <div class="small text-muted">
+                        Expire : {{ row.expiration_date ? row.expiration_date|date('d/m/Y') : '—' }}<br>
+                        Créé : {{ row.created_at ? row.created_at|date('d/m/Y') : '—' }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-muted">Aucun coupon.</p>
+    {% endfor %}
+</div>
+{% endblock %}

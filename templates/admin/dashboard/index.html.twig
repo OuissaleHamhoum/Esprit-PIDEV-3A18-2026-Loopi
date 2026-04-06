@@ -1,0 +1,90 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Tableau de bord — Admin{% endblock %}
+
+{% block admin_body %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-4">
+    <div>
+        <p class="text-muted small mb-1">Bonjour, {{ app.user.prenom }}</p>
+        <h1 class="h3 fw-bold mb-0" style="color:var(--loopi-deep);">Tableau de bord</h1>
+        <p class="text-muted small mb-0">{{ 'now'|date('l d F Y', 'Europe/Paris') }}</p>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md">
+        <div class="card border-0 h-100 loopi-card-elevated">
+            <div class="card-body">
+                <div class="text-muted small">Utilisateurs</div>
+                <div class="fs-2 fw-bold text-primary">{{ userCount }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md">
+        <div class="card border-0 h-100 loopi-card-elevated">
+            <div class="card-body">
+                <div class="text-muted small">Produits</div>
+                <div class="fs-2 fw-bold text-success">{{ produitCount }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md">
+        <div class="card border-0 h-100 loopi-card-elevated">
+            <div class="card-body">
+                <div class="text-muted small">Événements</div>
+                <div class="fs-2 fw-bold text-info">{{ eventCount }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md">
+        <div class="card border-0 h-100 loopi-card-elevated">
+            <div class="card-body">
+                <div class="text-muted small">Collections</div>
+                <div class="fs-2 fw-bold text-warning">{{ collectionCount }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-6">
+        <div class="card border-0 h-100 loopi-card-elevated">
+            <div class="card-header bg-white fw-semibold border-0">Répartition par rôle</div>
+            <div class="card-body">
+                <canvas id="roleChart" height="220"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="card border-0 h-100 loopi-card-elevated">
+            <div class="card-header bg-white fw-semibold border-0">Accès rapides</div>
+            <div class="list-group list-group-flush">
+                <a class="list-group-item list-group-item-action" href="{{ path('admin_users') }}"><i class="bi bi-people me-2"></i>Utilisateurs</a>
+                <a class="list-group-item list-group-item-action" href="{{ path('admin_produits') }}"><i class="bi bi-palette me-2"></i>Galerie</a>
+                <a class="list-group-item list-group-item-action" href="{{ path('admin_evenements') }}"><i class="bi bi-calendar-event me-2"></i>Événements</a>
+                <a class="list-group-item list-group-item-action" href="{{ path('admin_collections') }}"><i class="bi bi-recycle me-2"></i>Collections</a>
+                <a class="list-group-item list-group-item-action" href="{{ path('admin_map') }}"><i class="bi bi-geo-alt me-2"></i>Carte</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('roleChart');
+    if (!ctx) return;
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Administrateurs', 'Organisateurs', 'Participants'],
+            datasets: [{
+                data: [{{ roles.admin }}, {{ roles.organisateur }}, {{ roles.participant }}],
+                backgroundColor: ['#5b7cfa', '#2d8a8a', '#e07a5f'],
+            }]
+        },
+        options: { plugins: { legend: { position: 'bottom' } } }
+    });
+});
+</script>
+{% endblock %}

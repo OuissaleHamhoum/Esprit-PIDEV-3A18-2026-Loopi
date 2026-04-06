@@ -1,0 +1,47 @@
+{% extends 'organisateur/layout.html.twig' %}
+
+{% block title %}Campagnes — Organisateur{% endblock %}
+
+{% block org_body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+        <h1 class="h4 fw-bold mb-1">Tableau de recyclage</h1>
+        <p class="text-muted small mb-0">Gérez vos campagnes de collecte.</p>
+    </div>
+    <a class="btn btn-success rounded-3" href="{{ path('org_collections_new') }}"><i class="bi bi-plus-lg me-1"></i>Nouvelle collecte</a>
+</div>
+<div class="row g-3">
+    {% for c in collections %}
+        <div class="col-md-6 col-xl-4">
+            <div class="card loopi-panel h-100">
+                {% set img = c.imageCollection %}
+                <div class="ratio ratio-4x3 bg-light rounded-top overflow-hidden">
+                    {% if img and 'uploads/' in img %}
+                        <img src="{{ asset(img) }}" alt="" class="object-fit-cover">
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center text-muted small">Image</div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <span class="badge bg-success bg-opacity-10 text-success">{{ c.materialType }}</span>
+                    <h2 class="h6 fw-bold mt-2">{{ c.title }}</h2>
+                    <div class="progress mb-2" style="height:8px;">
+                        {% set pct = c.goalAmount > 0 ? (100 * (c.currentAmount ?? 0) / c.goalAmount)|round(0, 'floor') : 0 %}
+                        <div class="progress-bar bg-success" style="width: {{ pct > 100 ? 100 : pct }}%;"></div>
+                    </div>
+                    <div class="small text-muted">{{ (c.currentAmount ?? 0)|number_format(1, ',', ' ') }} / {{ c.goalAmount|number_format(1, ',', ' ') }} {{ c.unit }}</div>
+                    <div class="d-flex gap-2 mt-3">
+                        <a class="btn btn-warning btn-sm flex-grow-1" href="{{ path('org_collections_edit', {id: c.id}) }}">Modifier</a>
+                        <form method="post" action="{{ path('org_collections_delete', {id: c.id}) }}" onsubmit="return confirm('Supprimer ?');">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ c.id) }}">
+                            <button type="submit" class="btn btn-outline-danger btn-sm">Supprimer</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-muted">Aucune campagne.</p>
+    {% endfor %}
+</div>
+{% endblock %}
