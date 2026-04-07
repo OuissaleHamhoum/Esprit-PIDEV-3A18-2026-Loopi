@@ -854,47 +854,23 @@ footer span { color: var(--sage); font-weight: 600; }
   <div class="grid-2">
     <div class="card">
       <div class="card-title">Événements disponibles</div>
-      <div class="event-item" style="flex-direction:column;gap:10px;align-items:flex-start">
-        <div style="display:flex;gap:14px;width:100%;align-items:center">
-          <div class="ev-date"><div class="ev-day">15</div><div class="ev-mon">Juin</div></div>
-          <div class="ev-info" style="flex:1"><div class="ev-title">Nettoyage de Plage</div><div class="ev-loc">📍 Plage Sousse · 50 places · 9h00</div></div>
-          <span class="ev-badge badge-inscrit">Inscrit ✓</span>
-        </div>
-        <div style="width:100%;padding-left:60px">
-          <div class="prog-bar"><div class="prog-fill" style="width:60%"></div></div>
-          <div style="font-size:.7rem;color:var(--muted)">30/50 participants</div>
-        </div>
-      </div>
-      <div class="event-item" style="flex-direction:column;gap:10px;align-items:flex-start">
-        <div style="display:flex;gap:14px;width:100%;align-items:center">
-          <div class="ev-date"><div class="ev-day">20</div><div class="ev-mon">Juin</div></div>
-          <div class="ev-info" style="flex:1"><div class="ev-title">Atelier Recyclage</div><div class="ev-loc">📍 Centre Tunis · 30 places · 14h00</div></div>
-          <span class="ev-badge badge-inscrit">Inscrit ✓</span>
-        </div>
-        <div style="width:100%;padding-left:60px">
-          <div class="prog-bar"><div class="prog-fill" style="width:40%"></div></div>
-          <div style="font-size:.7rem;color:var(--muted)">12/30 participants</div>
-        </div>
-      </div>
-      <div class="event-item" style="align-items:center">
-        <div class="ev-date" style="background:rgba(30,58,47,.12)"><div class="ev-day" style="color:var(--forest)">12</div><div class="ev-mon" style="color:var(--muted)">Juil</div></div>
-        <div class="ev-info" style="flex:1"><div class="ev-title">Collecte de Métal</div><div class="ev-loc">📍 Tunis Ville · 40 places</div></div>
-        <button class="btn btn-primary btn-sm" onclick="showToast('Inscription confirmée! 🎉')">S'inscrire</button>
+      <div id="events-container" style="display:flex;flex-direction:column;gap:14px">
+        <div style="text-align:center;color:var(--muted);padding:20px">Chargement des événements...</div>
       </div>
     </div>
 
     <div class="card">
       <div class="card-title">Ma participation</div>
       <div style="text-align:center;padding:20px 0">
-        <div style="font-family:'Playfair Display',serif;font-size:3rem;font-weight:700;color:var(--forest)">2</div>
+        <div id="user-events-count" style="font-family:'Playfair Display',serif;font-size:3rem;font-weight:700;color:var(--forest)">--</div>
         <div style="font-size:.84rem;color:var(--muted)">événements rejoints</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px">
           <div style="background:var(--bg);border-radius:14px;padding:16px;text-align:center">
-            <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--forest)">32</div>
+            <div id="user-kg-collected" style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--forest)">--</div>
             <div style="font-size:.72rem;color:var(--muted)">kg collectés</div>
           </div>
           <div style="background:var(--bg);border-radius:14px;padding:16px;text-align:center">
-            <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--moss)">2</div>
+            <div id="user-coupons" style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--moss)">--</div>
             <div style="font-size:.72rem;color:var(--muted)">coupons gagnés</div>
           </div>
         </div>
@@ -1201,6 +1177,133 @@ function filterGal(btn, cat) {
   });
   btn.className = 'btn btn-primary btn-sm';
 }
+
+// ── Load Participant Events ──
+async function loadParticipantEvents() {
+  const container = document.getElementById('events-container');
+  if (!container) return;
+  
+  try {
+    const response = await fetch('/api/events');
+    const data = await response.json();
+    const events = data.events || data;
+    
+    if (!Array.isArray(events) || events.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px">Aucun événement disponible</div>';
+      return;
+    }
+    
+    container.innerHTML = events.map(event => {
+      const eventDate = new Date(event.date_evenement + 'T' + (event.heure_evenement || '00:00'));
+      const day = eventDate.getDate();
+      const month = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Aoû', 'Sep', 'Oct', 'Nov', 'Déc'][eventDate.getMonth()];
+      
+      const capacityFill = Math.round(((event.capacite_max - event.places_left) / event.capacite_max) * 100);
+      const placesLeft = event.places_left || 0;
+      
+      const isRegistered = event.is_registered;
+      const badgeHtml = isRegistered 
+        ? '<span class="ev-badge badge-inscrit">Inscrit ✓</span>'
+        : '';
+      
+      const buttonHtml = isRegistered
+        ? ''
+        : `<button class="btn btn-primary btn-sm" onclick="subscribeToEvent(${event.id}, '${event.titre.replace(/'/g, "\\'")}')" style="margin-left:10px">S'inscrire</button>`;
+      
+      return `
+        <div class="event-item" style="flex-direction:column;gap:10px;align-items:flex-start">
+          <div style="display:flex;gap:14px;width:100%;align-items:center">
+            <div class="ev-date"><div class="ev-day">${day}</div><div class="ev-mon">${month}</div></div>
+            <div class="ev-info" style="flex:1">
+              <div class="ev-title">${event.titre}</div>
+              <div class="ev-loc">📍 ${event.lieu} · ${event.capacite_max} places · ${event.heure_evenement || '00:00'}</div>
+            </div>
+            ${badgeHtml}
+            ${buttonHtml}
+          </div>
+          <div style="width:100%;padding-left:60px">
+            <div class="prog-bar"><div class="prog-fill" style="width:${capacityFill}%"></div></div>
+            <div style="font-size:.7rem;color:var(--muted)">${event.capacite_max - placesLeft}/${event.capacite_max} participants</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+    
+  } catch (error) {
+    console.error('Erreur lors du chargement des événements:', error);
+    container.innerHTML = '<div style="text-align:center;color:var(--error);padding:20px">Erreur lors du chargement des événements</div>';
+  }
+}
+
+// ── Subscribe to Event ──
+async function subscribeToEvent(eventId, eventTitle) {
+  // Show contact and age prompt (simplified for now)
+  const contact = prompt('Entrez votre numéro de contact:');
+  if (!contact) return;
+  
+  const age = prompt('Entrez votre âge:');
+  if (!age || isNaN(age)) return;
+  
+  try {
+    const response = await fetch(`/api/events/${eventId}/subscribe`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ contact: contact, age: parseInt(age) })
+    });
+    
+    const result = await response.json();
+    
+    if (response.ok) {
+      showToast(`Inscription confirmée pour ${eventTitle}! 🎉`);
+      loadParticipantEvents(); // Reload events to show updated status
+    } else {
+      showToast(result.message || 'Erreur lors de l\'inscription');
+    }
+  } catch (error) {
+    console.error('Erreur lors de l\'inscription:', error);
+    showToast('Erreur lors de l\'inscription');
+  }
+}
+
+// Load events when page loads
+document.addEventListener('DOMContentLoaded', function() {
+  loadParticipantEvents();
+  loadUserStats();
+});
+
+// ── Load User Stats ──
+async function loadUserStats() {
+  try {
+    const response = await fetch('/api/my-events');
+    const data = await response.json();
+    const myEvents = data.events || data;
+    
+    if (Array.isArray(myEvents)) {
+      document.getElementById('user-events-count').textContent = myEvents.length;
+      
+      // Calculate kg collected (mock calculation for now)
+      const totalParticipants = myEvents.length;
+      const kgCollected = totalParticipants * 16; // Mock: 16kg per event
+      document.getElementById('user-kg-collected').textContent = kgCollected;
+      
+      // Calculate coupons (mock: 1 coupon per event)
+      document.getElementById('user-coupons').textContent = totalParticipants;
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement des stats:', error);
+    // Keep default values on error
+  }
+}
+
+
+// Optionally reload when switching to events section
+const originalShowSection = window.showSection;
+window.showSection = function(name, triggerEl) {
+  originalShowSection(name, triggerEl);
+  if (name === 'evenements') {
+    loadParticipantEvents();
+  }
+};
 </script>
 
 </body>

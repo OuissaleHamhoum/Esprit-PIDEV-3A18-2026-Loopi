@@ -538,7 +538,12 @@ function goPage(name, navEl) {
       refreshUserTable();
       break;
     case 'events':
-      fetchAdminEvents();
+      if (typeof loadEvents === 'function') {
+        loadEvents();
+      }
+      if (typeof loadOrganisateurs === 'function') {
+        loadOrganisateurs();
+      }
       break;
     case 'products':
       refreshProductTable();
@@ -993,156 +998,6 @@ function exportUsersCsv() {
   URL.revokeObjectURL(url);
 }
 
-async function fetchAdminEvents() {
-  const url = '/api/admin/events';
-  console.log('[Admin Events] Fetching:', url);
-
-  try {
-    const response = await fetch(url);
-    console.log('[Admin Events] Response status:', response.status, response.statusText);
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        showToast('Session expirée. Veuillez vous reconnecter.');
-        window.location.href = '/logout';
-        return;
-      } else if (response.status === 403) {
-        showToast('Accès refusé. Vous devez être administrateur.');
-        return;
-      } else if (response.status === 404) {
-        showToast('Endpoint non trouvé.');
-        return;
-      }
-    }
-
-    const result = await response.json();
-    console.log('[Admin Events] API Response:', result);
-
-    if (result.success) {
-      adminEvents = result.events || [];
-      renderEventsTable(adminEvents);
-    } else {
-      showToast('Erreur lors du chargement des événements: ' + (result.message || 'Erreur inconnue'));
-    }
-  } catch (error) {
-    showToast('Erreur de connexion: ' + error.message);
-    console.error('[Admin Events] Error:', error);
-  }
-}
-
-function renderEventsTable(events) {
-  const tbody = document.getElementById('eventsTableBody');
-  const alert = document.getElementById('eventsAlert');
-  const summary = document.getElementById('eventsSummary');
-  
-  if (!tbody || !alert || !summary) return;
-
-  if (events.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">Aucun événement trouvé.</td></tr>';
-    alert.style.display = 'none';
-    summary.textContent = '';
-    return;
-  }
-
-  // Compter les événements en attente (pour l'instant, tous sont validés)
-  const pendingCount = events.filter(e => e.statut === 'en_attente').length;
-  
-  if (pendingCount > 0) {
-    alert.innerHTML = `⚠️ ${pendingCount} événement(s) en attente de validation par l'administrateur.`;
-    alert.style.display = 'block';
-  } else {
-    alert.style.display = 'none';
-  }
-
-  summary.textContent = `${events.length} événement(s) enregistré(s)`;
-
-  tbody.innerHTML = events.map(event => {
-    const statusBadge = event.statut === 'validé' 
-      ? '<span class="badge b-active">Validé</span>' 
-      : '<span class="badge b-pending">En attente</span>';
-    
-    const actions = event.statut === 'validé'
-      ? `<div style="display:flex;gap:5px">
-          <button class="btn btn-ghost btn-sm" onclick="viewEventDetails(${event.id})">Voir</button>
-          <button class="btn btn-danger btn-sm" onclick="rejectEvent(${event.id})">Rejeter</button>
-        </div>`
-      : `<div style="display:flex;gap:5px">
-          <button class="btn btn-success btn-sm" onclick="validateEvent(${event.id})">✓ Valider</button>
-          <button class="btn btn-danger btn-sm" onclick="rejectEvent(${event.id})">✕ Rejeter</button>
-        </div>`;
-
-    return `
-      <tr>
-        <td style="font-weight:600">${event.titre}</td>
-        <td style="color:var(--muted)">${event.organisateur}</td>
-        <td style="color:var(--muted)">${formatDate(event.date_evenement)}</td>
-        <td style="color:var(--muted)">${event.lieu || '-'}</td>
-        <td style="color:var(--muted)">${event.capacite_max || '-'}</td>
-        <td>${statusBadge}</td>
-        <td>${actions}</td>
-      </tr>
-    `;
-  }).join('');
-}
-
-async function validateEvent(id) {
-  try {
-    const response = await fetch(`/api/admin/events/${id}/validate`, { method: 'POST' });
-    const result = await response.json();
-    
-    if (result.success) {
-      showToast('Événement validé avec succès ✓');
-      fetchAdminEvents(); // Recharger la liste
-    } else {
-      showToast('Erreur: ' + (result.message || 'Impossible de valider l\'événement'));
-    }
-  } catch (error) {
-    showToast('Erreur de connexion: ' + error.message);
-  }
-}
-
-async function rejectEvent(id) {
-  if (!confirm('Confirmer le rejet de cet événement ?')) {
-    return;
-  }
-
-  try {
-    const response = await fetch(`/api/admin/events/${id}/reject`, { method: 'POST' });
-    const result = await response.json();
-    
-    if (result.success) {
-      showToast('Événement rejeté avec succès');
-      fetchAdminEvents(); // Recharger la liste
-    } else {
-      showToast('Erreur: ' + (result.message || 'Impossible de rejeter l\'événement'));
-    }
-  } catch (error) {
-    showToast('Erreur de connexion: ' + error.message);
-  }
-}
-
-function viewEventDetails(id) {
-  const event = adminEvents.find(e => e.id === id);
-  if (!event) {
-    showToast('Événement introuvable');
-    return;
-  }
-  
-  // Pour l'instant, juste afficher un toast avec les détails
-  showToast(`Détails: ${event.titre} - ${event.description || 'Pas de description'}`);
-}
-
-function formatDate(value) {
-  if (!value) {
-    return '-';
-  }
-  try {
-    return new Date(value).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' });
-  } catch (e) {
-    return value;
-  }
-}
-
 window.addEventListener('DOMContentLoaded', () => {
   console.log('[Admin] DOM Content Loaded');
   const searchInput = document.getElementById('userSearch');
@@ -1203,7 +1058,9 @@ window.addEventListener('DOMContentLoaded', () => {
   // Initialize events table on first page load if events page is currently visible
   if (eventsPage && eventsPage.style.display !== 'none') {
     console.log('[Admin] Events page visible, loading events...');
-    fetchAdminEvents();
+    if (typeof loadEvents === 'function') {
+      loadEvents();
+    }
   }
 
   // Initialize products table on first page load if products page is currently visible

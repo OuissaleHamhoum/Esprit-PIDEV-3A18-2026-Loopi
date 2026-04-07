@@ -321,25 +321,8 @@ nav.snav{padding:14px 10px;flex:1}
     <div class="blk" style="margin-bottom:18px">
       <table class="tbl">
         <thead><tr><th>Titre</th><th>Date</th><th>Lieu</th><th>Capacité</th><th>Inscrits</th><th>Statut valid.</th><th>Actions</th></tr></thead>
-        <tbody>
-          <tr>
-            <td style="color:white;font-weight:600">Nettoyage de Plage</td>
-            <td style="color:var(--muted)">15 juin 2024 · 9h00</td>
-            <td style="color:var(--muted)">Plage Sousse</td>
-            <td style="color:var(--muted)">50</td>
-            <td><span style="color:var(--accent);font-weight:700">30</span></td>
-            <td><span class="sbadge s-active">Validé</span></td>
-            <td><div style="display:flex;gap:6px"><button class="btn btn-ghost" style="font-size:.7rem;padding:4px 8px" onclick="showToast('Modifier événement')">Éditer</button><button class="btn btn-danger" style="font-size:.7rem;padding:4px 8px" onclick="showToast('Confirmer la suppression')">Suppr.</button></div></td>
-          </tr>
-          <tr>
-            <td style="color:white;font-weight:600">Atelier Recyclage</td>
-            <td style="color:var(--muted)">20 juin 2024 · 14h00</td>
-            <td style="color:var(--muted)">Centre Tunis</td>
-            <td style="color:var(--muted)">30</td>
-            <td><span style="color:var(--sand);font-weight:700">12</span></td>
-            <td><span class="sbadge s-active">Validé</span></td>
-            <td><div style="display:flex;gap:6px"><button class="btn btn-ghost" style="font-size:.7rem;padding:4px 8px" onclick="showToast('Modifier événement')">Éditer</button><button class="btn btn-danger" style="font-size:.7rem;padding:4px 8px" onclick="showToast('Confirmer la suppression')">Suppr.</button></div></td>
-          </tr>
+        <tbody id="events-table-body">
+          <!-- Events will be loaded dynamically -->
         </tbody>
       </table>
     </div>
@@ -355,7 +338,7 @@ nav.snav{padding:14px 10px;flex:1}
           <div class="bar-col"><div class="bar" style="height:90%"></div><div class="bar-lbl">Sam</div></div>
           <div class="bar-col"><div class="bar" style="height:40%"></div><div class="bar-lbl">Dim</div></div>
         </div>
-        <div style="text-align:center;font-size:.72rem;color:var(--muted);margin-top:8px">Inscriptions cette semaine: 42 total</div>
+        <div style="text-align:center;font-size:.72rem;color:var(--muted);margin-top:8px">Inscriptions cette semaine: <span id="weekly-registrations">42</span> total</div>
       </div>
       <div class="blk">
         <div class="blk-title">Carte de localisation</div>
@@ -363,9 +346,8 @@ nav.snav{padding:14px 10px;flex:1}
           <div style="font-size:2rem">🗺️</div>
           <div style="font-size:.75rem;color:var(--muted)">Voir les événements sur la carte</div>
         </div>
-        <div style="margin-top:12px;font-size:.78rem">
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Plage Sousse</span><span style="color:var(--accent)">📍 33.8719° N</span></div>
-          <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:var(--muted)">Centre Tunis</span><span style="color:var(--accent)">📍 36.8065° N</span></div>
+        <div id="location-list" style="margin-top:12px;font-size:.78rem">
+          <!-- Locations will be loaded dynamically -->
         </div>
       </div>
     </div>
@@ -536,7 +518,7 @@ nav.snav{padding:14px 10px;flex:1}
     <div class="fg"><label>Description</label><textarea placeholder="Décrivez l'événement…"></textarea></div>
     <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
       <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
-      <button class="btn btn-g" onclick="closeModal();showToast('Événement créé et envoyé pour validation ✓')">Créer & Soumettre</button>
+      <button class="btn btn-g" onclick="createEvent()">Créer & Soumettre</button>
     </div>
   </div>
 </div>
@@ -549,6 +531,11 @@ function showPage(name, navEl) {
   document.getElementById('page-' + name).style.display = 'block';
   document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
+
+  // Load events when switching to events page
+  if (name === 'evenements') {
+    loadOrganisateurEvents();
+  }
 }
 function showToast(msg) {
   const t = document.getElementById('toast');
@@ -556,9 +543,256 @@ function showToast(msg) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2600);
 }
-function openModal() { document.getElementById('eventModal').classList.add('active'); }
-function closeModal() { document.getElementById('eventModal').classList.remove('active'); }
+
+let organiserEventsCache = {};
+let editingEventId = null;
+
+function openModal() {
+  document.getElementById('eventModal').classList.add('active');
+}
+
+function closeModal() {
+  document.getElementById('eventModal').classList.remove('active');
+  editingEventId = null;
+  resetEventForm();
+}
+
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+function resetEventForm() {
+  const modal = document.getElementById('eventModal');
+  const inputs = modal.querySelectorAll('input, textarea');
+  inputs[0].value = '';
+  inputs[1].value = '';
+  inputs[2].value = '';
+  inputs[3].value = '';
+  inputs[4].value = '09:00';
+  inputs[5].value = '';
+  const title = modal.querySelector('.modal-title');
+  if (title) title.firstChild.textContent = 'Créer un événement ';
+  const createBtn = modal.querySelector('.btn-g');
+  if (createBtn) createBtn.textContent = 'Créer & Soumettre';
+}
+
+function populateEventForm(eventData) {
+  const modal = document.getElementById('eventModal');
+  const inputs = modal.querySelectorAll('input, textarea');
+  inputs[0].value = eventData.titre || '';
+  inputs[1].value = eventData.date_evenement || '';
+  inputs[2].value = eventData.lieu || '';
+  inputs[3].value = eventData.capacite_max || '';
+  inputs[4].value = eventData.heure_evenement || '09:00';
+  inputs[5].value = eventData.description || '';
+  const title = modal.querySelector('.modal-title');
+  if (title) title.firstChild.textContent = 'Modifier l\'événement ';
+  const createBtn = modal.querySelector('.btn-g');
+  if (createBtn) createBtn.textContent = 'Mettre à jour';
+}
+
+// Load events for organizer
+async function loadOrganisateurEvents() {
+  try {
+    console.log('Loading events...');
+    const response = await fetch('/api/organisateur/events');
+
+    if (!response.ok) {
+      console.error('HTTP error:', response.status, response.statusText);
+      showToast('Erreur HTTP: ' + response.status);
+      return;
+    }
+
+    let data;
+    try {
+      data = await response.json();
+      console.log('Received data:', data);
+    } catch (e) {
+      console.error('JSON parse error:', e);
+      showToast('Erreur: Réponse JSON invalide');
+      return;
+    }
+
+    if (!data.success) {
+      console.error('API returned success=false:', data);
+      showToast('Erreur API: ' + (data.message || 'Erreur inconnue'));
+      return;
+    }
+
+    const events = data.events;
+    organiserEventsCache = {};
+    console.log('Processing', events.length, 'events');
+    const tbody = document.getElementById('events-table-body');
+    tbody.innerHTML = '';
+
+    if (events.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:20px">Aucun événement trouvé</td></tr>';
+      return;
+    }
+
+    events.forEach(event => {
+      organiserEventsCache[event.id] = event;
+      const date = new Date(event.date_evenement);
+      const formattedDate = date.toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }) + ' · ' + (event.heure_evenement || '09:00');
+
+      let statusBadge = '';
+      let statusText = '';
+      switch(event.statut) {
+        case 'valide':
+          statusBadge = 's-active';
+          statusText = 'Validé';
+          break;
+        case 'rejete':
+          statusBadge = 's-rejected';
+          statusText = 'Rejeté';
+          break;
+        default:
+          statusBadge = 's-pending';
+          statusText = 'En attente';
+      }
+
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td style="color:white;font-weight:600">${event.titre}</td>
+        <td style="color:var(--muted)">${formattedDate}</td>
+        <td style="color:var(--muted)">${event.lieu}</td>
+        <td style="color:var(--muted)">${event.capacite_max}</td>
+        <td><span style="color:var(--accent);font-weight:700">${event.participants_count || 0}</span></td>
+        <td><span class="sbadge ${statusBadge}">${statusText}</span></td>
+        <td>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-ghost" style="font-size:.7rem;padding:4px 8px" onclick="editEvent(${event.id})">Éditer</button>
+            <button class="btn btn-danger" style="font-size:.7rem;padding:4px 8px" onclick="deleteEvent(${event.id})">Suppr.</button>
+          </div>
+        </td>
+      `;
+      tbody.appendChild(row);
+    });
+
+    // Update locations
+    updateLocations(events);
+
+  } catch (error) {
+    console.error('Error loading events:', error);
+    showToast('Erreur lors du chargement des événements');
+  }
+}
+
+// Update location list
+function updateLocations(events) {
+  const locationList = document.getElementById('location-list');
+  locationList.innerHTML = '';
+
+  const locations = [...new Set(events.map(e => e.lieu))];
+
+  locations.forEach((location, index) => {
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;justify-content:space-between;padding:6px 0;';
+    if (index < locations.length - 1) {
+      div.style.borderBottom = '1px solid var(--border)';
+    }
+    div.innerHTML = `
+      <span style="color:var(--muted)">${location}</span>
+      <span style="color:var(--accent)">📍 Localisation</span>
+    `;
+    locationList.appendChild(div);
+  });
+}
+
+// Create new event
+async function createEvent() {
+  const modal = document.getElementById('eventModal');
+  const inputs = modal.querySelectorAll('input, textarea');
+  const data = {
+    titre: inputs[0].value,
+    date_evenement: inputs[1].value,
+    lieu: inputs[2].value,
+    capacite_max: parseInt(inputs[3].value),
+    heure_evenement: inputs[4].value,
+    description: inputs[5].value
+  };
+
+  const url = editingEventId ? `/api/organisateur/events/${editingEventId}` : '/api/organisateur/events';
+  const method = editingEventId ? 'PUT' : 'POST';
+
+  try {
+    const response = await fetch(url, {
+      method,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data)
+    });
+
+    let result;
+    try {
+      result = await response.json();
+    } catch (e) {
+      console.error('Failed to parse JSON response:', e);
+      showToast('Erreur: Réponse invalide du serveur');
+      return;
+    }
+
+    if (response.ok && result.success) {
+      closeModal();
+      showToast('Événement créé et envoyé pour validation ✓');
+      loadOrganisateurEvents(); // Reload events
+    } else {
+      const errorMsg = result.errors ?
+        Object.values(result.errors).join(', ') :
+        (result.message || 'Erreur lors de la création');
+      console.error('API error:', result);
+      showToast('Erreur: ' + errorMsg);
+    }
+  } catch (error) {
+    console.error('Network error:', error);
+    showToast('Erreur de connexion lors de la création');
+  }
+}
+
+function editEvent(eventId) {
+  const eventData = organiserEventsCache[eventId];
+  if (!eventData) {
+    showToast('Événement introuvable pour modification');
+    return;
+  }
+  editingEventId = eventId;
+  populateEventForm(eventData);
+  openModal();
+}
+
+// Delete event
+async function deleteEvent(eventId) {
+  if (!confirm('Êtes-vous sûr de vouloir supprimer cet événement ?')) {
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/organisateur/events/${eventId}`, {
+      method: 'DELETE'
+    });
+
+    if (response.ok) {
+      showToast('Événement supprimé');
+      loadOrganisateurEvents(); // Reload events
+    } else {
+      showToast('Erreur lors de la suppression');
+    }
+  } catch (error) {
+    console.error('Error deleting event:', error);
+    showToast('Erreur lors de la suppression');
+  }
+}
+
+// Update modal submit button to call createEvent
+document.addEventListener('DOMContentLoaded', function() {
+  const createBtn = document.querySelector('.modal .btn-g');
+  if (createBtn) {
+    createBtn.onclick = createEvent;
+  }
+});
 </script>
 </body>
 </html>

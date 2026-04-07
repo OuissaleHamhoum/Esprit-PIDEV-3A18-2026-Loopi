@@ -79,24 +79,24 @@
     </div>
 
     <!-- Modal de détails d'événement -->
-    <div id="eventDetailsModal" class="modal" style="display:none">
-      <div class="modal-content" style="max-width:800px">
-        <div class="modal-header">
+    <div id="eventDetailsModal" class="events-modal" style="display:none">
+      <div class="events-modal-content" style="max-width:800px">
+        <div class="events-modal-header">
           <h3>Détails de l'événement</h3>
           <span class="modal-close" onclick="closeEventDetailsModal()">&times;</span>
         </div>
-        <div class="modal-body">
+        <div class="events-modal-body">
           <div id="eventDetailsContent">
             <!-- Contenu chargé dynamiquement -->
           </div>
         </div>
-        <div class="modal-footer">
+        <div class="events-modal-footer">
           <button type="button" class="btn btn-secondary" onclick="closeEventDetailsModal()">Fermer</button>
         </div>
       </div>
     </div>
-    <div id="eventModal" class="modal" style="display:none">
-      <div class="modal-content" style="max-width:600px">
+    <div id="eventModal" class="events-modal" style="display:none">
+      <div class="events-modal-content" style="max-width:600px">
         <div class="modal-header">
           <h3 id="eventModalTitle">Créer un événement</h3>
           <span class="modal-close" onclick="closeEventModal()">&times;</span>
@@ -186,44 +186,57 @@
     let organisateursData = [];
     let currentEventId = null;
 
+    async function parseJsonResponse(response) {
+      const text = await response.text();
+      try {
+        return JSON.parse(text);
+      } catch (error) {
+        console.error('Invalid JSON response:', text);
+        return { success: false, message: 'Réponse serveur invalide' };
+      }
+    }
+
     // Chargement initial
-    document.addEventListener('DOMContentLoaded', function() {
-      loadEvents();
-      loadOrganisateurs();
+    if (document.readyState !== 'loading') {
       setupEventListeners();
-    });
+    } else {
+      document.addEventListener('DOMContentLoaded', setupEventListeners);
+    }
 
     function setupEventListeners() {
-      // Recherche
-      document.getElementById('searchEvents').addEventListener('input', filterEvents);
+      const searchInput = document.getElementById('searchEvents');
+      const statusFilter = document.getElementById('filterStatus');
+      const organisateurFilter = document.getElementById('filterOrganisateur');
+      const dateFilter = document.getElementById('filterDate');
+      const resetFiltersButton = document.getElementById('btnResetFilters');
+      const exportButton = document.getElementById('btnExportEvents');
 
-      // Filtres
-      document.getElementById('filterStatus').addEventListener('change', filterEvents);
-      document.getElementById('filterOrganisateur').addEventListener('change', filterEvents);
-      document.getElementById('filterDate').addEventListener('change', filterEvents);
-
-      // Réinitialiser les filtres
-      document.getElementById('btnResetFilters').addEventListener('click', resetFilters);
-
-      // Export
-      document.getElementById('btnExportEvents').addEventListener('click', exportEvents);
+      if (searchInput) searchInput.addEventListener('input', filterEvents);
+      if (statusFilter) statusFilter.addEventListener('change', filterEvents);
+      if (organisateurFilter) organisateurFilter.addEventListener('change', filterEvents);
+      if (dateFilter) dateFilter.addEventListener('change', filterEvents);
+      if (resetFiltersButton) resetFiltersButton.addEventListener('click', resetFilters);
+      if (exportButton) exportButton.addEventListener('click', exportEvents);
     }
 
     // Fonctions de chargement des données
     async function loadEvents() {
       try {
         const response = await fetch('/api/admin/events', {
+          credentials: 'include',
           headers: {
-            'Authorization': 'Bearer ' + getAuthToken(),
-            'Content-Type': 'application/json'
+            'Accept': 'application/json'
           }
         });
 
-        const data = await response.json();
+        const data = await parseJsonResponse(response);
         if (data.success) {
           eventsData = data.events;
           renderEventsTable();
           updateEventsSummary();
+          if (!organisateursData.length && typeof loadOrganisateurs === 'function') {
+            loadOrganisateurs();
+          }
         } else {
           showAlert('Erreur lors du chargement des événements', 'error');
         }
@@ -236,13 +249,13 @@
     async function loadOrganisateurs() {
       try {
         const response = await fetch('/api/admin/organisateurs', {
+          credentials: 'include',
           headers: {
-            'Authorization': 'Bearer ' + getAuthToken(),
-            'Content-Type': 'application/json'
+            'Accept': 'application/json'
           }
         });
 
-        const data = await response.json();
+        const data = await parseJsonResponse(response);
         if (data.success) {
           organisateursData = data.organisateurs;
           renderOrganisateursSelect();
@@ -256,8 +269,6 @@
     function renderEventsTable() {
       const tbody = document.getElementById('eventsTableBody');
       tbody.innerHTML = '';
-
-        tbody.innerHTML = '';
 
       if (eventsData.length === 0) {
         tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">Aucun événement trouvé</td></tr>';
@@ -298,7 +309,7 @@
                   <i class="fas fa-times"></i>
                 </button>
               ` : ''}
-              <button class="btn btn-sm btn-danger" onclick="deleteEvent(${event.id}, '${escapeHtml(event.titre)}')" title="Supprimer">
+              <button class="btn btn-sm btn-danger" onclick='deleteEvent(${event.id}, ${JSON.stringify(event.titre)})' title="Supprimer">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -309,17 +320,37 @@
     }
 
     function renderOrganisateursSelect() {
-      const select = document.getElementById('filterOrganisateur');
-      select.innerHTML = '<option value="">Tous les organisateurs</option>';
+      const filterSelect = document.getElementById('filterOrganisateur');
+      const eventSelect = document.getElementById('eventOrganisateur');
 
-      // Obtenir la liste unique des organisateurs
-      const uniqueOrganisateurs = [...new Set(eventsData.map(e => e.organisateur))].sort();
+      if (filterSelect) {
+        filterSelect.innerHTML = '<option value="">Tous les organisateurs</option>';
+      }
+      if (eventSelect) {
+        eventSelect.innerHTML = '<option value="">Sélectionner un organisateur</option>';
+      }
 
-      uniqueOrganisateurs.forEach(org => {
-        const option = document.createElement('option');
-        option.value = org;
-        option.textContent = org;
-        select.appendChild(option);
+      if (!Array.isArray(organisateursData) || !organisateursData.length) {
+        return;
+      }
+
+      organisateursData.forEach(org => {
+        const label = org.nom ? `${org.nom} ${org.prenom || ''}`.trim() : org.email || org.displayName || 'Organisateur';
+        const value = org.id || org.value || '';
+
+        if (filterSelect) {
+          const filterOption = document.createElement('option');
+          filterOption.value = value;
+          filterOption.textContent = label;
+          filterSelect.appendChild(filterOption);
+        }
+
+        if (eventSelect) {
+          const eventOption = document.createElement('option');
+          eventOption.value = value;
+          eventOption.textContent = label;
+          eventSelect.appendChild(eventOption);
+        }
       });
     }
 
@@ -424,7 +455,7 @@
                   <i class="fas fa-times"></i>
                 </button>
               ` : ''}
-              <button class="btn btn-sm btn-danger" onclick="deleteEvent(${event.id}, '${escapeHtml(event.titre)}')" title="Supprimer">
+              <button class="btn btn-sm btn-danger" onclick='deleteEvent(${event.id}, ${JSON.stringify(event.titre)})' title="Supprimer">
                 <i class="fas fa-trash"></i>
               </button>
             </div>
@@ -446,7 +477,7 @@
     function updateEventsSummary(filteredEvents = null) {
       const events = filteredEvents || eventsData;
       const total = events.length;
-      const valide = events.filter(e => e.statut === 'valide').length;
+      const valide = events.filter(e => e.statut === 'valide' || e.statut === 'approuve').length;
       const enAttente = events.filter(e => e.statut === 'en_attente').length;
       const rejete = events.filter(e => e.statut === 'rejete').length;
 
@@ -455,7 +486,10 @@
     }
 
     // Gestion des modals
-    function openEventModal() {
+    async function openEventModal() {
+      if (!organisateursData.length && typeof loadOrganisateurs === 'function') {
+        await loadOrganisateurs();
+      }
       document.getElementById('eventModal').style.display = 'block';
     }
 
@@ -513,14 +547,15 @@
       try {
         const response = await fetch(url, {
           method: method,
+          credentials: 'include',
           headers: {
-            'Authorization': 'Bearer ' + getAuthToken(),
+            'Accept': 'application/json',
             'Content-Type': 'application/json'
           },
           body: JSON.stringify(data)
         });
 
-        const result = await response.json();
+        const result = await parseJsonResponse(response);
 
         if (result.success) {
           showAlert(result.message, 'success');
@@ -547,13 +582,14 @@
       try {
         const response = await fetch(`/api/admin/events/${currentEventId}`, {
           method: 'DELETE',
+          credentials: 'include',
           headers: {
-            'Authorization': 'Bearer ' + getAuthToken(),
+            'Accept': 'application/json',
             'Content-Type': 'application/json'
           }
         });
 
-        const result = await response.json();
+        const result = await parseJsonResponse(response);
 
         if (result.success) {
           showAlert(result.message, 'success');
@@ -574,13 +610,14 @@
       try {
         const response = await fetch(`/api/admin/events/${id}/validate`, {
           method: 'POST',
+          credentials: 'include',
           headers: {
-            'Authorization': 'Bearer ' + getAuthToken(),
+            'Accept': 'application/json',
             'Content-Type': 'application/json'
           }
         });
 
-        const result = await response.json();
+        const result = await parseJsonResponse(response);
 
         if (result.success) {
           showAlert(result.message, 'success');
@@ -600,13 +637,14 @@
       try {
         const response = await fetch(`/api/admin/events/${id}/reject`, {
           method: 'POST',
+          credentials: 'include',
           headers: {
-            'Authorization': 'Bearer ' + getAuthToken(),
+            'Accept': 'application/json',
             'Content-Type': 'application/json'
           }
         });
 
-        const result = await response.json();
+        const result = await parseJsonResponse(response);
 
         if (result.success) {
           showAlert(result.message, 'success');
@@ -624,9 +662,9 @@
       try {
         const response = await fetch('/api/admin/events/export', {
           method: 'GET',
+          credentials: 'include',
           headers: {
-            'Authorization': 'Bearer ' + getAuthToken(),
-            'Content-Type': 'application/json'
+            'Accept': 'text/csv'
           }
         });
 
@@ -653,13 +691,13 @@
     async function viewEventDetails(id) {
       try {
         const response = await fetch(`/api/admin/events/${id}`, {
+          credentials: 'include',
           headers: {
-            'Authorization': 'Bearer ' + getAuthToken(),
-            'Content-Type': 'application/json'
+            'Accept': 'application/json'
           }
         });
 
-        const data = await response.json();
+        const data = await parseJsonResponse(response);
         if (data.success) {
           const event = data.event;
           const participants = data.participants || [];
@@ -823,19 +861,29 @@
 
     function getStatusClass(status) {
       switch (status) {
-        case 'valide': return 'badge-success';
-        case 'rejete': return 'badge-danger';
-        case 'en_attente': return 'badge-warning';
-        default: return 'badge-secondary';
+        case 'valide':
+        case 'approuve':
+          return 'badge-success';
+        case 'rejete':
+          return 'badge-danger';
+        case 'en_attente':
+          return 'badge-warning';
+        default:
+          return 'badge-secondary';
       }
     }
 
     function getStatusText(status) {
       switch (status) {
-        case 'valide': return 'Validé';
-        case 'rejete': return 'Rejeté';
-        case 'en_attente': return 'En attente';
-        default: return status;
+        case 'valide':
+        case 'approuve':
+          return 'Validé';
+        case 'rejete':
+          return 'Rejeté';
+        case 'en_attente':
+          return 'En attente';
+        default:
+          return status;
       }
     }
 
@@ -843,16 +891,6 @@
       if (!dateString) return '-';
       const date = new Date(dateString);
       return date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
-    }
-
-    function updateEventsSummary() {
-      const total = eventsData.length;
-      const valide = eventsData.filter(e => e.statut === 'valide').length;
-      const enAttente = eventsData.filter(e => e.statut === 'en_attente').length;
-      const rejete = eventsData.filter(e => e.statut === 'rejete').length;
-
-      const summary = document.getElementById('eventsSummary');
-      summary.innerHTML = `Total: ${total} | Validés: ${valide} | En attente: ${enAttente} | Rejetés: ${rejete}`;
     }
 
     function showAlert(message, type = 'info') {
@@ -868,7 +906,7 @@
 
     function escapeHtml(text) {
       const div = document.createElement('div');
-      div.textContent = text;
+      div.textContent = text || '';
       return div.innerHTML;
     }
 
@@ -878,7 +916,7 @@
   </script>
 
   <style>
-    .modal {
+    .events-modal {
       position: fixed;
       z-index: 1000;
       left: 0;
@@ -886,36 +924,39 @@
       width: 100%;
       height: 100%;
       background-color: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
     }
 
-    .modal-content {
+    .events-modal-content {
       background-color: var(--bg);
-      margin: 5% auto;
+      max-height: 90vh;
+      overflow-y: auto;
       padding: 0;
       border: 1px solid var(--border);
-      border-radius: 8px;
-      width: 90%;
-      max-width: 600px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 800px;
     }
 
-    .modal-header {
-      padding: 15px 20px;
+    .events-modal-header,
+    .events-modal-footer {
+      padding: 18px 22px;
       border-bottom: 1px solid var(--border);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
 
-    .modal-body {
-      padding: 20px;
+    .events-modal-footer {
+      border-top: 1px solid var(--border);
+      border-bottom: none;
     }
 
-    .modal-footer {
-      padding: 15px 20px;
-      border-top: 1px solid var(--border);
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
+    .events-modal-body {
+      padding: 20px 22px;
     }
 
     .modal-close {
