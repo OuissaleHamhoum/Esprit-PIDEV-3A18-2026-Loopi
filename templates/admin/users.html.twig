@@ -2,24 +2,36 @@
   <div id="page-users" style="display:none">
     <div class="blk" style="margin-bottom:16px">
       <div class="blk-title">Gestion des utilisateurs <span class="sub" id="usersSummary">0 comptes enregistrés</span></div>
-      <div class="search-bar">
-        <input id="userSearch" class="search-input" placeholder="🔍 Rechercher par nom, email…">
-        <select id="userRoleFilter" class="filter">
+      <div class="search-bar" style="gap:12px;align-items:center;flex-wrap:wrap">
+        <input id="userSearch" class="search-input" placeholder="🔍 Rechercher par nom, email…" style="border:1.5px solid rgba(30,58,47,0.15);padding:12px 14px;font-size:0.9rem;border-radius:10px;transition:border-color 0.2s;background:var(--light);min-width:220px" onfocus="this.style.borderColor='var(--moss)'" onblur="this.style.borderColor='rgba(30,58,47,0.15)'">
+        <select id="userRoleFilter" class="filter" style="border:1.5px solid rgba(30,58,47,0.15);padding:12px 14px;font-size:0.9rem;border-radius:10px;transition:border-color 0.2s;background:var(--light);min-width:180px" onfocus="this.style.borderColor='var(--moss)'" onblur="this.style.borderColor='rgba(30,58,47,0.15)'">
           <option value="">Tous les rôles</option>
           <option value="admin">Admin</option>
           <option value="organisateur">Organisateur</option>
           <option value="participant">Participant</option>
         </select>
-        <button class="btn btn-ghost btn-sm" onclick="exportUsersCsv()">📥 Exporter CSV</button>
-        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('csvImportInput').click()">📤 Importer CSV</button>
-        <button class="btn btn-ghost btn-sm" onclick="refreshUserTable()">🔄 Actualiser</button>
-        <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="openUserModal('create')">+ Ajouter</button>
+        <button class="btn btn-ghost btn-sm" onclick="exportUsersCsv()" style="padding:10px 14px;font-size:0.85rem;border:1.5px solid rgba(30,58,47,0.15);border-radius:10px;background:white;color:var(--muted);cursor:pointer;font-weight:600;transition:all 0.2s" onmouseover="this.style.background='var(--bg)';this.style.color='var(--forest)'" onmouseout="this.style.background='white';this.style.color='var(--muted)'">📥 Exporter</button>
+        <button class="btn btn-ghost btn-sm" onclick="document.getElementById('csvImportInput').click()" style="padding:10px 14px;font-size:0.85rem;border:1.5px solid rgba(30,58,47,0.15);border-radius:10px;background:white;color:var(--muted);cursor:pointer;font-weight:600;transition:all 0.2s" onmouseover="this.style.background='var(--bg)';this.style.color='var(--forest)'" onmouseout="this.style.background='white';this.style.color='var(--muted)'">📤 Importer</button>
+        <button class="btn btn-ghost btn-sm" onclick="refreshUserTable()" style="padding:10px 14px;font-size:0.85rem;border:1.5px solid rgba(30,58,47,0.15);border-radius:10px;background:white;color:var(--muted);cursor:pointer;font-weight:600;transition:all 0.2s" onmouseover="this.style.background='var(--bg)';this.style.color='var(--forest)'" onmouseout="this.style.background='white';this.style.color='var(--muted)'">🔄 Actualiser</button>
+        <button class="btn-submit" style="margin-left:auto;padding:12px 18px;font-weight:700;font-size:0.92rem;background:var(--forest);color:white;border:none;border-radius:10px;cursor:pointer;box-shadow:0 8px 22px rgba(30,58,47,0.18);transition:all 0.2s;white-space:nowrap" onclick="openUserModal('create')" onmouseover="this.style.background='var(--moss)';this.style.transform='translateY(-1px)'" onmouseout="this.style.background='var(--forest)';this.style.transform='translateY(0)' title="Ajouter un utilisateur">➕ Ajouter</button>
         <input type="file" id="csvImportInput" accept=".csv" style="display:none" onchange="handleCsvImport(event)">
       </div>
-      <table class="tbl">
-        <thead><tr><th>Utilisateur</th><th>Email</th><th>Rôle</th><th>Genre</th><th>Inscription</th><th>Dernière MAJ</th><th>Actions</th></tr></thead>
-        <tbody id="usersTableBody"></tbody>
-      </table>
+      <div style="overflow-x:auto;margin-top:18px;border-radius:18px;background:white;box-shadow:0 12px 30px rgba(17,21,16,0.06);border:1px solid rgba(30,58,47,0.08);">
+        <table class="tbl" style="width:100%;min-width:920px;border-collapse:separate;border-spacing:0;background:white">
+          <thead style="background:var(--bg);border-bottom:1px solid rgba(30,58,47,0.12)">
+            <tr>
+              <th style="padding:16px;font-weight:700;color:var(--forest);text-align:left;font-size:0.9rem;white-space:nowrap">Utilisateur</th>
+              <th style="padding:16px;font-weight:700;color:var(--forest);text-align:left;font-size:0.9rem;white-space:nowrap">Email</th>
+              <th style="padding:16px;font-weight:700;color:var(--forest);text-align:left;font-size:0.9rem;white-space:nowrap">Rôle</th>
+              <th style="padding:16px;font-weight:700;color:var(--forest);text-align:left;font-size:0.9rem;white-space:nowrap">Genre</th>
+              <th style="padding:16px;font-weight:700;color:var(--forest);text-align:left;font-size:0.9rem;white-space:nowrap">Inscription</th>
+              <th style="padding:16px;font-weight:700;color:var(--forest);text-align:left;font-size:0.9rem;white-space:nowrap">Dernière MAJ</th>
+              <th style="padding:16px;font-weight:700;color:var(--forest);text-align:left;font-size:0.9rem;white-space:nowrap">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="usersTableBody"></tbody>
+        </table>
+      </div>
       <div id="usersEmptyState" style="display:none;padding:18px;color:var(--muted)">Aucun utilisateur trouvé. Essayez de réinitialiser ou de modifier le filtre.</div>
     </div>
   </div>
