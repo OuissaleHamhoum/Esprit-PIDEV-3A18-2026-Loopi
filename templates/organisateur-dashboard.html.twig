@@ -836,8 +836,16 @@ function renderCollections(list) {
     return;
   }
 
-  list.forEach(c => {
-    const pct = Math.min(c.progress, 100);
+  const sortedList = [...list].sort((a, b) => {
+    const aFin = a.currentAmount >= a.goalAmount;
+    const bFin = b.currentAmount >= b.goalAmount;
+    if (aFin !== bFin) return aFin ? 1 : -1;
+    return b.currentAmount - a.currentAmount;
+  });
+
+  sortedList.forEach(c => {
+    const pct = Math.min(c.progress || (c.currentAmount/c.goalAmount*100), 100);
+    const isFinished = c.currentAmount >= c.goalAmount;
     const imgHtml = c.imageUrl
       ? `<img src="${c.imageUrl}" style="width:100%;height:120px;object-fit:cover;border-radius:10px 10px 0 0">`
       : `<div style="height:80px;background:linear-gradient(135deg,var(--forest),var(--moss));border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:center;font-size:2.5rem">♻️</div>`;
@@ -849,6 +857,9 @@ function renderCollections(list) {
     card.className = 'coll-dyn-card blk';
     card.style.padding = '0';
     card.style.overflow = 'hidden';
+    if (isFinished) {
+      card.style.filter = 'grayscale(80%) opacity(0.85)';
+    }
     card.innerHTML = `
       ${imgHtml}
       <div style="padding:16px">

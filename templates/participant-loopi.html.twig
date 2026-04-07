@@ -1231,12 +1231,23 @@ function renderPartCollections(list) {
     return;
   }
 
-  list.forEach(c => {
-    const pct = Math.min(c.progress, 100);
+  const sortedList = [...list].sort((a, b) => {
+    const aFin = a.currentAmount >= a.goalAmount;
+    const bFin = b.currentAmount >= b.goalAmount;
+    if (aFin !== bFin) return aFin ? 1 : -1;
+    return b.currentAmount - a.currentAmount;
+  });
+
+  sortedList.forEach(c => {
+    const pct = Math.min(c.progress || (c.currentAmount/c.goalAmount*100), 100);
+    const isFinished = c.currentAmount >= c.goalAmount;
     const card = document.createElement('div');
     card.className = 'part-coll-card card';
     card.style.padding = '0';
     card.style.overflow = 'hidden';
+    if (isFinished) {
+      card.style.filter = 'grayscale(80%) opacity(0.85)';
+    }
 
     const imgHtml = c.imageUrl
       ? `<div style="height:160px;overflow:hidden"><img src="${c.imageUrl}" style="width:100%;height:100%;object-fit:cover"></div>`
@@ -1257,7 +1268,10 @@ function renderPartCollections(list) {
           <span style="font-weight:600;color:var(--moss)">${c.currentAmount.toFixed(1)} ${escH(c.unit)}</span>
           <span>${pct.toFixed(1)}% — Objectif: ${c.goalAmount} ${escH(c.unit)}</span>
         </div>
-        <button onclick='openDonateModal(${JSON.stringify(c).replace(/'/g, "&apos;")})' style="width:100%;padding:10px;border-radius:10px;border:none;background:var(--forest);color:white;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;transition:background .2s" onmouseover="this.style.background='var(--moss)'" onmouseout="this.style.background='var(--forest)'">♻️ Faire un don</button>
+        ${isFinished 
+          ? `<button disabled style="width:100%;padding:10px;border-radius:10px;border:none;background:var(--muted);color:white;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:600;cursor:not-allowed">Objectif atteint 🎉</button>`
+          : `<button onclick='openDonateModal(${JSON.stringify(c).replace(/'/g, "&apos;")})' style="width:100%;padding:10px;border-radius:10px;border:none;background:var(--forest);color:white;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;transition:background .2s" onmouseover="this.style.background='var(--moss)'" onmouseout="this.style.background='var(--forest)'">♻️ Faire un don</button>`
+        }
       </div>`;
     grid.appendChild(card);
   });
