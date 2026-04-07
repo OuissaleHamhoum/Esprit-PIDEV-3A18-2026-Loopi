@@ -598,7 +598,10 @@ class ApiController extends AbstractController
             $errors['date_evenement'] = 'La date de l\'événement est requise.';
         } else {
             try {
-                $dateTimeString = $dateEvenement . ' ' . $heureEvenement;
+                $dateTimeString = $dateEvenement;
+                if (strpos($dateEvenement, 'T') === false) {
+                    $dateTimeString = $dateEvenement . ' ' . $heureEvenement;
+                }
                 $dateObj = new \DateTime($dateTimeString);
                 if ($dateObj < new \DateTime()) {
                     $errors['date_evenement'] = 'La date de l\'événement ne peut pas être dans le passé.';
@@ -991,7 +994,10 @@ class ApiController extends AbstractController
             $errors['date_evenement'] = 'La date de l\'événement est requise.';
         } else {
             try {
-                $dateTimeString = $dateEvenement . ' ' . $heureEvenement;
+                $dateTimeString = $dateEvenement;
+                if (strpos($dateEvenement, 'T') === false) {
+                    $dateTimeString = $dateEvenement . ' ' . $heureEvenement;
+                }
                 $dateObj = new \DateTime($dateTimeString);
                 if ($dateObj < new \DateTime() && $event->getStatutValidation() === 'en_attente') {
                     $errors['date_evenement'] = 'La date de l\'événement ne peut pas être dans le passé.';

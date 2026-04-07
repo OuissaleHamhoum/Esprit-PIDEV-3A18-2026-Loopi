@@ -1,15 +1,12 @@
 <!-- ─── PAGE: EVENTS ─── -->
 <style>
-  .action-buttons { display: flex; gap: 6px; flex-wrap: wrap; }
-  .btn-small { padding: 6px 10px; font-size: 0.7rem; border-radius: 6px; cursor: pointer; border: none; transition: all 0.2s; }
-  .btn-small.info { background: rgba(93, 168, 122, 0.15); color: #5DA87A; }
-  .btn-small.info:hover { background: rgba(93, 168, 122, 0.25); }
-  .btn-small.warning { background: rgba(201, 169, 110, 0.15); color: #C9A96E; }
-  .btn-small.warning:hover { background: rgba(201, 169, 110, 0.25); }
-  .btn-small.success { background: rgba(93, 168, 122, 0.15); color: #5DA87A; }
-  .btn-small.success:hover { background: rgba(93, 168, 122, 0.25); }
-  .btn-small.danger { background: rgba(224, 90, 58, 0.15); color: #E05A3A; }
-  .btn-small.danger:hover { background: rgba(224, 90, 58, 0.25); }
+  .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+  .btn-small { display: inline-flex; align-items: center; justify-content: center; padding: 8px 14px; font-size: 0.8rem; border-radius: 10px; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease; min-width: 92px; font-weight: 700; text-align: center; }
+  .btn-small:hover { transform: translateY(-1px); }
+  .btn-small.info { background: rgba(93, 168, 122, 0.12); color: var(--forest); border-color: rgba(93, 168, 122, 0.25); }
+  .btn-small.warning { background: rgba(201, 169, 110, 0.12); color: var(--sand); border-color: rgba(201, 169, 110, 0.25); }
+  .btn-small.success { background: rgba(93, 168, 122, 0.12); color: var(--forest); border-color: rgba(93, 168, 122, 0.25); }
+  .btn-small.danger { background: rgba(224, 90, 58, 0.12); color: var(--danger); border-color: rgba(224, 90, 58, 0.25); }
   .badge { padding: 4px 10px; border-radius: 50px; font-size: 0.65rem; font-weight: 700; white-space: nowrap; }
   .badge.pending { background: rgba(201, 169, 110, 0.15); color: #C9A96E; }
   .badge.valide { background: rgba(93, 168, 122, 0.15); color: #5DA87A; }
@@ -18,15 +15,15 @@
   .events-modal.open { display: flex !important; pointer-events: auto; opacity: 1; visibility: visible; }
   .events-modal-content { background: var(--card); border-radius: 16px; width: 90%; max-width: 700px; max-height: 90vh; overflow-y: auto; border: 1px solid var(--border); }
   .events-modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-  .events-modal-header h3 { color: white; font-size: 1.1rem; margin: 0; }
+  .events-modal-header h3 { color: var(--text); font-size: 1.1rem; margin: 0; }
   .events-modal-body { padding: 24px; }
   .events-modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; }
   .filter-section { background: var(--bg); padding: 16px; border-radius: 12px; margin-bottom: 16px; }
   .filter-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; align-items: flex-end; }
   .filter-row > div { display: flex; flex-direction: column; }
   .filter-row label { font-size: 0.7rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
-  .filter-row input, .filter-row select { padding: 8px 12px; background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.8rem; }
-  .filter-row input:focus, .filter-row select:focus { border-color: var(--accent); outline: none; }
+  .filter-row input, .filter-row select { padding: 8px 12px; background: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.8rem; }
+  .filter-row input:focus, .filter-row select:focus { border-color: var(--accent); outline: none; background: white; }
   .event-row { display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1fr 1fr 1.2fr 1.8fr; gap: 12px; padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); align-items: center; }
   .event-row:hover { background: rgba(255, 255, 255, 0.02); }
 </style>
@@ -82,7 +79,7 @@
             </select>
           </div>
           <button id="btnResetFilters" onclick="resetFilters()" style="background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid var(--border); padding: 8px 12px; border-radius: 8px; cursor: pointer; align-self: flex-end;">
-            <i class="fas fa-times"></i>
+            <i class="fas fa-times"></i> Réinitialiser
           </button>
         </div>
       </div>
@@ -145,38 +142,38 @@
 
             <div style="display: flex; flex-direction: column; gap: 4px;">
               <label for="eventTitre" style="font-size: 0.75rem; font-weight: 600; color: var(--muted);">Titre *</label>
-              <input type="text" id="eventTitre" name="titre" required maxlength="200" placeholder="Titre de l'événement" style="padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.85rem;">
+<input type="text" id="eventTitre" name="titre" required maxlength="200" placeholder="Titre de l'événement" style="padding: 8px 12px; background: rgba(255,255,255,0.95); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.85rem;">
               <div class="error-message" id="error-titre" style="color: var(--danger); font-size: 0.65rem; display: none;"></div>
             </div>
-
+            
             <div style="display: flex; flex-direction: column; gap: 4px;">
               <label for="eventDescription" style="font-size: 0.75rem; font-weight: 600; color: var(--muted);">Description *</label>
-              <textarea id="eventDescription" name="description" required rows="3" placeholder="Description détaillée..." style="padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.85rem; resize: vertical;"></textarea>
+              <textarea id="eventDescription" name="description" required rows="3" placeholder="Description détaillée..." style="padding: 8px 12px; background: rgba(255,255,255,0.95); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.85rem; resize: vertical;"></textarea>
               <div class="error-message" id="error-description" style="color: var(--danger); font-size: 0.65rem; display: none;"></div>
             </div>
 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
               <div style="display: flex; flex-direction: column; gap: 4px;">
                 <label for="eventDate" style="font-size: 0.75rem; font-weight: 600; color: var(--muted);">Date & Heure *</label>
-                <input type="datetime-local" id="eventDate" name="date_evenement" required style="padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.85rem;">
+                <input type="datetime-local" id="eventDate" name="date_evenement" required style="padding: 8px 12px; background: rgba(255,255,255,0.95); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.85rem;">
                 <div class="error-message" id="error-date_evenement" style="color: var(--danger); font-size: 0.65rem; display: none;"></div>
               </div>
               <div style="display: flex; flex-direction: column; gap: 4px;">
                 <label for="eventCapacite" style="font-size: 0.75rem; font-weight: 600; color: var(--muted);">Capacité max *</label>
-                <input type="number" id="eventCapacite" name="capacite_max" required min="1" max="10000" placeholder="Nombre" style="padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.85rem;">
+                <input type="number" id="eventCapacite" name="capacite_max" required min="1" max="10000" placeholder="Nombre" style="padding: 8px 12px; background: rgba(255,255,255,0.95); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.85rem;">
                 <div class="error-message" id="error-capacite_max" style="color: var(--danger); font-size: 0.65rem; display: none;"></div>
               </div>
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 4px;">
               <label for="eventLieu" style="font-size: 0.75rem; font-weight: 600; color: var(--muted);">Lieu *</label>
-              <input type="text" id="eventLieu" name="lieu" required maxlength="200" placeholder="Adresse ou description du lieu" style="padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.85rem;">
+              <input type="text" id="eventLieu" name="lieu" required maxlength="200" placeholder="Adresse ou description du lieu" style="padding: 8px 12px; background: rgba(255,255,255,0.95); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.85rem;">
               <div class="error-message" id="error-lieu" style="color: var(--danger); font-size: 0.65rem; display: none;"></div>
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 4px;">
               <label for="eventOrganisateur" style="font-size: 0.75rem; font-weight: 600; color: var(--muted);">Organisateur *</label>
-              <select id="eventOrganisateur" name="id_organisateur" required style="padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: white; font-size: 0.85rem;">
+              <select id="eventOrganisateur" name="id_organisateur" required style="padding: 8px 12px; background: rgba(255,255,255,0.95); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.85rem;">
                 <option value="">-- Sélectionner --</option>
               </select>
               <div class="error-message" id="error-id_organisateur" style="color: var(--danger); font-size: 0.65rem; display: none;"></div>
@@ -304,17 +301,18 @@
     }
 
     // Rendu de la table des événements
-    function renderEventsTable() {
+    function renderEventsTable(filteredEvents = null) {
+      const events = filteredEvents || eventsData;
       const tbody = document.getElementById('eventsTableBody');
       tbody.innerHTML = '';
 
-      if (eventsData.length === 0) {
+      if (events.length === 0) {
         tbody.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--muted); font-size: 0.8rem;">📭 Aucun événement trouvé</div>';
-        updateEventsSummary();
+        updateEventsSummary(events);
         return;
       }
 
-      eventsData.forEach(event => {
+      events.forEach(event => {
         const statusClass = getStatusClass(event.statut);
         const statusText = getStatusText(event.statut);
         const participantsCount = event.participants_count || 0;
@@ -323,7 +321,7 @@
         const row = document.createElement('div');
         row.className = 'event-row';
         row.innerHTML = `
-          <div style="color: white; font-weight: 600; word-break: break-word;">${escapeHtml(event.titre)}</div>
+          <div style="color: var(--text); font-weight: 700; word-break: break-word;">${escapeHtml(event.titre)}</div>
           <div style="color: var(--muted); font-size: 0.8rem;">${escapeHtml(event.organisateur || 'N/A')}</div>
           <div style="color: var(--muted); font-size: 0.8rem;">${eventDate}</div>
           <div style="color: var(--muted); font-size: 0.8rem;">${escapeHtml(event.lieu || 'N/A')}</div>
@@ -333,28 +331,18 @@
           </div>
           <div><span class="badge ${statusClass}">${statusText}</span></div>
           <div class="action-buttons">
-            <button class="btn-small info" onclick="viewEventDetails(${event.id})" title="Voir">
-              <i class="fas fa-eye"></i>
-            </button>
-            <button class="btn-small warning" onclick="editEvent(${event.id})" title="Éditer">
-              <i class="fas fa-edit"></i>
-            </button>
+            <button class="btn-small info" onclick="viewEventDetails(${event.id})" title="Voir">Voir</button>
+            <button class="btn-small warning" onclick="editEvent(${event.id})" title="Éditer">Éditer</button>
             ${event.statut === 'en_attente' ? `
-              <button class="btn-small success" onclick="validateEvent(${event.id})" title="Valider">
-                <i class="fas fa-check"></i>
-              </button>
-              <button class="btn-small danger" onclick="rejectEvent(${event.id})" title="Rejeter">
-                <i class="fas fa-times"></i>
-              </button>
+              <button class="btn-small success" onclick="validateEvent(${event.id})" title="Valider">Valider</button>
+              <button class="btn-small danger" onclick="rejectEvent(${event.id})" title="Rejeter">Rejeter</button>
             ` : ''}
-            <button class="btn-small danger" onclick='deleteEvent(${event.id}, "${escapeHtml(event.titre)}")' title="Supprimer">
-              <i class="fas fa-trash"></i>
-            </button>
+            <button class="btn-small danger" onclick='deleteEvent(${event.id}, "${escapeHtml(event.titre)}")' title="Supprimer">Supprimer</button>
           </div>
         `;
         tbody.appendChild(row);
       });
-      updateEventsSummary();
+      updateEventsSummary(events);
     }
 
     function renderOrganisateursSelect() {
@@ -399,7 +387,7 @@
       const organisateurFilter = document.getElementById('filterOrganisateur').value;
       const dateFilter = document.getElementById('filterDate').value;
 
-      let filteredEvents = eventsData.filter(event => {
+      const filteredEvents = eventsData.filter(event => {
         // Recherche textuelle
         const matchesSearch = !searchTerm ||
           event.titre.toLowerCase().includes(searchTerm) ||
@@ -419,7 +407,7 @@
         return matchesSearch && matchesStatus && matchesOrganisateur && matchesDate;
       });
 
-      renderFilteredEvents(filteredEvents);
+      renderEventsTable(filteredEvents);
       updateEventsSummary(filteredEvents);
     }
 
@@ -450,58 +438,7 @@
       }
     }
 
-    function renderFilteredEvents(filteredEvents) {
-      const tbody = document.getElementById('eventsTableBody');
-      tbody.innerHTML = '';
-
-      if (filteredEvents.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">Aucun événement trouvé</td></tr>';
-        return;
-      }
-
-      filteredEvents.forEach(event => {
-        const statusClass = getStatusClass(event.statut);
-        const statusText = getStatusText(event.statut);
-        const participantsCount = event.participants_count || 0;
-
-        const row = document.createElement('tr');
-        row.innerHTML = `
-          <td>${escapeHtml(event.titre)}</td>
-          <td>${escapeHtml(event.organisateur)}</td>
-          <td>${formatDate(event.date_evenement)}</td>
-          <td>${escapeHtml(event.lieu)}</td>
-          <td>${event.capacite_max}</td>
-          <td>
-            <span class="participant-count" style="cursor:pointer;color:var(--primary)" onclick="viewEventParticipants(${event.id})">
-              ${participantsCount}/${event.capacite_max}
-            </span>
-          </td>
-          <td><span class="badge ${statusClass}">${statusText}</span></td>
-          <td>
-            <div class="action-buttons">
-              <button class="btn btn-sm btn-info" onclick="viewEventDetails(${event.id})" title="Voir les détails">
-                <i class="fas fa-eye"></i>
-              </button>
-              <button class="btn btn-sm btn-warning" onclick="editEvent(${event.id})" title="Modifier">
-                <i class="fas fa-edit"></i>
-              </button>
-              ${event.statut === 'en_attente' ? `
-                <button class="btn btn-sm btn-success" onclick="validateEvent(${event.id})" title="Valider">
-                  <i class="fas fa-check"></i>
-                </button>
-                <button class="btn btn-sm btn-danger" onclick="rejectEvent(${event.id})" title="Rejeter">
-                  <i class="fas fa-times"></i>
-                </button>
-              ` : ''}
-              <button class="btn btn-sm btn-danger" onclick='deleteEvent(${event.id}, ${JSON.stringify(event.titre)})' title="Supprimer">
-                <i class="fas fa-trash"></i>
-              </button>
-            </div>
-          </td>
-        `;
-        tbody.appendChild(row);
-      });
-    }
+    // remove duplicate table-specific render function
 
     function resetFilters() {
       document.getElementById('searchEvents').value = '';
@@ -569,7 +506,7 @@
       document.getElementById('eventId').value = event.id;
       document.getElementById('eventTitre').value = event.titre;
       document.getElementById('eventDescription').value = event.description;
-      document.getElementById('eventDate').value = event.date_evenement ? event.date_evenement.substring(0, 16) : '';
+      document.getElementById('eventDate').value = event.date_evenement ? event.date_evenement.replace(' ', 'T').substring(0, 16) : '';
       document.getElementById('eventLieu').value = event.lieu;
       document.getElementById('eventOrganisateur').value = event.id_organisateur;
       document.getElementById('eventCapacite').value = event.capacite_max;
@@ -578,9 +515,20 @@
       openEventModal();
     }
 
+    function normalizeEventDateFields(data) {
+      if (data.date_evenement && data.date_evenement.includes('T')) {
+        const [date, time] = data.date_evenement.split('T');
+        data.date_evenement = date;
+        data.heure_evenement = time;
+      } else {
+        data.heure_evenement = data.heure_evenement || '09:00';
+      }
+      return data;
+    }
+
     async function saveEvent() {
       const formData = new FormData(document.getElementById('eventForm'));
-      const data = Object.fromEntries(formData.entries());
+      const data = normalizeEventDateFields(Object.fromEntries(formData.entries()));
 
       // Validation côté client
       if (!validateEventForm(data)) {

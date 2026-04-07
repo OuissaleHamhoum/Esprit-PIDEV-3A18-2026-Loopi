@@ -114,7 +114,8 @@ nav.snav{padding:14px 10px;flex:1}
 .form-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .fg{margin-bottom:12px}
 .fg label{display:block;font-size:.73rem;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:5px}
-.fg input,.fg textarea,.fg select{width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none;transition:border-color .2s}
+.fg input,.fg textarea,.fg select{width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--text);outline:none;transition:border-color .2s}
+.fg input::placeholder,.fg textarea::placeholder,.fg select::placeholder{color:var(--muted)}
 .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--accent)}
 .fg textarea{resize:vertical;min-height:80px}
 
@@ -356,70 +357,12 @@ nav.snav{padding:14px 10px;flex:1}
     </div>
   </div>
 
-  <!-- Event Detail Modal -->
-  <div id="eventDetailModal" class="event-modal-overlay">
-    <div class="event-modal">
-      <div class="event-modal-header">
-        <h2 class="event-modal-title">Créer un événement</h2>
-        <button class="event-modal-close" onclick="closeEventModal()">✕</button>
-      </div>
-      <div class="event-modal-body">
-        <form id="eventForm" style="display: grid; gap: 12px;">
-          <input type="hidden" id="eventId" name="id">
-
-          <div class="event-form-group">
-            <label for="eventTitre">Titre de l'événement *</label>
-            <input type="text" id="eventTitre" name="titre" required maxlength="200" placeholder="ex: Nettoyage de plage, Atelier recyclage...">
-            <span class="event-form-error" id="error-titre"></span>
-          </div>
-
-          <div class="event-form-group">
-            <label for="eventDescription">Description *</label>
-            <textarea id="eventDescription" name="description" required placeholder="Décrivez votre événement, les matériaux à collecter, les détails..."></textarea>
-            <span class="event-form-error" id="error-description"></span>
-          </div>
-
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-            <div class="event-form-group">
-              <label for="eventDate">Date & Heure *</label>
-              <input type="datetime-local" id="eventDate" name="date_evenement" required>
-              <span class="event-form-error" id="error-date_evenement"></span>
-            </div>
-            <div class="event-form-group">
-              <label for="eventCapacite">Capacité max *</label>
-              <input type="number" id="eventCapacite" name="capacite_max" required min="1" max="10000" placeholder="Nombre de participants">
-              <span class="event-form-error" id="error-capacite_max"></span>
-            </div>
-          </div>
-
-          <div class="event-form-group">
-            <label for="eventLieu">Lieu *</label>
-            <input type="text" id="eventLieu" name="lieu" required placeholder="Adresse ou description du lieu">
-            <span class="event-form-error" id="error-lieu"></span>
-          </div>
-
-          <div class="event-form-group">
-            <label for="eventImage">Image de l'événement (optionnelle)</label>
-            <input type="file" id="eventImage" name="image_evenement" accept="image/*">
-            <small style="color: var(--muted); font-size: 0.7rem;">JPG, PNG • Max 5MB</small>
-          </div>
-        </form>
-      </div>
-      <div class="event-modal-footer">
-        <button type="button" class="event-btn secondary" onclick="closeEventModal()">Annuler</button>
-        <button type="button" class="event-btn primary" id="btnSaveEvent" onclick="saveEvent()">
-          <i class="fas fa-check"></i> Créer
-        </button>
-      </div>
-    </div>
-  </div>
-
   <!-- PARTICIPANTS -->
   <div id="page-participants" style="display:none">
     <div class="topbar">
       <div><div class="page-title">Participants</div><div class="page-sub">Gérez les inscriptions à vos événements</div></div>
       <div class="ta">
-        <input type="text" placeholder="🔍 Rechercher…" style="padding:7px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.8rem;color:white;outline:none;width:200px">
+        <input type="text" placeholder="🔍 Rechercher…" style="padding:7px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.8rem;color:var(--text);outline:none;width:200px">
         <button class="btn btn-ghost" onclick="showToast('Export CSV généré')">📥 Exporter CSV</button>
       </div>
     </div>
@@ -610,6 +553,10 @@ let editingEventId = null;
 
 function openModal() {
   document.getElementById('eventModal').classList.add('active');
+}
+
+function openEventModal() {
+  openModal();
 }
 
 function closeModal() {
@@ -896,12 +843,6 @@ async function loadOrganisateurEvents() {
 
     // Update locations
     updateLocations(events);
-
-  } catch (error) {
-    console.error('Error loading events:', error);
-    showToast('Erreur lors du chargement des événements');
-  }
-}
 
   } catch (error) {
     console.error('Error loading events:', error);
