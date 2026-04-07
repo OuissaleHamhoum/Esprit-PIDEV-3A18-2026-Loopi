@@ -265,6 +265,54 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
 
 <div class="toast" id="toast"></div>
 
+<!-- ADMIN COLL MODAL -->
+<div class="modal-overlay" id="adminCollModal" onclick="if(event.target===this)closeAdminCollModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Modifier Collection</div>
+      <button class="modal-close" onclick="closeAdminCollModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="adminCollErrors" style="color:#b91c1c;font-size:.82rem;margin-bottom:12px;display:none"></div>
+      <input type="hidden" id="adminCollId">
+      <div class="fg">
+        <label>Titre</label>
+        <input id="adminCollTitle">
+      </div>
+      <div class="frow2">
+        <div class="fg">
+          <label>Matériau</label>
+          <select id="adminCollMat">
+            <option>Verre</option><option>Métal</option><option>Plastique</option>
+            <option>Papier</option><option>Bois</option><option>Autre</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Statut</label>
+          <select id="adminCollStatus">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="frow2">
+        <div class="fg">
+          <label>Objectif cible</label>
+          <input type="number" id="adminCollGoal">
+        </div>
+        <div class="fg">
+          <label>Unité</label>
+          <input id="adminCollUnit" placeholder="ex: kg">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeAdminCollModal()">Annuler</button>
+        <button type="button" class="btn-submit" onclick="submitAdminEditColl()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- Camera Modal -->
 <div id="cameraModal">
   <div class="camera-container">
@@ -1115,20 +1163,24 @@ function populateCollectionsDetails(collections) {
   const container = document.getElementById('collectionsDetails');
 
   if (collections.length === 0) {
-    container.innerHTML = '<div class="blk"><div style="text-align:center;padding:30px;color:var(--muted)">Aucune collection trouvée.</div></div>';
+    container.innerHTML = '<div class="blk" style="grid-column:1/-1"><div style="text-align:center;padding:30px;color:var(--muted)">Aucune collection trouvée.</div></div>';
     return;
   }
 
-  // Show first 2 collections as examples
-  const displayCollections = collections.slice(0, 2);
-
-  container.innerHTML = displayCollections.map(collection => {
+  container.innerHTML = collections.map(collection => {
     const progress = collection.progress || 0;
     const progressColor = progress > 50 ? 'var(--moss)' : progress > 25 ? 'var(--sand)' : '#e8c48a';
 
     return `
       <div class="blk">
-        <div class="blk-title">${collection.title} — ${collection.materialType}</div>
+        <div class="blk-title">
+          <div style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${collection.title} <span style="font-size:.7rem;font-weight:normal;color:var(--muted)">— ${collection.materialType}</span></div>
+          <div style="display:flex;gap:5px;flex-shrink:0">
+            <button class="btn btn-primary btn-sm" onclick='openAdminEditCollModal(${JSON.stringify(collection).replace(/'/g, "&apos;")})'>Éditer</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAdminCollection(${collection.id})">Suppr.</button>
+          </div>
+        </div>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:8px">Organisateur : ${collection.organisateur || 'Inconnu'}</div>
         <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin:12px 0">
           <div style="width:${Math.min(progress, 100)}%;height:100%;background:linear-gradient(to right,${progressColor},#${progressColor === 'var(--moss)' ? '7a9e7e' : progressColor === 'var(--sand)' ? 'e8c48a' : 'e8c48a'});border-radius:4px"></div>
         </div>
@@ -1136,12 +1188,72 @@ function populateCollectionsDetails(collections) {
           <span style="color:${progress > 50 ? 'var(--success)' : 'var(--warn)'};font-weight:700">${collection.currentAmount} ${collection.unit}</span>
           <span style="color:var(--muted)">/ ${collection.goalAmount} ${collection.unit} · ${progress.toFixed(0)}%</span>
         </div>
-        <div style="text-align:center;padding:30px 0;color:var(--muted);font-size:.82rem">
-          ${collection.currentAmount > 0 ? 'Donations en cours...' : 'Aucune donation pour l\'instant.'}
+        <div style="text-align:center;padding:10px 0;color:var(--muted);font-size:.82rem">
+          Statut : <span class="badge ${collection.status==='active'?'b-active':'b-pending'}">${collection.status==='active'?'Active':'Inactive'}</span>
         </div>
       </div>
     `;
   }).join('');
+}
+
+function openAdminEditCollModal(c) {
+  document.getElementById('adminCollId').value = c.id;
+  document.getElementById('adminCollTitle').value = c.title;
+  document.getElementById('adminCollMat').value = c.materialType;
+  document.getElementById('adminCollStatus').value = c.status;
+  document.getElementById('adminCollGoal').value = c.goalAmount;
+  document.getElementById('adminCollUnit').value = c.unit;
+  document.getElementById('adminCollErrors').style.display = 'none';
+  document.getElementById('adminCollModal').classList.add('open');
+}
+
+function closeAdminCollModal() {
+  document.getElementById('adminCollModal').classList.remove('open');
+}
+
+async function submitAdminEditColl() {
+  const id = document.getElementById('adminCollId').value;
+  const errEl = document.getElementById('adminCollErrors');
+  errEl.style.display = 'none';
+
+  const fd = new FormData();
+  fd.append('title', document.getElementById('adminCollTitle').value);
+  fd.append('materialType', document.getElementById('adminCollMat').value);
+  fd.append('status', document.getElementById('adminCollStatus').value);
+  fd.append('goalAmount', document.getElementById('adminCollGoal').value);
+  fd.append('unit', document.getElementById('adminCollUnit').value);
+
+  try {
+    const res = await fetch('/api/admin/collections/' + id, { method: 'POST', body: fd });
+    const json = await res.json();
+    if(json.success) {
+      closeAdminCollModal();
+      showToast('Collection mise à jour');
+      refreshCollections();
+    } else {
+      errEl.textContent = json.message || Object.values(json.errors || {})[0] || 'Erreur.';
+      errEl.style.display = 'block';
+    }
+  } catch {
+    errEl.textContent = 'Erreur réseau.';
+    errEl.style.display = 'block';
+  }
+}
+
+async function deleteAdminCollection(id) {
+  if(!confirm('Confirmer la suppression de cette collection ?')) return;
+  try {
+    const res = await fetch('/api/admin/collections/' + id, { method: 'DELETE' });
+    const json = await res.json();
+    if(json.success) {
+      showToast('Collection supprimée');
+      refreshCollections();
+    } else {
+      showToast(json.message || 'Erreur');
+    }
+  } catch {
+    showToast('Erreur réseau');
+  }
 }
 
 function populateCollectionFilters(collections) {
@@ -1197,6 +1309,8 @@ function populateDonationsTable(donations) {
     const userInitial = donation.donateur ? donation.donateur.prenom.charAt(0).toUpperCase() : '?';
     const userName = donation.donateur ? `${donation.donateur.prenom} ${donation.donateur.nom}` : 'Anonyme';
 
+    const statusBadge = donation.status === 'confirmé' ? '<span class="badge b-active">Confirmé</span>' : (donation.status === 'annulé' ? '<span class="badge b-danger">Annulé</span>' : '<span class="badge b-pending">En attente</span>');
+
     return `
       <tr>
         <td>
@@ -1208,11 +1322,54 @@ function populateDonationsTable(donations) {
         <td style="color:var(--muted)">${donation.collection || 'N/A'}</td>
         <td style="color:var(--success);font-weight:700">${donation.amount} ${donation.unit || ''}</td>
         <td style="color:var(--muted)">${donation.donationDate || 'N/A'}</td>
-        <td><span class="badge ${donation.status === 'confirmé' ? 'b-active' : 'b-pending'}">${donation.status === 'confirmé' ? 'Confirmé' : 'En attente'}</span></td>
-        <td><button class="btn btn-ghost btn-sm" onclick="showToast('Voir donation')">Voir</button></td>
+        <td>
+          <select onchange="changeDonationStatus(${donation.id}, this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:.7rem;outline:none;background:var(--bg);cursor:pointer">
+            <option value="confirmé" ${donation.status === 'confirmé' ? 'selected' : ''}>Confirmé</option>
+            <option value="en_attente" ${donation.status === 'en_attente' ? 'selected' : ''}>En attente</option>
+            <option value="annulé" ${donation.status === 'annulé' ? 'selected' : ''}>Annulé</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-danger btn-sm" onclick="deleteAdminDonation(${donation.id})">Suppr.</button>
+        </td>
       </tr>
     `;
   }).join('');
+}
+
+async function changeDonationStatus(id, newStatus) {
+  try {
+    const res = await fetch('/api/admin/donations/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    const json = await res.json();
+    if(json.success) {
+      showToast('Statut mis à jour');
+      refreshDonationsTable();
+    } else {
+      showToast(json.message || 'Erreur lors de la mise à jour');
+    }
+  } catch {
+    showToast('Erreur réseau');
+  }
+}
+
+async function deleteAdminDonation(id) {
+  if(!confirm('Confirmer la suppression de cette donation ?')) return;
+  try {
+    const res = await fetch('/api/admin/donations/' + id, { method: 'DELETE' });
+    const json = await res.json();
+    if(json.success) {
+      showToast('Donation supprimée');
+      refreshDonationsTable();
+    } else {
+      showToast(json.message || 'Erreur');
+    }
+  } catch {
+    showToast('Erreur réseau');
+  }
 }
 
 // ─── COUPONS MANAGEMENT ───

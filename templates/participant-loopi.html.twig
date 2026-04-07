@@ -580,15 +580,15 @@ footer span { color: var(--sage); font-weight: 600; }
       <div class="hero-sub">Voici un aperçu de votre activité sur Loopi · Avril 2026</div>
     </div>
     <div class="hero-stats">
-      <div class="hero-stat">
+      <div class="hero-stat" style="cursor:pointer" onclick="showSection('galerie',null)">
         <div class="hero-stat-val">8</div>
         <div class="hero-stat-lbl">Favoris</div>
       </div>
-      <div class="hero-stat">
+      <div class="hero-stat" style="cursor:pointer" onclick="showSection('dons',null)">
         <div class="hero-stat-val">32.8 kg</div>
         <div class="hero-stat-lbl">Donnés</div>
       </div>
-      <div class="hero-stat">
+      <div class="hero-stat" style="cursor:pointer" onclick="showSection('evenements',null)">
         <div class="hero-stat-val">2</div>
         <div class="hero-stat-lbl">Événements</div>
       </div>
@@ -685,9 +685,9 @@ footer span { color: var(--sage); font-weight: 600; }
         <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--forest)">Test Participant</div>
         <div style="font-size:.75rem;color:var(--muted);margin-top:2px">participant@loopi.tn</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-top:18px;border-top:1px solid var(--border);padding-top:14px">
-          <div style="text-align:center;padding:0 6px;border-right:1px solid var(--border)"><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest)">8</div><div style="font-size:.65rem;color:var(--muted)">Favoris</div></div>
-          <div style="text-align:center;padding:0 6px;border-right:1px solid var(--border)"><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest)">3</div><div style="font-size:.65rem;color:var(--muted)">Dons</div></div>
-          <div style="text-align:center;padding:0 6px"><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest)">2</div><div style="font-size:.65rem;color:var(--muted)">Événements</div></div>
+          <div style="text-align:center;padding:0 6px;border-right:1px solid var(--border);cursor:pointer" onclick="showSection('galerie',null)"><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest)">8</div><div style="font-size:.65rem;color:var(--muted)">Favoris</div></div>
+          <div style="text-align:center;padding:0 6px;border-right:1px solid var(--border);cursor:pointer" onclick="showSection('dons',null)"><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest)">3</div><div style="font-size:.65rem;color:var(--muted)">Dons</div></div>
+          <div style="text-align:center;padding:0 6px;cursor:pointer" onclick="showSection('evenements',null)"><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest)">2</div><div style="font-size:.65rem;color:var(--muted)">Événements</div></div>
         </div>
       </div>
       <!-- Coupons -->
@@ -910,44 +910,23 @@ footer span { color: var(--sage); font-weight: 600; }
   <div class="section-heading">Collections de matériaux</div>
   <div class="section-sub">Contribuez à des collections en cours et soutenez la création artistique recyclée</div>
 
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title">Collections actives</div>
-      <div style="margin-bottom:20px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-weight:700;color:var(--forest);font-size:.9rem">Piece Mario — Verre</div>
-          <span style="font-size:.72rem;color:var(--muted)">20%</span>
-        </div>
-        <div class="prog-bar"><div class="prog-fill" style="width:20%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:10px"><span>24.6 / 123 kg</span><span>Objectif: 123 kg</span></div>
-        <button class="btn btn-primary btn-sm" style="width:100%" onclick="showToast('Formulaire de don — Piece Mario')">+ Donner du verre</button>
-      </div>
-      <div style="border-top:1px solid var(--border);padding-top:20px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-          <div style="font-weight:700;color:var(--forest);font-size:.9rem">PIECE — Métal</div>
-          <span style="font-size:.72rem;color:var(--muted)">0%</span>
-        </div>
-        <div class="prog-bar"><div class="prog-fill" style="width:1%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:10px"><span>0 / 1267 kg</span><span>Objectif: 1267 kg</span></div>
-        <button class="btn btn-outline btn-sm" style="width:100%" onclick="showToast('Formulaire de don — PIECE Métal')">+ Donner du métal</button>
-      </div>
+  <!-- Search + filter bar -->
+  <div class="card" style="margin-bottom:24px;padding:14px 18px">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <input id="partCollSearch" type="text" placeholder="🔍 Rechercher une collection…" oninput="filterPartCollections()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;background:var(--bg);width:240px">
+      <select id="partCollMaterial" onchange="filterPartCollections()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer">
+        <option value="">♻️ Tous les matériaux</option>
+        <option>Verre</option><option>Métal</option><option>Plastique</option><option>Bois</option><option>Papier</option><option>Autre</option>
+      </select>
+      <span id="partCollCount" style="margin-left:auto;font-size:.78rem;color:var(--muted)"></span>
     </div>
-    <div class="card">
-      <div class="card-title">Comment ça marche ?</div>
-      <div style="display:flex;flex-direction:column;gap:18px">
-        <div style="display:flex;gap:14px;align-items:flex-start">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(61,107,79,.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">♻️</div>
-          <div><div style="font-size:.86rem;font-weight:700;color:var(--forest);margin-bottom:3px">Apportez vos matériaux</div><div style="font-size:.78rem;color:var(--muted);line-height:1.5">Déposez vos matériaux recyclables lors d'un événement ou directement dans un centre Loopi.</div></div>
-        </div>
-        <div style="display:flex;gap:14px;align-items:flex-start">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(201,169,110,.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">✅</div>
-          <div><div style="font-size:.86rem;font-weight:700;color:var(--forest);margin-bottom:3px">Votre don est confirmé</div><div style="font-size:.78rem;color:var(--muted);line-height:1.5">Après pesage et validation, votre contribution est enregistrée automatiquement.</div></div>
-        </div>
-        <div style="display:flex;gap:14px;align-items:flex-start">
-          <div style="width:36px;height:36px;border-radius:10px;background:rgba(176,90,47,.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">🎟️</div>
-          <div><div style="font-size:.86rem;font-weight:700;color:var(--forest);margin-bottom:3px">Recevez un coupon</div><div style="font-size:.78rem;color:var(--muted);line-height:1.5">Chaque donation confirmée génère un coupon de réduction utilisable dans la boutique Loopi.</div></div>
-        </div>
-      </div>
+  </div>
+
+  <!-- Dynamic grid -->
+  <div id="partCollGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px">
+    <div id="partCollLoading" style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted)">
+      <div style="font-size:2rem;margin-bottom:10px">⏳</div>
+      <div>Chargement des collections…</div>
     </div>
   </div>
 </section>
@@ -961,46 +940,13 @@ footer span { color: var(--sage); font-weight: 600; }
       <div class="section-heading">Mes Dons</div>
       <div class="section-sub" style="margin-bottom:0">Historique de vos contributions de matériaux</div>
     </div>
-    <button class="btn btn-primary" onclick="showToast('Ouverture du formulaire de don')">+ Nouveau don</button>
+    <button class="btn btn-primary" onclick="showSection('collections', document.querySelector('[onclick*=collections]'))">♻️ Nouvelle donation</button>
   </div>
 
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title">Historique complet</div>
-      <div class="don-row">
-        <div class="don-av" style="background:linear-gradient(135deg,var(--moss),var(--forest))">P</div>
-        <div style="flex:1"><div class="don-coll">Piece Mario</div><div style="font-size:.7rem;color:var(--muted)">Verre · 16 Fév 2026 · 08:47</div></div>
-        <span class="don-amount">24.6 kg</span>
-        <span class="don-status status-conf">Confirmé</span>
-      </div>
-      <div class="don-row">
-        <div class="don-av" style="background:linear-gradient(135deg,var(--sand),#a08040)">V</div>
-        <div style="flex:1"><div class="don-coll">Collection Verre</div><div style="font-size:.7rem;color:var(--muted)">Verre · 11 Fév 2026 · 20:20</div></div>
-        <span class="don-amount">5.8 kg</span>
-        <span class="don-status status-conf">Confirmé</span>
-      </div>
-      <div class="don-row">
-        <div class="don-av" style="background:linear-gradient(135deg,#7a6a5a,#5a4a3d)">V</div>
-        <div style="flex:1"><div class="don-coll">Collection Verre</div><div style="font-size:.7rem;color:var(--muted)">Verre · 11 Fév 2026 · 18:07</div></div>
-        <span class="don-amount">2.4 kg</span>
-        <span class="don-status status-conf">Confirmé</span>
-      </div>
-    </div>
-
-    <div class="card">
-      <div class="card-title">Collections actives</div>
-      <div style="margin-bottom:18px">
-        <div style="font-weight:600;color:var(--forest);font-size:.87rem;margin-bottom:6px">Piece Mario — Verre</div>
-        <div class="prog-bar"><div class="prog-fill" style="width:20%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)"><span>24.6 / 123 kg</span><span>20%</span></div>
-        <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%" onclick="showToast('Ajouter un don à Piece Mario')">+ Donner du verre</button>
-      </div>
-      <div>
-        <div style="font-weight:600;color:var(--forest);font-size:.87rem;margin-bottom:6px">PIECE — Métal</div>
-        <div class="prog-bar"><div class="prog-fill" style="width:1%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)"><span>0 / 1267 kg</span><span>0%</span></div>
-        <button class="btn btn-outline btn-sm" style="margin-top:10px;width:100%" onclick="showToast('Ajouter un don à PIECE Métal')">+ Donner du métal</button>
-      </div>
+  <div id="donsContainer">
+    <div style="text-align:center;padding:60px 0;color:var(--muted)" id="donsLoading">
+      <div style="font-size:2rem;margin-bottom:10px">⏳</div>
+      <div>Chargement de l’historique…</div>
     </div>
   </div>
 </section>
@@ -1160,30 +1106,65 @@ footer span { color: var(--sage); font-weight: 600; }
 
 <div class="toast" id="toast"></div>
 
+<!-- ═══ DONATE MODAL ═══ -->
+<div id="donateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);z-index:3000;align-items:center;justify-content:center" onclick="if(event.target===this)closeDonateModal()">
+  <div style="background:white;border-radius:22px;width:420px;max-width:92vw;padding:30px;box-shadow:0 20px 60px rgba(30,58,47,.18);animation:fadeUp .25s ease">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--forest)">♻️ Faire un don</div>
+      <button onclick="closeDonateModal()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted)">&#x2715;</button>
+    </div>
+
+    <div id="donateCollName" style="font-weight:700;color:var(--forest);font-size:.95rem;margin-bottom:6px"></div>
+    <div id="donateCollMat" style="font-size:.78rem;color:var(--muted);margin-bottom:16px"></div>
+
+    <!-- Progress bar -->
+    <div style="background:rgba(30,58,47,.07);border-radius:6px;height:8px;overflow:hidden;margin-bottom:6px">
+      <div id="donateProgBar" style="height:100%;border-radius:6px;background:linear-gradient(to right,var(--moss),var(--sage));transition:width .4s ease"></div>
+    </div>
+    <div id="donateProgNums" style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:20px"></div>
+
+    <!-- Amount input -->
+    <div class="field-group" style="margin-bottom:6px">
+      <label style="font-size:.8rem;font-weight:600;color:var(--forest)">Montant à donner <span style="color:var(--rust)">*</span></label>
+      <div style="position:relative;margin-top:6px">
+        <input id="donateAmount" type="number" min="0.01" step="0.01" placeholder="ex: 5.5"
+          oninput="this.value=this.value.replace(/[^0-9.]/g,'')"
+          style="width:100%;padding:12px 50px 12px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:1rem;outline:none;background:var(--bg);color:var(--dark)">
+        <span id="donateUnit" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:.85rem;color:var(--muted);font-weight:600"></span>
+      </div>
+      <div id="donateError" style="color:var(--rust);font-size:.74rem;margin-top:4px;display:none"></div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:22px">
+      <button onclick="closeDonateModal()" style="flex:1;padding:11px;border-radius:10px;border:1.5px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:600;cursor:pointer;color:var(--forest)">Annuler</button>
+      <button id="donateSubmitBtn" onclick="submitDonate()" style="flex:2;padding:11px;border-radius:10px;border:none;background:var(--forest);color:white;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:600;cursor:pointer;transition:background .2s">Confirmer le don</button>
+    </div>
+  </div>
+</div>
+
 <script>
 // ── Section switching ──
 function showSection(name, triggerEl) {
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + name).classList.add('active');
-
-  // sync both nav-links and stabs
   document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
   document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
-
   const navLink = document.querySelector(`.nav-links a[onclick*="${name}"]`);
   const stab = document.querySelector(`.stab[onclick*="${name}"]`);
   if (navLink) navLink.classList.add('active');
   if (stab) stab.classList.add('active');
-
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (name === 'collections') loadParticipantCollections();
+  if (name === 'dons') loadDonationHistory();
 }
 
 // ── Toast ──
-function showToast(msg) {
+function showToast(msg, isError) {
   const t = document.getElementById('toast');
   t.textContent = msg;
+  t.style.background = isError ? '#B05A2F' : 'var(--forest)';
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2600);
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
 
 // ── Heart toggle ──
@@ -1200,6 +1181,255 @@ function filterGal(btn, cat) {
     b.className = 'btn btn-outline btn-sm';
   });
   btn.className = 'btn btn-primary btn-sm';
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ── PARTICIPANT COLLECTIONS ──
+// ─────────────────────────────────────────────────────────────────
+let _partAllColl = [];
+
+async function loadParticipantCollections() {
+  const grid = document.getElementById('partCollGrid');
+  const loader = document.getElementById('partCollLoading');
+  loader.style.display = 'block';
+  grid.querySelectorAll('.part-coll-card').forEach(c => c.remove());
+
+  try {
+    const res  = await fetch('/api/participant/collections?status=active');
+    const json = await res.json();
+    _partAllColl = json.data || [];
+    renderPartCollections(_partAllColl);
+  } catch {
+    loader.innerHTML = '<div style="font-size:1.5rem">⚠️</div><div>Erreur de chargement.</div>';
+  }
+}
+
+function filterPartCollections() {
+  const s = (document.getElementById('partCollSearch')?.value || '').toLowerCase();
+  const m = document.getElementById('partCollMaterial')?.value || '';
+  const filtered = _partAllColl.filter(c => {
+    if (s && !c.title.toLowerCase().includes(s) && !c.materialType.toLowerCase().includes(s)) return false;
+    if (m && c.materialType !== m) return false;
+    return true;
+  });
+  renderPartCollections(filtered);
+}
+
+function renderPartCollections(list) {
+  const grid   = document.getElementById('partCollGrid');
+  const loader = document.getElementById('partCollLoading');
+  grid.querySelectorAll('.part-coll-card').forEach(c => c.remove());
+  loader.style.display = 'none';
+  document.getElementById('partCollCount').textContent = list.length + ' collection(s)';
+
+  if (list.length === 0) {
+    const el = document.createElement('div');
+    el.className = 'part-coll-card';
+    el.style.cssText = 'grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted)';
+    el.innerHTML = '<div style="font-size:3rem;margin-bottom:12px">📭</div><p>Aucune collection active pour le moment.</p>';
+    grid.appendChild(el);
+    return;
+  }
+
+  list.forEach(c => {
+    const pct = Math.min(c.progress, 100);
+    const card = document.createElement('div');
+    card.className = 'part-coll-card card';
+    card.style.padding = '0';
+    card.style.overflow = 'hidden';
+
+    const imgHtml = c.imageUrl
+      ? `<div style="height:160px;overflow:hidden"><img src="${c.imageUrl}" style="width:100%;height:100%;object-fit:cover"></div>`
+      : `<div style="height:100px;background:linear-gradient(135deg,var(--forest),var(--moss));display:flex;align-items:center;justify-content:center;font-size:3rem">♻️</div>`;
+
+    card.innerHTML = `
+      ${imgHtml}
+      <div style="padding:18px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+          <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--forest)">${escH(c.title)}</div>
+          <span style="padding:3px 10px;border-radius:50px;font-size:.65rem;font-weight:700;background:rgba(61,107,79,.1);color:var(--moss)">${escH(c.materialType)}</span>
+        </div>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:10px">👤 ${escH(c.organisateur || 'Organisateur')}</div>
+        <div style="background:rgba(30,58,47,.07);border-radius:5px;height:7px;overflow:hidden;margin-bottom:5px">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(to right,var(--moss),var(--sage));border-radius:5px;transition:width .5s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:14px">
+          <span style="font-weight:600;color:var(--moss)">${c.currentAmount.toFixed(1)} ${escH(c.unit)}</span>
+          <span>${pct.toFixed(1)}% — Objectif: ${c.goalAmount} ${escH(c.unit)}</span>
+        </div>
+        <button onclick='openDonateModal(${JSON.stringify(c).replace(/'/g, "&apos;")})' style="width:100%;padding:10px;border-radius:10px;border:none;background:var(--forest);color:white;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;transition:background .2s" onmouseover="this.style.background='var(--moss)'" onmouseout="this.style.background='var(--forest)'">♻️ Faire un don</button>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ── DONATE MODAL ──
+// ─────────────────────────────────────────────────────────────────
+let _donateCollId = null;
+
+function openDonateModal(c) {
+  _donateCollId = c.id;
+  const pct = Math.min(c.progress, 100);
+  document.getElementById('donateCollName').textContent = c.title;
+  document.getElementById('donateCollMat').textContent  = c.materialType + ' · ' + c.donationsCount + ' donation(s)';
+  document.getElementById('donateProgBar').style.width  = pct + '%';
+  document.getElementById('donateProgNums').innerHTML   =
+    `<span style="font-weight:600;color:var(--moss)">${c.currentAmount.toFixed(1)} ${escH(c.unit)}</span><span>Objectif: ${c.goalAmount} ${escH(c.unit)}</span>`;
+  document.getElementById('donateUnit').textContent  = c.unit;
+  document.getElementById('donateAmount').value      = '';
+  document.getElementById('donateError').style.display = 'none';
+  document.getElementById('donateModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('donateAmount').focus(), 80);
+}
+
+function closeDonateModal() {
+  document.getElementById('donateModal').style.display = 'none';
+  _donateCollId = null;
+}
+
+async function submitDonate() {
+  const amountVal = document.getElementById('donateAmount').value.trim();
+  const errEl = document.getElementById('donateError');
+  errEl.style.display = 'none';
+
+  if (!amountVal || isNaN(amountVal) || parseFloat(amountVal) <= 0) {
+    errEl.textContent = 'Veuillez entrer un montant valide et positif.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('donateSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+
+  try {
+    const res = await fetch('/api/participant/donate/' + _donateCollId, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: parseFloat(amountVal) })
+    });
+    const json = await res.json();
+
+    if (json.success) {
+      closeDonateModal();
+      showToast('✅ Don de ' + amountVal + ' enregistré avec succès!');
+      // Update the card in-place
+      const updated = json.collection;
+      const idx = _partAllColl.findIndex(c => c.id === updated.id);
+      if (idx !== -1) _partAllColl[idx] = updated;
+      renderPartCollections(_partAllColl.filter(c => {
+        const s = (document.getElementById('partCollSearch')?.value || '').toLowerCase();
+        const m = document.getElementById('partCollMaterial')?.value || '';
+        if (s && !c.title.toLowerCase().includes(s) && !c.materialType.toLowerCase().includes(s)) return false;
+        if (m && c.materialType !== m) return false;
+        return true;
+      }));
+    } else {
+      const msg = json.errors?.amount || json.message || 'Erreur inconnue.';
+      errEl.textContent = msg;
+      errEl.style.display = 'block';
+    }
+  } catch {
+    errEl.textContent = 'Erreur réseau. Réessayez.';
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Confirmer le don';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDonateModal();
+});
+
+// ─────────────────────────────────────────────────────────────────
+// ── DONATION HISTORY ──
+// ─────────────────────────────────────────────────────────────────
+async function loadDonationHistory() {
+  const cont = document.getElementById('donsContainer');
+  cont.innerHTML = '<div style="text-align:center;padding:60px 0;color:var(--muted)"><div style="font-size:2rem">⏳</div><div>Chargement…</div></div>';
+
+  try {
+    const res  = await fetch('/api/participant/donations');
+    const json = await res.json();
+    if (!json.success) {
+      cont.innerHTML = '<div class="card" style="text-align:center;padding:40px;color:red">⚠️ ' + (json.message || 'Erreur inconnue') + '</div>';
+      return;
+    }
+    const donations = json.data || [];
+
+    if (donations.length === 0) {
+      cont.innerHTML = `
+        <div class="card" style="text-align:center;padding:50px">
+          <div style="font-size:3rem;margin-bottom:14px">🤍</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest);margin-bottom:8px">Pas encore de dons</div>
+          <div style="font-size:.85rem;color:var(--muted);margin-bottom:20px">Visitez les collections actives et faites votre première contribution!</div>
+          <button class="btn btn-primary" onclick="showSection('collections', document.querySelector('[onclick*=collections]'))">♻️ Voir les collections</button>
+        </div>`;
+      return;
+    }
+
+    // Group by collection for summaries
+    const totals = {};
+    donations.forEach(d => {
+      if (d.collectionId) {
+        totals[d.collectionId] = totals[d.collectionId] || { title: d.collection, unit: d.unit, total: 0 };
+        totals[d.collectionId].total += parseFloat(d.amount);
+      }
+    });
+
+    const statusColors = { 'confirmé': '#3D9B5A', 'en_attente': '#9a7040', 'annulé': '#B05A2F' };
+    const statusLabels = { 'confirmé': '✓ Confirmé', 'en_attente': '⏳ En attente', 'annulé': '✗ Annulé' };
+    const colours = ['linear-gradient(135deg,var(--moss),var(--forest))','linear-gradient(135deg,var(--sand),#a08040)','linear-gradient(135deg,#7a6a5a,#5a4a3d)','linear-gradient(135deg,var(--sage),var(--moss))'];
+
+    cont.innerHTML = `
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Historique complet</div>
+          <div id="donsList"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Résumé par collection</div>
+          <div id="donsSummary"></div>
+        </div>
+      </div>`;
+
+    const listEl = document.getElementById('donsList');
+    donations.forEach((d, i) => {
+      const col = colours[i % colours.length];
+      const statusC = statusColors[d.status] || '#888';
+      const statusL = statusLabels[d.status] || d.status;
+      const initial = (d.collection || 'D')[0].toUpperCase();
+      listEl.innerHTML += `
+        <div class="don-row">
+          <div class="don-av" style="background:${col}">${initial}</div>
+          <div style="flex:1">
+            <div class="don-coll">${escH(d.collection || 'Collection supprimée')}</div>
+            <div style="font-size:.7rem;color:var(--muted)">${escH(d.materialType || '')} · ${escH(d.date || '')}</div>
+          </div>
+          <span class="don-amount">${parseFloat(d.amount).toFixed(1)} ${escH(d.unit || '')}</span>
+          <span class="don-status" style="background:${statusC}20;color:${statusC}">${statusL}</span>
+        </div>`;
+    });
+
+    const sumEl = document.getElementById('donsSummary');
+    Object.values(totals).forEach(t => {
+      sumEl.innerHTML += `
+        <div style="padding:12px 0;border-bottom:1px solid var(--border)";>
+          <div style="font-weight:600;color:var(--forest);font-size:.87rem;margin-bottom:4px">${escH(t.title)}</div>
+          <div style="font-size:.8rem;color:var(--moss);font-weight:700">${t.total.toFixed(2)} ${escH(t.unit || '')}</div>
+        </div>`;
+    });
+
+  } catch {
+    cont.innerHTML = '<div class="card" style="text-align:center;padding:40px">⚠️ Erreur de chargement de l\'historique.</div>';
+  }
+}
+
+// ── HTML escape ──
+function escH(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 

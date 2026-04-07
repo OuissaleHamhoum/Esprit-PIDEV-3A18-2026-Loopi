@@ -115,6 +115,7 @@ nav.snav{padding:14px 10px;flex:1}
 .fg input,.fg textarea,.fg select{width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none;transition:border-color .2s}
 .fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--accent)}
 .fg textarea{resize:vertical;min-height:80px}
+.fg select option { background: var(--surface); color: white; }
 
 /* NOTIFICATION FEED */
 .notif-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.79rem}
@@ -290,7 +291,7 @@ nav.snav{padding:14px 10px;flex:1}
             <div class="prog-nums"><span style="color:var(--sand)">0 kg</span><span>/ 1267 kg</span></div>
             <button class="btn btn-ghost" style="width:100%;margin-top:10px;font-size:.75rem" onclick="showToast('Détail de PIECE Métal')">Voir détails</button>
           </div>
-          <button class="btn btn-g" style="width:100%;margin-top:4px" onclick="showToast('Créer nouvelle collection')">+ Nouvelle collection</button>
+          <button class="btn btn-g" style="width:100%;margin-top:4px" onclick="openCollModal()">+ Nouvelle collection</button>
         </div>
 
         <div class="blk">
@@ -496,29 +497,111 @@ nav.snav{padding:14px 10px;flex:1}
   <!-- COLLECTIONS -->
   <div id="page-collections" style="display:none">
     <div class="topbar">
-      <div><div class="page-title">Mes Collections</div><div class="page-sub">Suivez vos collectes de matériaux</div></div>
-      <button class="btn btn-g" onclick="showToast('Créer une nouvelle collection')">+ Nouvelle collection</button>
+      <div><div class="page-title">Mes Collections</div><div class="page-sub">Gérez vos collectes de matériaux recyclés</div></div>
+      <button class="btn btn-g" id="btnNewColl" onclick="openCollModal()">+ Nouvelle collection</button>
     </div>
-    <div class="g2">
-      <div class="blk">
-        <div class="blk-title">Piece Mario — Verre</div>
-        <div class="prog-bar" style="height:10px;margin:16px 0"><div class="prog-fill" style="width:20%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:16px"><span style="color:var(--accent);font-weight:700">24.6 kg collectés</span><span style="color:var(--muted)">Objectif: 123 kg · 20%</span></div>
-        <div style="font-size:.8rem;color:var(--muted);margin-bottom:12px">3 donations · Statut: Actif</div>
-        <div class="part-row"><div class="part-av" style="background:linear-gradient(135deg,var(--sage),var(--moss))">T</div><div class="part-name">Test Participant<div class="part-meta">24.6 kg · 16 Fév</div></div><span class="sbadge s-active">Confirmé</span></div>
-      </div>
-      <div class="blk">
-        <div class="blk-title">PIECE — Métal</div>
-        <div class="prog-bar" style="height:10px;margin:16px 0"><div class="prog-fill" style="width:1%"></div></div>
-        <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:16px"><span style="color:var(--sand);font-weight:700">0 kg collectés</span><span style="color:var(--muted)">Objectif: 1267 kg · 0%</span></div>
-        <div style="font-size:.8rem;color:var(--muted);margin-bottom:12px">0 donations · Statut: Actif</div>
-        <div style="text-align:center;padding:20px 0;color:var(--muted);font-size:.82rem">Aucun don pour l'instant.<br>Partagez ce lien pour attirer des donateurs.</div>
-        <button class="btn btn-ghost" style="width:100%" onclick="showToast('Lien copié!')">📋 Copier le lien de collecte</button>
-      </div>
+
+    <!-- Search + Filter -->
+    <div class="blk" style="padding:14px 18px;margin-bottom:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <input id="collSearch" type="text" placeholder="🔍 Rechercher par titre…" oninput="filterCollections()" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none;width:220px;transition:border-color .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      <select id="collMaterial" onchange="filterCollections()" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none;cursor:pointer">
+        <option value="">♻️ Tous les matériaux</option>
+        <option>Verre</option><option>Métal</option><option>Plastique</option><option>Bois</option><option>Papier</option><option>Autre</option>
+      </select>
+      <select id="collStatus" onchange="filterCollections()" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none;cursor:pointer">
+        <option value="">Tous statuts</option>
+        <option value="active">Actif</option>
+        <option value="inactive">Inactif</option>
+      </select>
+      <span id="collCount" style="margin-left:auto;font-size:.75rem;color:var(--muted)"></span>
+    </div>
+
+    <!-- Collection cards grid -->
+    <div id="collGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
+      <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--muted)" id="collLoading">Chargement…</div>
     </div>
   </div>
 
 </main>
+
+<!-- ═══ COLLECTION MODAL ═══ -->
+<div class="modal-overlay" id="collModal" onclick="if(event.target===this)closeCollModal()">
+  <div class="modal" style="width:540px">
+    <div class="modal-title">
+      <span id="collModalTitle">Nouvelle collection</span>
+      <button class="modal-close" onclick="closeCollModal()">✕</button>
+    </div>
+    <form id="collForm" onsubmit="submitCollForm(event)" enctype="multipart/form-data">
+      <input type="hidden" id="collEditId" value="">
+
+      <div class="form-row2">
+        <div class="fg" style="grid-column:1/-1">
+          <label>Titre <span style="color:var(--danger)">*</span></label>
+          <input id="cf_title" name="title" minlength="5" maxlength="255" placeholder="Minimum 5 caractères" required autocomplete="off">
+          <div id="err_title" style="color:var(--danger);font-size:.7rem;margin-top:3px;display:none"></div>
+        </div>
+        <div class="fg">
+          <label>Type de matériau <span style="color:var(--danger)">*</span></label>
+          <select id="cf_material" name="materialType" required style="width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none">
+            <option value="">Choisir…</option>
+            <option>Verre</option><option>Métal</option><option>Plastique</option><option>Bois</option><option>Papier</option><option>Autre</option>
+          </select>
+          <div id="err_material" style="color:var(--danger);font-size:.7rem;margin-top:3px;display:none"></div>
+        </div>
+        <div class="fg">
+          <label>Statut</label>
+          <select id="cf_status" name="status" style="width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none">
+            <option value="active">Actif</option>
+            <option value="inactive">Inactif</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Objectif <span style="color:var(--danger)">*</span></label>
+          <input id="cf_goal" name="goalAmount" type="number" min="0.01" step="0.01" placeholder="ex: 150" required
+            oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+          <div id="err_goal" style="color:var(--danger);font-size:.7rem;margin-top:3px;display:none"></div>
+        </div>
+        <div class="fg">
+          <label>Unité <span style="color:var(--danger)">*</span></label>
+          <select id="cf_unit" name="unit" required style="width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none">
+            <option value="">Choisir…</option>
+            <option>kg</option><option>litres</option><option>pièces</option>
+          </select>
+          <div id="err_unit" style="color:var(--danger);font-size:.7rem;margin-top:3px;display:none"></div>
+        </div>
+        <div class="fg" style="grid-column:1/-1">
+          <label id="imgLabel">Image <span style="color:var(--danger)">*</span></label>
+          <input id="cf_image" name="image" type="file" accept="image/*"
+            style="width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--muted);outline:none;cursor:pointer">
+          <div id="imgPreviewBox" style="margin-top:8px;display:none">
+            <img id="imgPreview" style="max-height:80px;border-radius:8px;border:1px solid var(--border)">
+          </div>
+          <div id="err_image" style="color:var(--danger);font-size:.7rem;margin-top:3px;display:none"></div>
+        </div>
+      </div>
+
+      <div id="collFormError" style="color:var(--danger);font-size:.78rem;margin-top:8px;display:none"></div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+        <button type="button" class="btn btn-ghost" onclick="closeCollModal()">Annuler</button>
+        <button type="submit" class="btn btn-g" id="collSubmitBtn">Créer la collection</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══ CONFIRM DELETE MODAL ═══ -->
+<div class="modal-overlay" id="confirmDeleteModal" onclick="if(event.target===this)closeDeleteModal()">
+  <div class="modal" style="width:380px;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:12px">🗑️</div>
+    <div class="modal-title" style="justify-content:center;font-size:1rem;margin-bottom:8px">Supprimer la collection ?</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:22px">Cette action est irréversible. Tous les dons associés seront supprimés.</div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn btn-ghost" onclick="closeDeleteModal()">Annuler</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">Supprimer</button>
+    </div>
+  </div>
+</div>
 
 <!-- MODAL CREER EVENEMENT -->
 <div class="modal-overlay" id="eventModal" onclick="if(event.target===this)closeModal()">
@@ -544,21 +627,258 @@ nav.snav{padding:14px 10px;flex:1}
 <div class="toast" id="toast"></div>
 
 <script>
+// ─── PAGE NAVIGATION ─────────────────────────────────────────────────────────
 function showPage(name, navEl) {
   document.querySelectorAll('[id^=page-]').forEach(p => p.style.display = 'none');
   document.getElementById('page-' + name).style.display = 'block';
   document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
   if (navEl) navEl.classList.add('active');
+  if (name === 'collections') loadCollections();
 }
-function showToast(msg) {
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+function showToast(msg, color) {
   const t = document.getElementById('toast');
   t.textContent = msg;
+  t.style.background = color || 'var(--accent)';
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2600);
+  setTimeout(() => t.classList.remove('show'), 2800);
 }
+
+// ─── EVENT MODAL ─────────────────────────────────────────────────────────────
 function openModal() { document.getElementById('eventModal').classList.add('active'); }
 function closeModal() { document.getElementById('eventModal').classList.remove('active'); }
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeCollModal(); closeDeleteModal(); }
+});
+
+// ─── IMAGE PREVIEW ───────────────────────────────────────────────────────────
+document.getElementById('cf_image').addEventListener('change', function() {
+  const file = this.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('imgPreview').src = e.target.result;
+      document.getElementById('imgPreviewBox').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// ─── COLLECTION MODAL ────────────────────────────────────────────────────────
+let _deleteCollId = null;
+
+function openCollModal(collection) {
+  const isEdit = !!collection;
+  document.getElementById('collModalTitle').textContent = isEdit ? 'Modifier la collection' : 'Nouvelle collection';
+  document.getElementById('collSubmitBtn').textContent  = isEdit ? 'Enregistrer' : 'Créer la collection';
+  document.getElementById('collEditId').value   = isEdit ? collection.id : '';
+  document.getElementById('cf_title').value     = isEdit ? collection.title : '';
+  document.getElementById('cf_material').value  = isEdit ? collection.materialType : '';
+  document.getElementById('cf_goal').value      = isEdit ? collection.goalAmount : '';
+  document.getElementById('cf_unit').value      = isEdit ? collection.unit : '';
+  document.getElementById('cf_status').value    = isEdit ? collection.status : 'active';
+  document.getElementById('cf_image').value     = '';
+  document.getElementById('imgPreviewBox').style.display = 'none';
+  const imgLbl = document.getElementById('imgLabel');
+  imgLbl.innerHTML = isEdit
+    ? 'Image <span style="color:var(--muted);font-size:.7rem">(laisser vide pour conserver l\'actuelle)</span>'
+    : 'Image <span style="color:var(--danger)">*</span>';
+  // clear errors
+  ['title','material','goal','unit','image'].forEach(f => {
+    const el = document.getElementById('err_'+f);
+    if (el) { el.style.display='none'; el.textContent=''; }
+  });
+  document.getElementById('collFormError').style.display = 'none';
+  document.getElementById('collModal').classList.add('active');
+}
+
+function closeCollModal() {
+  document.getElementById('collModal').classList.remove('active');
+}
+
+async function submitCollForm(e) {
+  e.preventDefault();
+  const editId = document.getElementById('collEditId').value;
+  const isEdit = !!editId;
+  const btn = document.getElementById('collSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = isEdit ? 'Enregistrement…' : 'Création…';
+
+  // clear errors
+  ['title','material','goal','unit','image'].forEach(f => {
+    const el = document.getElementById('err_'+f);
+    if (el) { el.style.display='none'; el.textContent=''; }
+  });
+  document.getElementById('collFormError').style.display = 'none';
+
+  const fd = new FormData();
+  fd.append('title',        document.getElementById('cf_title').value.trim());
+  fd.append('materialType', document.getElementById('cf_material').value);
+  fd.append('goalAmount',   document.getElementById('cf_goal').value);
+  fd.append('unit',         document.getElementById('cf_unit').value);
+  fd.append('status',       document.getElementById('cf_status').value);
+  const img = document.getElementById('cf_image').files[0];
+  if (img) fd.append('image', img);
+  if (isEdit) fd.append('_method', 'PUT');
+
+  const url = isEdit ? '/api/organisateur/collections/' + editId : '/api/organisateur/collections';
+  try {
+    const res = await fetch(url, { method: 'POST', body: fd });
+    const json = await res.json();
+    if (json.success) {
+      closeCollModal();
+      showToast(isEdit ? '✅ Collection mise à jour!' : '✅ Collection créée!');
+      loadCollections();
+    } else {
+      if (json.errors) {
+        const map = { title:'title', materialType:'material', goalAmount:'goal', unit:'unit', image:'image' };
+        Object.entries(json.errors).forEach(([k, msg]) => {
+          const key = map[k] || k;
+          const el = document.getElementById('err_'+key);
+          if (el) { el.textContent = msg; el.style.display = 'block'; }
+        });
+      } else {
+        document.getElementById('collFormError').textContent = json.message || 'Erreur inconnue.';
+        document.getElementById('collFormError').style.display = 'block';
+      }
+    }
+  } catch(err) {
+    document.getElementById('collFormError').textContent = 'Erreur réseau. Veuillez réessayer.';
+    document.getElementById('collFormError').style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = isEdit ? 'Enregistrer' : 'Créer la collection';
+  }
+}
+
+// ─── DELETE ───────────────────────────────────────────────────────────────────
+function askDeleteColl(id) {
+  _deleteCollId = id;
+  document.getElementById('confirmDeleteModal').classList.add('active');
+}
+function closeDeleteModal() {
+  document.getElementById('confirmDeleteModal').classList.remove('active');
+  _deleteCollId = null;
+}
+async function confirmDelete() {
+  if (!_deleteCollId) return;
+  const btn = document.getElementById('confirmDeleteBtn');
+  btn.disabled = true; btn.textContent = 'Suppression…';
+  try {
+    const res = await fetch('/api/organisateur/collections/' + _deleteCollId, { method: 'DELETE' });
+    const json = await res.json();
+    if (json.success) {
+      closeDeleteModal();
+      showToast('🗑️ Collection supprimée.');
+      loadCollections();
+    } else {
+      showToast(json.message || 'Erreur.', 'var(--danger)');
+    }
+  } catch { showToast('Erreur réseau.', 'var(--danger)'); }
+  finally {
+    btn.disabled = false; btn.textContent = 'Supprimer';
+    _deleteCollId = null;
+  }
+}
+
+// ─── LOAD & RENDER COLLECTIONS ───────────────────────────────────────────────
+let _allCollections = [];
+
+async function loadCollections() {
+  const grid = document.getElementById('collGrid');
+  document.getElementById('collLoading').style.display = 'block';
+  document.getElementById('collLoading').textContent = 'Chargement…';
+  // Remove old cards
+  grid.querySelectorAll('.coll-dyn-card').forEach(c => c.remove());
+
+  const search   = document.getElementById('collSearch')?.value || '';
+  const material = document.getElementById('collMaterial')?.value || '';
+  try {
+    let url = '/api/organisateur/collections?1=1';
+    if (search)   url += '&search=' + encodeURIComponent(search);
+    if (material) url += '&material=' + encodeURIComponent(material);
+    const res = await fetch(url);
+    const json = await res.json();
+    _allCollections = json.data || [];
+    renderCollections(_allCollections);
+  } catch(e) {
+    document.getElementById('collLoading').textContent = '⚠️ Erreur de chargement.';
+  }
+}
+
+function filterCollections() {
+  const search   = (document.getElementById('collSearch')?.value || '').toLowerCase();
+  const material = document.getElementById('collMaterial')?.value || '';
+  const status   = document.getElementById('collStatus')?.value || '';
+  const filtered = _allCollections.filter(c => {
+    if (search   && !c.title.toLowerCase().includes(search) && !c.materialType.toLowerCase().includes(search)) return false;
+    if (material && c.materialType !== material) return false;
+    if (status   && c.status !== status) return false;
+    return true;
+  });
+  renderCollections(filtered);
+}
+
+function renderCollections(list) {
+  const grid = document.getElementById('collGrid');
+  grid.querySelectorAll('.coll-dyn-card').forEach(c => c.remove());
+  document.getElementById('collLoading').style.display = 'none';
+  document.getElementById('collCount').textContent = list.length + ' collection(s)';
+
+  if (list.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'coll-dyn-card';
+    empty.style.cssText = 'grid-column:1/-1;text-align:center;padding:50px 0;color:var(--muted)';
+    empty.innerHTML = '<div style="font-size:2.5rem;margin-bottom:12px">📭</div><div>Aucune collection trouvée.</div>';
+    grid.appendChild(empty);
+    return;
+  }
+
+  list.forEach(c => {
+    const pct = Math.min(c.progress, 100);
+    const imgHtml = c.imageUrl
+      ? `<img src="${c.imageUrl}" style="width:100%;height:120px;object-fit:cover;border-radius:10px 10px 0 0">`
+      : `<div style="height:80px;background:linear-gradient(135deg,var(--forest),var(--moss));border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:center;font-size:2.5rem">♻️</div>`;
+    const statusBadge = c.status === 'active'
+      ? '<span class="sbadge s-active">Actif</span>'
+      : '<span class="sbadge s-full">Inactif</span>';
+
+    const card = document.createElement('div');
+    card.className = 'coll-dyn-card blk';
+    card.style.padding = '0';
+    card.style.overflow = 'hidden';
+    card.innerHTML = `
+      ${imgHtml}
+      <div style="padding:16px">
+        <div class="coll-header">
+          <div class="coll-title">${escHtml(c.title)}</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="coll-mat">${escHtml(c.materialType)}</span>
+            ${statusBadge}
+          </div>
+        </div>
+        <div class="prog-bar" style="height:8px;margin:10px 0 4px">
+          <div class="prog-fill" style="width:${pct}%"></div>
+        </div>
+        <div class="prog-nums">
+          <span style="color:var(--accent);font-weight:600">${c.currentAmount.toFixed(1)} ${escHtml(c.unit)}</span>
+          <span>/ ${c.goalAmount} ${escHtml(c.unit)} · ${pct.toFixed(1)}%</span>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:6px">${c.donationsCount} donation(s)</div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-ghost" style="flex:1;font-size:.75rem" onclick='openCollModal(${JSON.stringify(c).replace(/'/g, "&apos;")})'>✏️ Modifier</button>
+          <button class="btn btn-danger" style="flex:1;font-size:.75rem" onclick="askDeleteColl(${c.id})">🗑️ Supprimer</button>
+        </div>
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
 </script>
 </body>
 </html>
