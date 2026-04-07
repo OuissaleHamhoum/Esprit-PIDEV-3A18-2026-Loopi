@@ -1,3 +1,8 @@
+<<<<<<< HEAD
+=======
+# yaml-language-server: $schema=../vendor/symfony/routing/Loader/schema/routing.schema.json
+
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
 controllers:
     resource:
         path: ../src/Controller/

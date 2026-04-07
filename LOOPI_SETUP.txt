@@ -1,0 +1,21 @@
+Project-Loopi-web — Symfony 7 + MySQL loopi_db
+==============================================
+
+1) Créer la base loopi_db dans phpMyAdmin et importer votre fichier SQL (dump Loopi).
+
+2) Si besoin, exécuter database/fix_after_import.sql (donations / index notifications).
+
+3) Copier .env vers .env.local et ajuster :
+   DATABASE_URL="mysql://root:MOTDEPASSE@127.0.0.1:3306/loopi_db?serverVersion=8.0.32&charset=utf8mb4"
+   (serverVersion: 5.7.x ou 8.x selon votre Wamp)
+
+4) Lancer :
+   php bin/console cache:clear
+   php -S localhost:8080 -t public
+
+5) Connexion back-office : compte role admin (ex. admin@loopi.tn / admin123).
+   Le hasher accepte les mots de passe en clair du dump et les remplace par bcrypt à la prochaine connexion si rehash.
+
+Structure :
+- Front : / , /catalogue , /evenements , /dashboard (connecté)
+- Admin : /admin (ROLE_ADMIN), /admin/users, /admin/produits, /admin/evenements

@@ -1,0 +1,115 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Mon espace — Loopi{% endblock %}
+
+{% block body %}
+<div class="container pb-5">
+    <div class="rounded-4 p-4 p-md-5 mb-4 text-white" style="background: linear-gradient(110deg, var(--loopi-deep), var(--loopi-leaf)); box-shadow: var(--shadow);">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <p class="small text-white-50 mb-1 text-uppercase" style="letter-spacing:.1em;">Espace connecté</p>
+                <h1 class="h2 fw-bold mb-2">Bonjour, {{ app.user.prenom }} {{ app.user.nom }}</h1>
+                <p class="mb-0 opacity-90">
+                    {% if app.user.role.value == 'participant' %}
+                        Retrouvez vos inscriptions, favoris et avis — même design que l’organisateur, contenu adapté.
+                    {% else %}
+                        Pilotez vos publications : œuvres, collections et événements que vous animez.
+                    {% endif %}
+                </p>
+            </div>
+            <div class="col-md-4 mt-3 mt-md-0 text-md-end">
+                <span class="badge rounded-pill px-3 py-2 fs-6" style="background: rgba(255,255,255,0.2);">
+                    {{ app.user.role.value == 'participant' ? 'Participant' : 'Organisateur' }}
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="card card-loopi h-100 border-0">
+                <div class="card-body">
+                    <h2 class="h6 text-uppercase text-muted mb-3">Profil</h2>
+                    <p class="mb-1"><strong>Email</strong><br><span class="text-muted">{{ app.user.userIdentifier }}</span></p>
+                    {% if app.user.genre %}
+                        <p class="mb-0 mt-2"><strong>Genre</strong><br><span class="text-muted">{{ app.user.genre.sexe }}</span></p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% if participantStats is not null %}
+            <div class="col-md-6 col-lg-8">
+                <div class="card card-loopi h-100 border-0">
+                    <div class="card-body">
+                        <h2 class="h6 text-uppercase text-muted mb-3">Votre activité (participant)</h2>
+                        <div class="row g-3 text-center">
+                            <div class="col-4">
+                                <div class="fs-2 fw-bold" style="color:var(--loopi-forest);">{{ participantStats.participations }}</div>
+                                <div class="small text-muted">Inscriptions</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="fs-2 fw-bold" style="color:var(--loopi-forest);">{{ participantStats.favoris }}</div>
+                                <div class="small text-muted">Favoris</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="fs-2 fw-bold" style="color:var(--loopi-forest);">{{ participantStats.feedback_count }}</div>
+                                <div class="small text-muted">Avis</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+
+        {% if organisateurStats is not null %}
+            <div class="col-md-6 col-lg-8">
+                <div class="card card-loopi h-100 border-0">
+                    <div class="card-body">
+                        <h2 class="h6 text-uppercase text-muted mb-3">Votre activité (organisateur)</h2>
+                        <div class="row g-3 text-center">
+                            <div class="col-4">
+                                <div class="fs-2 fw-bold" style="color:var(--loopi-warm);">{{ organisateurStats.evenements }}</div>
+                                <div class="small text-muted">Événements</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="fs-2 fw-bold" style="color:var(--loopi-warm);">{{ organisateurStats.produits }}</div>
+                                <div class="small text-muted">Œuvres</div>
+                            </div>
+                            <div class="col-4">
+                                <div class="fs-2 fw-bold" style="color:var(--loopi-warm);">{{ organisateurStats.collections }}</div>
+                                <div class="small text-muted">Collections</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <a href="{{ path('app_catalog') }}" class="card card-loopi text-decoration-none text-dark h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <span class="rounded-3 p-3" style="background:#e8f4f2;color:var(--loopi-deep);font-size:1.5rem;"><i class="bi bi-grid-3x3-gap"></i></span>
+                    <div>
+                        <div class="fw-bold">Galerie</div>
+                        <div class="small text-muted">Parcourir les œuvres</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+        <div class="col-md-6">
+            <a href="{{ path('app_events') }}" class="card card-loopi text-decoration-none text-dark h-100">
+                <div class="card-body d-flex align-items-center gap-3">
+                    <span class="rounded-3 p-3" style="background:#fff3e8;color:#a85a32;font-size:1.5rem;"><i class="bi bi-calendar-event"></i></span>
+                    <div>
+                        <div class="fw-bold">Événements</div>
+                        <div class="small text-muted">Calendrier des actions</div>
+                    </div>
+                </div>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

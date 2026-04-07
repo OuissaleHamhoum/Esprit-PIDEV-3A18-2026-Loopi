@@ -1,0 +1,17 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}{{ title }} — Admin{% endblock %}
+
+{% block admin_body %}
+<h1 class="h4 fw-bold mb-4">{{ title }}</h1>
+<div class="card loopi-panel" style="max-width: 720px;">
+    <div class="card-body">
+        {{ form_start(form, {attr: {enctype: 'multipart/form-data'}}) }}
+        {% include '_form_errors_banner.html.twig' with { form: form } only %}
+        {{ form_widget(form) }}
+        <button type="submit" class="btn btn-primary mt-3">Enregistrer</button>
+        <a href="{{ path('admin_collections') }}" class="btn btn-outline-secondary mt-3">Retour</a>
+        {{ form_end(form) }}
+    </div>
+</div>
+{% endblock %}

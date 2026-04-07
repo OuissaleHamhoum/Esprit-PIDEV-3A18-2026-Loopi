@@ -1,5 +1,10 @@
 twig:
     file_name_pattern: '*.twig'
+<<<<<<< HEAD
+=======
+    form_themes:
+        - bootstrap_5_layout.html.twig
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
 
 when@test:
     twig:

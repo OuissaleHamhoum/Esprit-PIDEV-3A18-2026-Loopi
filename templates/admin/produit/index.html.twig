@@ -1,0 +1,36 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Galerie — Admin{% endblock %}
+
+{% block admin_body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h4 fw-bold mb-0">Gestion de la galerie</h1>
+    <a class="btn btn-primary btn-sm" href="{{ path('admin_produits_new') }}"><i class="bi bi-plus-lg me-1"></i>Nouveau</a>
+</div>
+<div class="card loopi-panel">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+                <tr><th>#</th><th>Nom</th><th>Catégorie</th><th>Organisateur</th><th class="text-end">Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for p in produits %}
+                    <tr>
+                        <td>{{ p.id }}</td>
+                        <td>{{ p.nom }}</td>
+                        <td>{{ p.category ? p.category.nom : '—' }}</td>
+                        <td>{{ p.owner ? (p.owner.prenom ~ ' ' ~ p.owner.nom) : '—' }}</td>
+                        <td class="text-end">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ path('admin_produits_edit', {id: p.id}) }}"><i class="bi bi-pencil"></i></a>
+                            <form class="d-inline" method="post" action="{{ path('admin_produits_delete', {id: p.id}) }}" onsubmit="return confirm('Supprimer ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ p.id) }}">
+                                <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

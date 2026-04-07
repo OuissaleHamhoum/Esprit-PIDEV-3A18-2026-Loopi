@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 namespace App\Entity;
 
 use App\Repository\UserRepository;
@@ -8,6 +9,19 @@ use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
 use Symfony\Component\Security\Core\User\UserInterface;
 
+=======
+declare(strict_types=1);
+
+namespace App\Entity;
+
+use App\Repository\UserRepository;
+use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
+use Symfony\Component\Security\Core\User\UserInterface;
+
+#[UniqueEntity(fields: ['email'], message: 'Cet email est déjà utilisé.')]
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 #[ORM\Table(name: 'users')]
 class User implements UserInterface, PasswordAuthenticatedUserInterface
@@ -18,6 +32,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?int $id = null;
 
     #[ORM\Column(length: 100)]
+<<<<<<< HEAD
     private ?string $nom = null;
 
     #[ORM\Column(length: 100)]
@@ -44,13 +59,45 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updated_at = null;
+=======
+    private string $nom = '';
+
+    #[ORM\Column(length: 100)]
+    private string $prenom = '';
+
+    #[ORM\Column(length: 100, unique: true)]
+    private string $email = '';
+
+    #[ORM\Column(length: 100)]
+    private string $password = '';
+
+    #[ORM\Column(length: 255, options: ['default' => 'default.jpg'])]
+    private string $photo = 'default.jpg';
+
+    #[ORM\Column(name: 'role', type: 'string', length: 32, enumType: UserRole::class)]
+    private UserRole $role = UserRole::PARTICIPANT;
+
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(name: 'id_genre', referencedColumnName: 'id_genre', nullable: true)]
+    private ?Genre $genre = null;
+
+    #[ORM\Column(name: 'created_at', type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $createdAt = null;
+
+    #[ORM\Column(name: 'updated_at', type: 'datetime_immutable', nullable: true)]
+    private ?\DateTimeImmutable $updatedAt = null;
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
 
     public function getId(): ?int
     {
         return $this->id;
     }
 
+<<<<<<< HEAD
     public function getNom(): ?string
+=======
+    public function getNom(): string
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
     {
         return $this->nom;
     }
@@ -62,7 +109,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+<<<<<<< HEAD
     public function getPrenom(): ?string
+=======
+    public function getPrenom(): string
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
     {
         return $this->prenom;
     }
@@ -74,7 +125,11 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+<<<<<<< HEAD
     public function getEmail(): ?string
+=======
+    public function getEmail(): string
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
     {
         return $this->email;
     }
@@ -86,12 +141,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+<<<<<<< HEAD
     public function getUserIdentifier(): string
     {
         return (string) $this->email;
     }
 
     public function getPassword(): ?string
+=======
+    public function getPassword(): string
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
     {
         return $this->password;
     }
@@ -103,30 +162,47 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+<<<<<<< HEAD
     public function getPhoto(): ?string
+=======
+    public function getPhoto(): string
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
     {
         return $this->photo;
     }
 
+<<<<<<< HEAD
     public function setPhoto(?string $photo): static
+=======
+    public function setPhoto(string $photo): static
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
     {
         $this->photo = $photo;
 
         return $this;
     }
 
+<<<<<<< HEAD
     public function getRole(): string
+=======
+    public function getRole(): UserRole
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
     {
         return $this->role;
     }
 
+<<<<<<< HEAD
     public function setRole(string $role): static
+=======
+    public function setRole(UserRole $role): static
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
     {
         $this->role = $role;
 
         return $this;
     }
 
+<<<<<<< HEAD
     public function getRoles(): array
     {
         return match ($this->role) {
@@ -141,6 +217,8 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         // no temporary data to clear
     }
 
+=======
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
     public function getGenre(): ?Genre
     {
         return $this->genre;
@@ -153,6 +231,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+<<<<<<< HEAD
     public function getCreatedAt(): ?\DateTimeInterface
     {
         return $this->created_at;
@@ -161,10 +240,21 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setCreatedAt(?\DateTimeInterface $created_at): static
     {
         $this->created_at = $created_at;
+=======
+    public function getCreatedAt(): ?\DateTimeImmutable
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(\DateTimeImmutable $createdAt): static
+    {
+        $this->createdAt = $createdAt;
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
 
         return $this;
     }
 
+<<<<<<< HEAD
     public function getUpdatedAt(): ?\DateTimeInterface
     {
         return $this->updated_at;
@@ -177,3 +267,38 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 }
+=======
+    public function getUpdatedAt(): ?\DateTimeImmutable
+    {
+        return $this->updatedAt;
+    }
+
+    public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
+    {
+        $this->updatedAt = $updatedAt;
+
+        return $this;
+    }
+
+    public function getRoles(): array
+    {
+        $roles = ['ROLE_USER'];
+        $roles[] = match ($this->role) {
+            UserRole::ADMIN => 'ROLE_ADMIN',
+            UserRole::ORGANISATEUR => 'ROLE_ORGANISATEUR',
+            UserRole::PARTICIPANT => 'ROLE_PARTICIPANT',
+        };
+
+        return array_unique($roles);
+    }
+
+    public function eraseCredentials(): void
+    {
+    }
+
+    public function getUserIdentifier(): string
+    {
+        return $this->email;
+    }
+}
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5

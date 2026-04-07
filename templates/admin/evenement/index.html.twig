@@ -1,0 +1,84 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Événements — Admin{% endblock %}
+
+{% block admin_body %}
+<div class="loopi-page-header d-flex flex-wrap justify-content-between align-items-start gap-3">
+    <div>
+        <h1 class="loopi-page-title">Gestion des événements</h1>
+        <p class="loopi-page-lead mb-0">Validez ou refusez les demandes des organisateurs ; seuls les statuts <strong>approuve</strong> sont visibles sur le site public et pour les participants.</p>
+    </div>
+    <a class="btn btn-success rounded-3" href="{{ path('admin_evenements_new') }}"><i class="bi bi-plus-lg me-1"></i>Nouveau</a>
+</div>
+
+<div class="d-flex flex-wrap gap-2 mb-3">
+    <a class="btn btn-sm {{ filter is null ? 'btn-success' : 'btn-outline-secondary' }} rounded-pill" href="{{ path('admin_evenements') }}">Tous</a>
+    <a class="btn btn-sm {{ filter == 'en_attente' ? 'btn-warning' : 'btn-outline-warning' }} rounded-pill" href="{{ path('admin_evenements', { statut: 'en_attente' }) }}">En attente</a>
+    <a class="btn btn-sm {{ filter == 'approuve' ? 'btn-success' : 'btn-outline-success' }} rounded-pill" href="{{ path('admin_evenements', { statut: 'approuve' }) }}">Approuvés</a>
+    <a class="btn btn-sm {{ filter == 'refuse' ? 'btn-danger' : 'btn-outline-danger' }} rounded-pill" href="{{ path('admin_evenements', { statut: 'refuse' }) }}">Refusés</a>
+</div>
+
+<div class="card loopi-panel">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle small">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>Titre</th>
+                    <th>Date</th>
+                    <th>Lieu</th>
+                    <th>Organisateur</th>
+                    <th>Validation</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in events %}
+                    <tr>
+                        <td>{{ e.id }}</td>
+                        <td class="fw-semibold">{{ e.titre }}</td>
+                        <td>{{ e.dateEvenement|date('d/m/Y H:i') }}</td>
+                        <td>{{ e.lieu ?? '—' }}</td>
+                        <td>{{ e.organisateur ? e.organisateur.prenom ~ ' ' ~ e.organisateur.nom : '—' }}</td>
+                        <td>
+                            {% set st = e.statutValidation ?? '' %}
+                            {% if st == 'approuve' %}
+                                <span class="badge bg-success">approuve</span>
+                            {% elseif st == 'refuse' %}
+                                <span class="badge bg-danger">refuse</span>
+                            {% else %}
+                                <span class="badge bg-warning text-dark">en attente</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-end text-nowrap">
+                            {% if st != 'approuve' %}
+                                <form class="d-inline" method="post" action="{{ path('admin_evenements_validation', { id: e.id }) }}">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('event_validation' ~ e.id) }}">
+                                    <input type="hidden" name="action" value="approve">
+                                    <input type="hidden" name="redirect_filter" value="{{ filter ?? '' }}">
+                                    <button type="submit" class="btn btn-sm btn-success rounded-3" title="Approuver"><i class="bi bi-check-lg"></i></button>
+                                </form>
+                            {% endif %}
+                            {% if st != 'refuse' %}
+                                <form class="d-inline" method="post" action="{{ path('admin_evenements_validation', { id: e.id }) }}" onsubmit="return confirm('Refuser cet événement ?');">
+                                    <input type="hidden" name="_token" value="{{ csrf_token('event_validation' ~ e.id) }}">
+                                    <input type="hidden" name="action" value="refuse">
+                                    <input type="hidden" name="redirect_filter" value="{{ filter ?? '' }}">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-3" title="Refuser"><i class="bi bi-x-lg"></i></button>
+                                </form>
+                            {% endif %}
+                            <a class="btn btn-sm btn-outline-primary rounded-3" href="{{ path('admin_evenements_edit', {id: e.id}) }}"><i class="bi bi-pencil"></i></a>
+                            <form class="d-inline" method="post" action="{{ path('admin_evenements_delete', {id: e.id}) }}" onsubmit="return confirm('Supprimer ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ e.id) }}">
+                                <button class="btn btn-sm btn-outline-danger rounded-3" type="submit"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="7" class="text-center text-muted py-4">Aucun événement pour ce filtre.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

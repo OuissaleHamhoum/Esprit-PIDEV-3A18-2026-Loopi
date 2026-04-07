@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Galerie — Loopi{% endblock %}
+
+{% block extra_styles %}
+.catalog-hero {
+    border-radius: 1.25rem;
+    background: linear-gradient(120deg, var(--forest-green, #2d5a3d) 0%, var(--leaf-green, #4a7c59) 50%, var(--water-blue, #5ba4a4) 100%);
+    color: #fff;
+    padding: 2rem 1.75rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-lg);
+}
+{% endblock %}
+
+{% block body %}
+<div class="container pb-5">
+    <div class="catalog-hero">
+        <p class="small text-white-50 text-uppercase mb-2" style="letter-spacing:.12em;">Front-office</p>
+        <h1 class="h2 fw-bold mb-2">Galerie Loopi</h1>
+        <p class="mb-0 opacity-90">Œuvres et créations — parcourir le catalogue public.</p>
+    </div>
+    <div class="row g-4">
+        {% for p in produits %}
+            <div class="col-sm-6 col-lg-4">
+                <article class="card h-100 loopi-card-elevated overflow-hidden">
+                    {% set img = p.image %}
+                    <div class="ratio ratio-4x3 bg-light">
+                        {% if img and 'uploads/' in img %}
+                            <img src="{{ asset(img) }}" alt="" class="object-fit-cover w-100 h-100">
+                        {% else %}
+                            <div class="d-flex align-items-center justify-content-center text-muted small">Aperçu</div>
+                        {% endif %}
+                    </div>
+                    <div class="card-body">
+                        <span class="badge rounded-pill mb-2" style="background: var(--loopi-mint); color: var(--loopi-deep);">{{ p.category ? p.category.nom : 'Catégorie' }}</span>
+                        <h2 class="h5 card-title fw-bold">{{ p.nom }}</h2>
+                        <p class="card-text small text-muted mb-0">{{ p.description|default('')|slice(0, 140) }}{% if p.description|length > 140 %}…{% endif %}</p>
+                    </div>
+                </article>
+            </div>
+        {% else %}
+            <p class="text-muted">Aucun produit en base.</p>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'participant/layout.html.twig' %}
+
+{% block title %}Campagnes — Participant{% endblock %}
+
+{% block par_body %}
+<h1 class="h4 fw-bold mb-2">Tableau de recyclage</h1>
+<p class="text-muted mb-4">Campagnes au statut <strong>active</strong> créées par les organisateurs — dons et suivi selon les règles Loopi.</p>
+<div class="row g-3">
+    {% for c in collections %}
+        <div class="col-md-6 col-xl-4">
+            <div class="card loopi-panel h-100">
+                {% set img = c.imageCollection %}
+                <div class="ratio ratio-4x3 bg-light rounded-top overflow-hidden">
+                    {% if img and 'uploads/' in img %}
+                        <img src="{{ asset(img) }}" alt="" class="object-fit-cover">
+                    {% else %}
+                        <div class="d-flex align-items-center justify-content-center text-muted">Campagne</div>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    <span class="badge bg-success bg-opacity-10 text-success">{{ c.materialType }}</span>
+                    <h2 class="h6 fw-bold mt-2">{{ c.title }}</h2>
+                    {% if c.owner %}
+                        <p class="small text-muted mb-2">Organisé par {{ c.owner.prenom }} {{ c.owner.nom }}</p>
+                    {% endif %}
+                    <div class="progress mb-2" style="height:8px;">
+                        {% set pct = c.goalAmount > 0 ? (100 * (c.currentAmount ?? 0) / c.goalAmount)|round(0, 'floor') : 0 %}
+                        <div class="progress-bar bg-success" style="width: {{ pct > 100 ? 100 : pct }}%;"></div>
+                    </div>
+                    <p class="small mb-0">Collecté : <strong>{{ (c.currentAmount ?? 0)|number_format(1, ',', ' ') }}</strong> / {{ c.goalAmount|number_format(1, ',', ' ') }} {{ c.unit }}</p>
+                </div>
+            </div>
+        </div>
+    {% else %}
+        <p class="text-muted">Aucune campagne.</p>
+    {% endfor %}
+</div>
+{% endblock %}

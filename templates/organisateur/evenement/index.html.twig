@@ -1,0 +1,38 @@
+{% extends 'organisateur/layout.html.twig' %}
+
+{% block title %}Mes événements — Organisateur{% endblock %}
+
+{% block org_body %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h4 fw-bold mb-0">Mes événements</h1>
+    <a class="btn btn-primary rounded-3" href="{{ path('org_evenements_new') }}"><i class="bi bi-plus-lg me-1"></i>Nouvel événement</a>
+</div>
+<div class="card loopi-panel">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle small">
+            <thead class="table-light">
+                <tr><th>Titre</th><th>Date</th><th>Lieu</th><th>Validation</th><th class="text-end">Actions</th></tr>
+            </thead>
+            <tbody>
+                {% for e in events %}
+                    <tr>
+                        <td>{{ e.titre }}</td>
+                        <td>{{ e.dateEvenement|date('d/m/Y H:i') }}</td>
+                        <td>{{ e.lieu ?? '—' }}</td>
+                        <td><span class="badge bg-secondary">{{ e.statutValidation ?? '—' }}</span></td>
+                        <td class="text-end text-nowrap">
+                            <a class="btn btn-sm btn-outline-primary" href="{{ path('org_evenements_edit', {id: e.id}) }}"><i class="bi bi-pencil"></i></a>
+                            <form class="d-inline" method="post" action="{{ path('org_evenements_delete', {id: e.id}) }}" onsubmit="return confirm('Supprimer ?');">
+                                <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ e.id) }}">
+                                <button class="btn btn-sm btn-outline-danger" type="submit"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="5" class="text-muted">Aucun événement.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

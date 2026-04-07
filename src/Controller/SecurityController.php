@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 namespace App\Controller;
 
 use App\Entity\User;
@@ -31,12 +32,32 @@ class SecurityController extends AbstractController
             'auth' => 'login',
             'last_username' => $lastUsername,
             'error' => $error ? $error->getMessage() : null,
+=======
+declare(strict_types=1);
+
+namespace App\Controller;
+
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+
+final class SecurityController extends AbstractController
+{
+    #[Route('/login', name: 'app_login')]
+    public function login(AuthenticationUtils $authenticationUtils): Response
+    {
+        return $this->render('security/login.html.twig', [
+            'last_username' => $authenticationUtils->getLastUsername(),
+            'error' => $authenticationUtils->getLastAuthenticationError(),
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
         ]);
     }
 
     #[Route('/logout', name: 'app_logout')]
     public function logout(): void
     {
+<<<<<<< HEAD
         throw new \LogicException('This method can be blank - it will be intercepted by the logout key on your firewall.');
     }
 
@@ -90,5 +111,8 @@ class SecurityController extends AbstractController
         }
 
         return $this->redirectToRoute('app_home', ['auth' => 'register']);
+=======
+        throw new \LogicException('Intercepted by security firewall.');
+>>>>>>> 52d701171b98191117769fda401d16d57735b5e5
     }
 }

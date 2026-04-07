@@ -1,0 +1,231 @@
+{% extends 'admin/layout.html.twig' %}
+
+{% block title %}Tableau de bord — Admin{% endblock %}
+
+{% block admin_body %}
+<div class="loopi-eco-banner card mb-4">
+    <div class="card-body p-4">
+        <div class="row align-items-center g-3">
+            <div class="col-lg-8">
+                <h2 class="h4 fw-bold mb-2" style="color:var(--forest-green);">
+                    <i class="bi bi-leaf me-2 text-success"></i>Bonjour, {{ app.user.prenom }} — administration Loopi
+                </h2>
+                <p class="mb-0 text-muted">
+                    Vue consolidée selon les tables <strong>users</strong>, <strong>produit</strong>, <strong>evenement</strong>, <strong>collection</strong>,
+                    <strong>participation</strong>, <strong>donation</strong>, <strong>favoris</strong>, <strong>feedback</strong>, <strong>coupon</strong> et partages sociaux.
+                </p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <span class="badge bg-white text-dark border px-3 py-2 fs-6 shadow-sm">
+                    <i class="bi bi-calendar3 me-1"></i>{{ 'now'|date('d/m/Y') }}
+                </span>
+                {% if pendingEvents > 0 %}
+                    <a href="{{ path('admin_evenements', { statut: 'en_attente' }) }}" class="btn btn-warning btn-sm ms-2 mt-2 mt-lg-0 rounded-3">
+                        <i class="bi bi-hourglass-split me-1"></i>{{ pendingEvents }} événement(s) à valider
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-3">
+    <div class="col-6 col-xl-3">
+        <div class="card loopi-stat-card h-100">
+            <div class="card-body d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="text-muted small text-uppercase fw-semibold">Utilisateurs</div>
+                    <div class="fs-2 fw-bold" style="color:var(--forest-green);">{{ userCount }}</div>
+                    <a href="{{ path('admin_users') }}" class="btn-loopi-nature-outline mt-2 d-inline-block text-decoration-none">Gérer</a>
+                </div>
+                <i class="bi bi-people loopi-stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="card loopi-stat-card h-100">
+            <div class="card-body d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="text-muted small text-uppercase fw-semibold">Produits (galerie)</div>
+                    <div class="fs-2 fw-bold" style="color:var(--leaf-green);">{{ produitCount }}</div>
+                    <a href="{{ path('admin_produits') }}" class="btn-loopi-nature-outline mt-2 d-inline-block text-decoration-none">CRUD</a>
+                </div>
+                <i class="bi bi-palette loopi-stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="card loopi-stat-card h-100">
+            <div class="card-body d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="text-muted small text-uppercase fw-semibold">Événements</div>
+                    <div class="fs-2 fw-bold" style="color:var(--water-blue);">{{ eventCount }}</div>
+                    <a href="{{ path('admin_evenements') }}" class="btn-loopi-nature-outline mt-2 d-inline-block text-decoration-none">Liste</a>
+                </div>
+                <i class="bi bi-calendar-event loopi-stat-icon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="card loopi-stat-card h-100">
+            <div class="card-body d-flex justify-content-between align-items-start">
+                <div>
+                    <div class="text-muted small text-uppercase fw-semibold">Campagnes</div>
+                    <div class="fs-2 fw-bold" style="color:var(--sage-green);">{{ collectionCount }}</div>
+                    <a href="{{ path('admin_collections') }}" class="btn-loopi-nature-outline mt-2 d-inline-block text-decoration-none">Tableau</a>
+                </div>
+                <i class="bi bi-recycle loopi-stat-icon"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card loopi-stat-card h-100">
+            <div class="card-body py-3">
+                <div class="text-muted small">Participations</div>
+                <div class="fs-4 fw-bold text-dark">{{ participationCount }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card loopi-stat-card h-100">
+            <div class="card-body py-3">
+                <div class="text-muted small">Favoris</div>
+                <div class="fs-4 fw-bold text-dark">{{ favorisCount }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card loopi-stat-card h-100">
+            <div class="card-body py-3">
+                <div class="text-muted small">Avis (feedback)</div>
+                <div class="fs-4 fw-bold text-dark">{{ feedbackCount }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card loopi-stat-card h-100">
+            <div class="card-body py-3">
+                <div class="text-muted small">Coupons</div>
+                <div class="fs-4 fw-bold text-dark">{{ couponCount }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card loopi-stat-card h-100">
+            <div class="card-body py-3">
+                <div class="text-muted small">Dons confirmés</div>
+                <div class="fs-4 fw-bold text-dark">{{ donationConfirmedCount }}</div>
+                <div class="small text-muted">{{ donationTotal|number_format(2, ',', ' ') }} unités</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="card loopi-stat-card h-100">
+            <div class="card-body py-3">
+                <div class="text-muted small">Partages sociaux</div>
+                <div class="fs-4 fw-bold text-dark">{{ shareCount }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if notificationsCount > 0 %}
+    <div class="alert alert-light border loopi-panel mb-4 py-2 small">
+        <i class="bi bi-bell me-1 text-success"></i>Notifications en base : <strong>{{ notificationsCount }}</strong> (table <code>notifications</code>).
+    </div>
+{% endif %}
+
+<div class="row g-4 mb-4">
+    <div class="col-lg-5">
+        <div class="card loopi-panel h-100">
+            <div class="card-header bg-white fw-semibold border-0 py-3">
+                <i class="bi bi-pie-chart me-2 text-success"></i>Utilisateurs par rôle
+            </div>
+            <div class="card-body">
+                <canvas id="roleChart" height="240"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-7">
+        <div class="card loopi-panel h-100">
+            <div class="card-header bg-white fw-semibold border-0 py-3">
+                <i class="bi bi-bar-chart-line me-2 text-success"></i>Événements par statut de validation
+            </div>
+            <div class="card-body">
+                <canvas id="eventStatusChart" height="240"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="card loopi-panel">
+    <div class="card-header bg-white fw-semibold border-0 py-3">
+        <i class="bi bi-lightning-charge me-2 text-warning"></i>Accès rapides
+    </div>
+    <div class="card-body">
+        <div class="row g-3">
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <a class="btn btn-outline-success w-100 rounded-3 py-3" href="{{ path('admin_users') }}"><i class="bi bi-people d-block fs-4 mb-1"></i>Utilisateurs</a>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <a class="btn btn-outline-success w-100 rounded-3 py-3" href="{{ path('admin_produits') }}"><i class="bi bi-palette d-block fs-4 mb-1"></i>Galerie</a>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <a class="btn btn-outline-success w-100 rounded-3 py-3" href="{{ path('admin_evenements', { statut: 'en_attente' }) }}"><i class="bi bi-hourglass-split d-block fs-4 mb-1"></i>À valider</a>
+            </div>
+            <div class="col-sm-6 col-md-4 col-lg-3">
+                <a class="btn btn-outline-success w-100 rounded-3 py-3" href="{{ path('admin_map') }}"><i class="bi bi-geo-alt d-block fs-4 mb-1"></i>Carte</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const forest = '#2d5a3d', leaf = '#4a7c59', sage = '#87a96b', mint = '#b8d4b8', orange = '#e8985e', berry = '#c45b5b', sand = '#d4a84b';
+    const roleCtx = document.getElementById('roleChart');
+    if (roleCtx) {
+        new Chart(roleCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Administrateurs', 'Organisateurs', 'Participants'],
+                datasets: [{
+                    data: [{{ roles.admin }}, {{ roles.organisateur }}, {{ roles.participant }}],
+                    backgroundColor: [sand, leaf, mint],
+                    borderWidth: 0
+                }]
+            },
+            options: { plugins: { legend: { position: 'bottom' } }, cutout: '58%' }
+        });
+    }
+    const evCtx = document.getElementById('eventStatusChart');
+    const evLabels = {{ eventStatusLabels|json_encode|raw }};
+    const evData = {{ eventStatusData|json_encode|raw }};
+    if (evCtx && evLabels.length) {
+        new Chart(evCtx, {
+            type: 'bar',
+            data: {
+                labels: evLabels,
+                datasets: [{
+                    label: 'Nombre',
+                    data: evData,
+                    backgroundColor: [leaf, sage, mint, orange, berry, forest],
+                    borderRadius: 8
+                }]
+            },
+            options: {
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, ticks: { stepSize: 1 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

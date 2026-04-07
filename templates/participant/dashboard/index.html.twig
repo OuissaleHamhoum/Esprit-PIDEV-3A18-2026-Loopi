@@ -1,0 +1,34 @@
+{% extends 'participant/layout.html.twig' %}
+
+{% block title %}Mon espace — Participant{% endblock %}
+
+{% block par_body %}
+<h1 class="h4 fw-bold mb-2">Bonjour, {{ user.prenom }}</h1>
+<p class="text-muted mb-4">Voici un résumé de votre activité sur Loopi.</p>
+<div class="row g-3">
+    <div class="col-md-4">
+        <div class="card border-0 h-100 loopi-card-elevated">
+            <div class="card-body">
+                <div class="text-muted small">Participations (événements)</div>
+                <div class="display-6 fw-bold text-success">{{ participantStats.participations }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 h-100 loopi-card-elevated">
+            <div class="card-body">
+                <div class="text-muted small">Favoris (galerie)</div>
+                <div class="display-6 fw-bold text-primary">{{ participantStats.favoris }}</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card border-0 h-100 loopi-card-elevated">
+            <div class="card-body">
+                <div class="text-muted small">Avis / commentaires</div>
+                <div class="display-6 fw-bold" style="color:#00695c;">{{ participantStats.feedback_count }}</div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
