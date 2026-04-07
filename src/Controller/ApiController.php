@@ -793,7 +793,7 @@ class ApiController extends AbstractController
             $user = $this->getUser();
             $userId = $user ? $user->getId() : 2; // Default to user 2 for testing
 
-            $events = $doctrine->getRepository('App\Entity\Evenement')->findBy(['idOrganisateur' => $userId]);
+            $events = $doctrine->getRepository('App\Entity\Evenement')->findBy(['id_organisateur' => $userId]);
             $participationRepo = $doctrine->getRepository('App\Entity\Participation');
 
             $eventsData = [];
@@ -803,6 +803,7 @@ class ApiController extends AbstractController
 
                     $eventsData[] = [
                         'id' => $event->getIdEvenement(),
+                        'id_evenement' => $event->getIdEvenement(),
                         'titre' => $event->getTitre(),
                         'description' => $event->getDescription(),
                         'date_evenement' => $event->getDateEvenement() ? $event->getDateEvenement()->format('Y-m-d') : null,
@@ -812,7 +813,9 @@ class ApiController extends AbstractController
                         'capacite_max' => $event->getCapaciteMax(),
                         'image_evenement' => $event->getImageEvenement(),
                         'statut' => $event->getStatutValidation() ?: 'en_attente',
+                        'statut_validation' => $event->getStatutValidation() ?: 'en_attente',
                         'participants_count' => $participantsCount,
+                        'places_left' => max(0, $event->getCapaciteMax() - $participantsCount),
                         'created_at' => $event->getCreatedAt() ? $event->getCreatedAt()->format('Y-m-d H:i:s') : null,
                         'updated_at' => $event->getUpdatedAt() ? $event->getUpdatedAt()->format('Y-m-d H:i:s') : null,
                     ];
@@ -1196,7 +1199,7 @@ class ApiController extends AbstractController
         try {
             $participationRepo = $doctrine->getRepository('App\Entity\Participation');
             $events = $doctrine->getRepository('App\Entity\Evenement')->findBy(
-                ['statut' => 'valide'],
+                ['statut_validation' => 'valide'],
                 ['date_evenement' => 'ASC']
             );
 
@@ -1255,7 +1258,7 @@ class ApiController extends AbstractController
                 return new JsonResponse(['success' => false, 'message' => 'Événement introuvable.'], Response::HTTP_NOT_FOUND);
             }
 
-            if ($event->getStatut() !== 'valide') {
+            if ($event->getStatutValidation() !== 'valide') {
                 return new JsonResponse(['success' => false, 'message' => 'Cet événement n\'est pas disponible.'], Response::HTTP_FORBIDDEN);
             }
 
@@ -1313,7 +1316,7 @@ class ApiController extends AbstractController
                 return new JsonResponse(['success' => false, 'message' => 'Événement introuvable.'], Response::HTTP_NOT_FOUND);
             }
 
-            if ($event->getStatut() !== 'valide') {
+            if ($event->getStatutValidation() !== 'valide') {
                 return new JsonResponse(['success' => false, 'message' => 'Cet événement n\'est pas disponible.'], Response::HTTP_FORBIDDEN);
             }
 

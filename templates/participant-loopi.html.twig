@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loopi — Espace Participant</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<link href="/css/events-interface.css" rel="stylesheet">
+<script src="/js/events-interface.js"></script>
 <style>
 :root {
   --bg: #F4F1EB;
@@ -848,31 +850,72 @@ footer span { color: var(--sage); font-weight: 600; }
 <!-- ÉVÉNEMENTS -->
 <!-- ══════════════════════════════ -->
 <section id="sec-evenements" class="page-section">
-  <div class="section-heading">Événements</div>
-  <div class="section-sub">Participez et collectez des matériaux recyclables pour soutenir les artistes</div>
+  <div class="section-heading">📅 Événements</div>
+  <div class="section-sub">Participez à des événements de collecte et souttenez les artistes recycleurs</div>
+
+  <!-- Stats Section -->
+  <div class="events-stats" style="margin-bottom: 28px;">
+    <div class="event-stat">
+      <div class="event-stat-value" id="event-count-total">0</div>
+      <div class="event-stat-label">Événements disponibles</div>
+    </div>
+    <div class="event-stat">
+      <div class="event-stat-value" id="event-joined-count">0</div>
+      <div class="event-stat-label">Rejoints</div>
+    </div>
+    <div class="event-stat">
+      <div class="event-stat-value" id="event-kg-total">0</div>
+      <div class="event-stat-label">kg collectés</div>
+    </div>
+    <div class="event-stat">
+      <div class="event-stat-value" id="event-coupons-count">0</div>
+      <div class="event-stat-label">Coupons gagnés</div>
+    </div>
+  </div>
 
   <div class="grid-2">
+    <!-- Available Events -->
     <div class="card">
       <div class="card-title">Événements disponibles</div>
-      <div id="events-container" style="display:flex;flex-direction:column;gap:14px">
-        <div style="text-align:center;color:var(--muted);padding:20px">Chargement des événements...</div>
+      <div id="events-container" style="display: grid; grid-template-columns: 1fr; gap: 12px;">
+        <div style="text-align: center; color: var(--muted); padding: 30px 20px;">
+          <div style="font-size: 2rem; margin-bottom: 10px;">⏳</div>
+          Chargement des événements...
+        </div>
+      </div>
+      <div id="events-empty" style="display: none; text-align: center; padding: 30px 20px; color: var(--muted);">
+        <div style="font-size: 2rem; margin-bottom: 10px;">📭</div>
+        <div style="font-weight: 600; margin-bottom: 5px; color: var(--dark);">Aucun événement disponible</div>
+        <div style="font-size: 0.8rem;">Revenez bientôt pour découvrir les prochains événements!</div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-title">Ma participation</div>
-      <div style="text-align:center;padding:20px 0">
-        <div id="user-events-count" style="font-family:'Playfair Display',serif;font-size:3rem;font-weight:700;color:var(--forest)">--</div>
-        <div style="font-size:.84rem;color:var(--muted)">événements rejoints</div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px">
-          <div style="background:var(--bg);border-radius:14px;padding:16px;text-align:center">
-            <div id="user-kg-collected" style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--forest)">--</div>
-            <div style="font-size:.72rem;color:var(--muted)">kg collectés</div>
+    <!-- Side Panel with Stats and Info -->
+    <div>
+      <div class="card" style="margin-bottom: 16px;">
+        <div class="card-title">Votre participation</div>
+        <div style="text-align: center; padding: 20px 0;">
+          <div id="user-events-count" style="font-family: 'Playfair Display', serif; font-size: 2.4rem; font-weight: 700; color: var(--forest); line-height: 1;">0</div>
+          <div style="font-size: 0.85rem; color: var(--muted); margin-top: 6px;">événements rejoints</div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 18px;">
+            <div style="background: linear-gradient(135deg, rgba(61,107,79,.08), rgba(30,58,47,.05)); border-radius: 12px; padding: 14px; border: 1px solid rgba(61,107,79,.1);">
+              <div id="user-kg-collected" style="font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--moss); line-height: 1;">0</div>
+              <div style="font-size: 0.68rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">kg collectés</div>
+            </div>
+            <div style="background: linear-gradient(135deg, rgba(201,169,110,.08), rgba(122,158,126,.05)); border-radius: 12px; padding: 14px; border: 1px solid rgba(122,158,126,.1);">
+              <div id="user-coupons" style="font-family: 'Playfair Display', serif; font-size: 1.4rem; font-weight: 700; color: var(--sand); line-height: 1;">0</div>
+              <div style="font-size: 0.68rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600;">coupons gagnés</div>
+            </div>
           </div>
-          <div style="background:var(--bg);border-radius:14px;padding:16px;text-align:center">
-            <div id="user-coupons" style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--moss)">--</div>
-            <div style="font-size:.72rem;color:var(--muted)">coupons gagnés</div>
-          </div>
+        </div>
+      </div>
+
+      <div class="card" style="background: linear-gradient(135deg, rgba(30,58,47,.04), rgba(122,158,126,.04)); border: 1px solid rgba(61,107,79,.1);">
+        <div class="card-title">💡 Astuce</div>
+        <div style="font-size: 0.78rem; color: var(--muted); line-height: 1.6;">
+          <p style="margin-bottom: 8px;">Chaque kilogramme collecté = des points de fidélité et des coupons de réduction!</p>
+          <p>Participez aux événements, collectez des matériaux, et déverrouillez des réductions avec les artistes de notre communauté.</p>
         </div>
       </div>
     </div>

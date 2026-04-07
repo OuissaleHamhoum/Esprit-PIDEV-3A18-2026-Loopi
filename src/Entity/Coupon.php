@@ -21,7 +21,7 @@ class Coupon
     #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2)]
     private ?string $discountPercent = null;
 
-    #[ORM\Column(type: Types::DATE, nullable: true)]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $donationDate = null;
 
     #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
@@ -35,7 +35,7 @@ class Coupon
     #[ORM\JoinColumn(name: 'id_donation', nullable: true, referencedColumnName: 'id_donation')]
     private ?Donation $donation = null;
 
-    #[ORM\Column(type: Types::DATE, nullable: true)]
+    #[ORM\Column(type: Types::DATE_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $expirationDate = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => '0.00'])]
