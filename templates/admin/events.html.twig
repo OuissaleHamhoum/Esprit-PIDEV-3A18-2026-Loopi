@@ -24,7 +24,7 @@
   .filter-row label { font-size: 0.7rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
   .filter-row input, .filter-row select { padding: 8px 12px; background: rgba(255, 255, 255, 0.9); border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 0.8rem; }
   .filter-row input:focus, .filter-row select:focus { border-color: var(--accent); outline: none; background: white; }
-  .event-row { display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1fr 1fr 1.2fr 1.8fr; gap: 12px; padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); align-items: center; }
+  .event-row { display: grid; grid-template-columns: 0.8fr 2fr 1.5fr 1.5fr 1.5fr 1fr 1fr 1.2fr 1.8fr; gap: 12px; padding: 12px; border-bottom: 1px solid rgba(255, 255, 255, 0.04); align-items: center; }
   .event-row:hover { background: rgba(255, 255, 255, 0.02); }
 </style>
 
@@ -39,7 +39,7 @@
           <button id="btnExportEvents" class="btn btn-outline" style="background: rgba(93,168,122,0.1); color: var(--accent); border: 1px solid var(--accent); padding: 8px 16px;" title="Exporter les événements">
             <i class="fas fa-download"></i> Exporter
           </button>
-          <button id="btnCreateEvent" class="btn" style="background: linear-gradient(135deg, var(--accent), var(--moss)); color: white; padding: 8px 16px;" onclick="openEventModal()">
+          <button id="btnCreateEvent" class="btn" style="background: linear-gradient(135deg, var(--accent), var(--moss)); color: var(--text); padding: 10px 20px; border-radius: 8px; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border: none; cursor: pointer; transition: all 0.2s ease;" onclick="openEventModal()">
             <i class="fas fa-plus"></i> Créer un événement
           </button>
         </div>
@@ -94,7 +94,8 @@
 
       <!-- Table des événements -->
       <div style="overflow-x: auto; background: var(--card); border-radius: 12px; border: 1px solid var(--border);">
-        <div class="tbl" style="display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 1.5fr 1fr 1fr 1.2fr 1.8fr; gap: 12px; padding: 12px; background: var(--bg); border-bottom: 1px solid var(--border); font-weight: 700; color: var(--muted); font-size: 0.65rem; text-transform: uppercase;">
+        <div class="tbl" style="display: grid; grid-template-columns: 0.8fr 2fr 1.5fr 1.5fr 1.5fr 1fr 1fr 1.2fr 1.8fr; gap: 12px; padding: 12px; background: var(--bg); border-bottom: 1px solid var(--border); font-weight: 700; color: var(--muted); font-size: 0.65rem; text-transform: uppercase;">
+          <div>Image</div>
           <div>Titre</div>
           <div>Organisateur</div>
           <div>Date</div>
@@ -187,7 +188,7 @@
         </div>
         <div class="events-modal-footer">
           <button type="button" class="btn" style="background: rgba(255,255,255,0.05); color: var(--text); padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer;" onclick="closeEventModal()">Annuler</button>
-          <button type="button" class="btn" style="background: linear-gradient(135deg, var(--accent), var(--moss)); color: white; padding: 8px 16px; border: none; border-radius: 8px; cursor: pointer;" id="btnSaveEvent" onclick="saveEvent()">
+          <button type="button" class="btn" style="background: linear-gradient(135deg, var(--accent), var(--moss)); color: var(--text); padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.2s ease;" id="btnSaveEvent" onclick="saveEvent()">
             <i class="fas fa-save"></i> Enregistrer
           </button>
         </div>
@@ -203,7 +204,7 @@
         </div>
         <div class="events-modal-body">
           <p style="color: var(--text); margin-bottom: 8px;">Êtes-vous sûr de vouloir supprimer cet événement ?</p>
-          <p style="color: white; font-weight: 600; margin-bottom: 8px;"><i class="fas fa-calendar"></i> <span id="deleteEventTitle"></span></p>
+          <p style="color: var(--text); font-weight: 600; margin-bottom: 8px;"><i class="fas fa-calendar"></i> <span id="deleteEventTitle"></span></p>
           <p style="color: var(--danger); font-size: 0.8rem;"><i class="fas fa-exclamation-triangle"></i> Cette action est irréversible.</p>
         </div>
         <div class="events-modal-footer">
@@ -321,6 +322,9 @@
         const row = document.createElement('div');
         row.className = 'event-row';
         row.innerHTML = `
+          <div style="text-align: center;">
+            ${event.image_evenement ? `<img src="/uploads/events/${event.image_evenement}" alt="${escapeHtml(event.titre)}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid var(--border);">` : '<div style="width: 50px; height: 50px; background: var(--muted); border-radius: 4px; display: flex; align-items: center; justify-content: center; color: var(--text); font-size: 0.7rem;">📷</div>'}
+          </div>
           <div style="color: var(--text); font-weight: 700; word-break: break-word;">${escapeHtml(event.titre)}</div>
           <div style="color: var(--muted); font-size: 0.8rem;">${escapeHtml(event.organisateur || 'N/A')}</div>
           <div style="color: var(--muted); font-size: 0.8rem;">${eventDate}</div>
