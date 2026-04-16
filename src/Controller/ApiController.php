@@ -1326,7 +1326,7 @@ class ApiController extends AbstractController
         return $filename;
     }
 
-    private function validateCollectionData(array $data, bool $requireImage, $uploadedFile = null): array
+    private function validateCollectionData(array $data, bool $requireImage, $uploadedFile = null, ManagerRegistry $doctrine = null, ?int $excludeId = null): array
     {
         $errors = [];
         $title        = trim($data['title'] ?? '');
@@ -1340,6 +1340,11 @@ class ApiController extends AbstractController
             $errors['title'] = 'Le titre doit contenir au moins 5 caractères.';
         } elseif (strlen($title) > 255) {
             $errors['title'] = 'Le titre ne peut pas dépasser 255 caractères.';
+        } elseif ($doctrine) {
+            $existing = $doctrine->getRepository(Collection::class)->findOneBy(['title' => $title]);
+            if ($existing && $existing->getId() !== $excludeId) {
+                $errors['title'] = 'Une collection avec ce nom existe déjà. Veuillez la changer.';
+            }
         }
 
         if (!$materialType) {
@@ -1410,7 +1415,7 @@ class ApiController extends AbstractController
             ];
 
             $imageFile = $request->files->get('image');
-            $errors = $this->validateCollectionData($data, true, $imageFile);
+            $errors = $this->validateCollectionData($data, true, $imageFile, $doctrine);
 
             if (!empty($errors)) {
                 return new JsonResponse(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
@@ -1470,7 +1475,7 @@ class ApiController extends AbstractController
         ];
 
         $imageFile = $request->files->get('image');
-        $errors = $this->validateCollectionData($data, false, $imageFile);
+        $errors = $this->validateCollectionData($data, false, $imageFile, $doctrine, $id);
 
         if (!empty($errors)) {
             return new JsonResponse(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
