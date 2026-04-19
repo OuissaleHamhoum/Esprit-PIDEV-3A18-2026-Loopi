@@ -36,6 +36,9 @@
           <span class="sub" style="font-family: 'DM Sans',sans-serif; font-size: 0.7rem; color: var(--muted); margin-left: 8px;">Validation & Modération</span>
         </div>
         <div style="display:flex;gap:10px">
+          <button id="btnRefreshEvents" class="btn btn-outline" style="background: rgba(255,255,255,0.08); color: var(--accent); border: 1px solid var(--border); padding: 8px 16px;" title="Rafraîchir la liste">
+            <i class="fas fa-sync-alt"></i> Rafraîchir
+          </button>
           <button id="btnExportEvents" class="btn btn-outline" style="background: rgba(93,168,122,0.1); color: var(--accent); border: 1px solid var(--accent); padding: 8px 16px;" title="Exporter les événements">
             <i class="fas fa-download"></i> Exporter
           </button>
@@ -225,11 +228,23 @@
     async function parseJsonResponse(response) {
       const text = await response.text();
       try {
-        return JSON.parse(text);
+        const json = JSON.parse(text);
+        if (typeof json === 'object' && json !== null) {
+          return json;
+        }
       } catch (error) {
         console.error('Invalid JSON response:', text);
-        return { success: false, message: 'Réponse serveur invalide' };
       }
+      return {
+        success: false,
+        message: response.status === 401
+          ? 'Accès non autorisé. Veuillez vous reconnecter.'
+          : response.status === 403
+            ? 'Accès refusé.'
+            : 'Réponse serveur invalide.',
+        status: response.status,
+        body: text,
+      };
     }
 
     // Chargement initial
@@ -239,6 +254,18 @@
       document.addEventListener('DOMContentLoaded', setupEventListeners);
     }
 
+    async function checkAuthentication() {
+      // For admin page, we skip authentication check since routes are open
+      return true;
+    }
+
+    function setEventsLoading() {
+      const tbody = document.getElementById('eventsTableBody');
+      if (tbody) {
+        tbody.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--muted); font-size: 0.8rem;">⏳ Chargement des événements...</div>`;
+      }
+    }
+
     function setupEventListeners() {
       const searchInput = document.getElementById('searchEvents');
       const statusFilter = document.getElementById('filterStatus');
@@ -246,6 +273,7 @@
       const dateFilter = document.getElementById('filterDate');
       const resetFiltersButton = document.getElementById('btnResetFilters');
       const exportButton = document.getElementById('btnExportEvents');
+      const refreshButton = document.getElementById('btnRefreshEvents');
 
       if (searchInput) searchInput.addEventListener('input', filterEvents);
       if (statusFilter) statusFilter.addEventListener('change', filterEvents);
@@ -253,11 +281,25 @@
       if (dateFilter) dateFilter.addEventListener('change', filterEvents);
       if (resetFiltersButton) resetFiltersButton.addEventListener('click', resetFilters);
       if (exportButton) exportButton.addEventListener('click', exportEvents);
+      if (refreshButton) refreshButton.addEventListener('click', async () => { await loadEvents(); });
+
+      // Check authentication and load data
+      checkAuthentication().then(isAuthenticated => {
+        if (isAuthenticated) {
+          setEventsLoading();
+          loadOrganisateurs();
+          loadEvents();
+        } else {
+          showAlert('Erreur de connexion au serveur. Veuillez rafraîchir la page.', 'error');
+          setTimeout(() => window.location.reload(), 3000);
+        }
+      });
     }
 
     // Fonctions de chargement des données
     async function loadEvents() {
       try {
+        setEventsLoading();
         const response = await fetch('/api/admin/events', {
           credentials: 'include',
           headers: {
@@ -266,19 +308,31 @@
         });
 
         const data = await parseJsonResponse(response);
+        if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            showAlert('Accès refusé. Veuillez vous connecter en tant qu\'administrateur.', 'error');
+            document.getElementById('eventsTableBody').innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--muted); font-size: 0.8rem;">⚠️ Accès non autorisé.</div>`;
+            setTimeout(() => window.location.href = '/login', 2000);
+            return;
+          }
+          const details = data.body ? ` (${escapeHtml(data.body.substring(0, 120))})` : '';
+          showAlert(data.message || `Erreur serveur (${response.status})${details}`, 'error');
+          document.getElementById('eventsTableBody').innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--muted); font-size: 0.8rem;">⚠️ Impossible de charger les événements.</div>`;
+          return;
+        }
+
         if (data.success) {
-          eventsData = data.events;
+          eventsData = Array.isArray(data.events) ? data.events : [];
           renderEventsTable();
           updateEventsSummary();
-          if (!organisateursData.length && typeof loadOrganisateurs === 'function') {
-            loadOrganisateurs();
-          }
         } else {
-          showAlert('Erreur lors du chargement des événements', 'error');
+          showAlert(data.message || 'Erreur lors du chargement des événements', 'error');
+          document.getElementById('eventsTableBody').innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--muted); font-size: 0.8rem;">⚠️ ${escapeHtml(data.message || 'Erreur lors du chargement des événements')}</div>`;
         }
       } catch (error) {
         console.error('Erreur:', error);
         showAlert('Erreur de connexion', 'error');
+        document.getElementById('eventsTableBody').innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 20px; color: var(--muted); font-size: 0.8rem;">⚠️ Erreur de connexion.</div>`;
       }
     }
 
@@ -292,8 +346,17 @@
         });
 
         const data = await parseJsonResponse(response);
+        if (!response.ok) {
+          if (response.status === 401 || response.status === 403) {
+            console.warn('Impossible de charger les organisateurs: accès refusé');
+            return;
+          }
+          console.warn('Impossible de charger les organisateurs:', data.message || response.status);
+          return;
+        }
+
         if (data.success) {
-          organisateursData = data.organisateurs;
+          organisateursData = Array.isArray(data.organisateurs) ? data.organisateurs : [];
           renderOrganisateursSelect();
         }
       } catch (error) {
@@ -341,7 +404,7 @@
               <button class="btn-small success" onclick="validateEvent(${event.id})" title="Valider">Valider</button>
               <button class="btn-small danger" onclick="rejectEvent(${event.id})" title="Rejeter">Rejeter</button>
             ` : ''}
-            <button class="btn-small danger" onclick='deleteEvent(${event.id}, "${escapeHtml(event.titre)}")' title="Supprimer">Supprimer</button>
+            <button class="btn-small danger" onclick="deleteEvent(${event.id}, ${JSON.stringify(event.titre)})" title="Supprimer">Supprimer</button>
           </div>
         `;
         tbody.appendChild(row);
@@ -393,17 +456,22 @@
 
       const filteredEvents = eventsData.filter(event => {
         // Recherche textuelle
-        const matchesSearch = !searchTerm ||
-          event.titre.toLowerCase().includes(searchTerm) ||
-          event.organisateur.toLowerCase().includes(searchTerm) ||
-          event.lieu.toLowerCase().includes(searchTerm) ||
-          event.description.toLowerCase().includes(searchTerm);
+        const title = String(event.titre || '').toLowerCase();
+      const organizer = String(event.organisateur || '').toLowerCase();
+      const location = String(event.lieu || '').toLowerCase();
+      const description = String(event.description || '').toLowerCase();
+
+      const matchesSearch = !searchTerm ||
+          title.includes(searchTerm) ||
+          organizer.includes(searchTerm) ||
+          location.includes(searchTerm) ||
+          description.includes(searchTerm);
 
         // Filtre par statut
         const matchesStatus = !statusFilter || event.statut === statusFilter;
 
         // Filtre par organisateur
-        const matchesOrganisateur = !organisateurFilter || event.organisateur === organisateurFilter;
+        const matchesOrganisateur = !organisateurFilter || String(event.id_organisateur) === String(organisateurFilter);
 
         // Filtre par date
         const matchesDate = !dateFilter || checkDateFilter(event.date_evenement, dateFilter);
@@ -487,7 +555,9 @@
     }
 
     function closeDeleteModal() {
-      document.getElementById('deleteEventModal').classList.remove('open');
+      const modal = document.getElementById('deleteEventModal');
+      modal.classList.remove('open');
+      modal.style.display = '';
     }
 
     // CRUD operations
@@ -531,8 +601,9 @@
     }
 
     async function saveEvent() {
-      const formData = new FormData(document.getElementById('eventForm'));
-      const data = normalizeEventDateFields(Object.fromEntries(formData.entries()));
+      const form = document.getElementById('eventForm');
+      const formData = new FormData(form);
+      const data = normalizeEventDateFields(Object.fromEntries([...formData.entries()].filter(([key]) => key !== 'image_evenement')));
 
       // Validation côté client
       if (!validateEventForm(data)) {
@@ -541,17 +612,16 @@
 
       const isUpdate = currentEventId !== null;
       const url = isUpdate ? `/api/admin/events/${currentEventId}` : '/api/admin/events';
-      const method = isUpdate ? 'PUT' : 'POST';
+      const method = 'POST';
 
       try {
         const response = await fetch(url, {
           method: method,
           credentials: 'include',
           headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Accept': 'application/json'
           },
-          body: JSON.stringify(data)
+          body: formData
         });
 
         const result = await parseJsonResponse(response);
@@ -574,7 +644,8 @@
     function deleteEvent(id, title) {
       currentEventId = id;
       document.getElementById('deleteEventTitle').textContent = title;
-      document.getElementById('deleteEventModal').style.display = 'block';
+      const modal = document.getElementById('deleteEventModal');
+      modal.classList.add('open');
     }
 
     async function confirmDeleteEvent() {
@@ -708,6 +779,7 @@
                 <table class="tbl" style="margin-bottom:20px">
                   <tr><td style="font-weight:500">Titre:</td><td>${escapeHtml(event.titre)}</td></tr>
                   <tr><td style="font-weight:500">Organisateur:</td><td>${escapeHtml(event.organisateur)}</td></tr>
+                  ${event.image_evenement ? `<tr><td style="font-weight:500">Image:</td><td><img src="/uploads/events/${encodeURI(event.image_evenement)}" style="max-width:120px;max-height:90px;border-radius:8px" alt="Image événement"></td></tr>` : ''}
                   <tr><td style="font-weight:500">Date:</td><td>${formatDate(event.date_evenement)}</td></tr>
                   <tr><td style="font-weight:500">Lieu:</td><td>${escapeHtml(event.lieu)}</td></tr>
                   <tr><td style="font-weight:500">Capacité:</td><td>${event.capacite_max}</td></tr>

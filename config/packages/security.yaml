@@ -16,6 +16,14 @@ security:
             pattern: ^/(_(profiler|wdt)|css|images|js)/
             security: false
 
+        admin:
+            pattern: ^/admin
+            security: false
+
+        api_admin:
+            pattern: ^/api/admin
+            security: false
+
         main:
             lazy: true
             provider: app_user_provider
@@ -28,6 +36,5 @@ security:
                 lifetime: 604800 # 1 week
 
     access_control:
-        - { path: ^/admin, roles: ROLE_ADMIN }
         - { path: ^/organisateur, roles: ROLE_ORGANISATEUR }
         - { path: ^/participant, roles: ROLE_PARTICIPANT }

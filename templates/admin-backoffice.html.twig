@@ -525,6 +525,41 @@ let adminUsers = [];
 let adminEvents = [];
 let userModalMode = 'create';
 
+async function checkAuthentication() {
+  try {
+    const response = await fetch('/api/health', {
+      credentials: 'include',
+      headers: { 'Accept': 'application/json' }
+    });
+    const data = await response.json();
+    return response.ok && data.success && data.user;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function parseJsonResponse(response) {
+  const text = await response.text();
+  try {
+    const json = JSON.parse(text);
+    if (typeof json === 'object' && json !== null) {
+      return json;
+    }
+  } catch (error) {
+    console.error('Invalid JSON response:', text);
+  }
+  return {
+    success: false,
+    message: response.status === 401
+      ? 'Accès non autorisé. Veuillez vous reconnecter.'
+      : response.status === 403
+        ? 'Accès refusé.'
+        : 'Réponse serveur invalide.',
+    status: response.status,
+    body: text,
+  };
+}
+
 function goPage(name, navEl) {
   document.querySelectorAll('[id^=page-]').forEach(p => p.style.display = 'none');
   document.getElementById('page-' + name).style.display = 'block';
@@ -538,12 +573,19 @@ function goPage(name, navEl) {
       refreshUserTable();
       break;
     case 'events':
-      if (typeof loadEvents === 'function') {
-        loadEvents();
-      }
-      if (typeof loadOrganisateurs === 'function') {
-        loadOrganisateurs();
-      }
+      checkAuthentication().then(isAuthenticated => {
+        if (isAuthenticated) {
+          if (typeof loadEvents === 'function') {
+            loadEvents();
+          }
+          if (typeof loadOrganisateurs === 'function') {
+            loadOrganisateurs();
+          }
+        } else {
+          showToast('Accès refusé. Veuillez vous connecter en tant qu\'administrateur.');
+          setTimeout(() => window.location.href = '/login', 3000);
+        }
+      });
       break;
     case 'products':
       refreshProductTable();
