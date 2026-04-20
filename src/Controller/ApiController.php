@@ -199,8 +199,6 @@ class ApiController extends AbstractController
     #[Route('/admin/users', name: 'api_admin_users', methods: ['GET'])]
     public function listAdminUsers(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $search = trim($request->query->get('q', ''));
         $role = trim($request->query->get('role', ''));
 
@@ -1235,8 +1233,6 @@ class ApiController extends AbstractController
     #[Route('/admin/events/{id}/validate', name: 'api_admin_event_validate', methods: ['POST'])]
     public function validateEvent(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
         if (!$event) {
             return new JsonResponse(['success' => false, 'message' => 'Événement introuvable.'], Response::HTTP_NOT_FOUND);
@@ -1256,8 +1252,6 @@ class ApiController extends AbstractController
     #[Route('/admin/events/{id}/reject', name: 'api_admin_event_reject', methods: ['POST'])]
     public function rejectEvent(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
         if (!$event) {
             return new JsonResponse(['success' => false, 'message' => 'Événement introuvable.'], Response::HTTP_NOT_FOUND);
@@ -1277,8 +1271,6 @@ class ApiController extends AbstractController
     #[Route('/admin/organisateurs', name: 'api_admin_organisateurs', methods: ['GET'])]
     public function getOrganisateurs(ManagerRegistry $doctrine): JsonResponse
     {
-        $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $qb = $doctrine->getRepository('App\Entity\User')->createQueryBuilder('u');
         $qb->where($qb->expr()->in('u.role', ':roles'))
             ->setParameter('roles', ['organisateur', 'admin'])

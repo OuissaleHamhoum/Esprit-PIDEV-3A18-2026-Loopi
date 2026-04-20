@@ -404,7 +404,7 @@
               <button class="btn-small success" onclick="validateEvent(${event.id})" title="Valider">Valider</button>
               <button class="btn-small danger" onclick="rejectEvent(${event.id})" title="Rejeter">Rejeter</button>
             ` : ''}
-            <button class="btn-small danger" onclick="deleteEvent(${event.id}, ${JSON.stringify(event.titre)})" title="Supprimer">Supprimer</button>
+            <button class="btn-small danger" onclick="deleteEventById(${event.id})" title="Supprimer">Supprimer</button>
           </div>
         `;
         tbody.appendChild(row);
@@ -638,6 +638,14 @@
       } catch (error) {
         console.error('Erreur:', error);
         showAlert('Erreur de connexion', 'error');
+      }
+    }
+
+    function deleteEventById(id) {
+      // Get event title from eventsData
+      const event = eventsData.find(e => e.id === id);
+      if (event) {
+        deleteEvent(id, event.titre);
       }
     }
 
