@@ -1,0 +1,1606 @@
+<?php
+
+namespace App\Controller;
+
+use App\Entity\Participation;
+use App\Entity\User;
+use App\Entity\Produit;
+use App\Entity\CategoryProduit;
+use App\Entity\Collection;
+use App\Entity\Donation;
+use App\Entity\Coupon;
+use App\Entity\Feedback;
+use App\Entity\Favoris;
+use App\Repository\GenreRepository;
+use Doctrine\Persistence\ManagerRegistry;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\HttpFoundation\File\UploadedFile;
+
+use Knp\Snappy\Pdf;
+use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
+
+#[Route('/api')]
+class ApiController extends AbstractController
+{
+    private Pdf $knpSnappy;
+
+    public function __construct(Pdf $knpSnappy)
+    {
+        $this->knpSnappy = $knpSnappy;
+    }
+    #[Route('/health', name: 'api_health', methods: ['GET'])]
+    public function health(): JsonResponse
+    {
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'API is working',
+            'user' => $this->getUser() ? $this->getUser()->getEmail() : 'anonymous'
+        ]);
+    }
+
+    #[Route('/register', name: 'api_register', methods: ['POST'])]
+    public function registerApi(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+
+        // Input validation
+        $errors = [];
+        
+        $email = trim($data['email'] ?? '');
+        $nom = trim($data['nom'] ?? '');
+        $prenom = trim($data['prenom'] ?? '');
+        $password = $data['password'] ?? '';
+        $role = trim($data['role'] ?? 'participant');
+
+        // Email validation
+        if (!$email) {
+            $errors['email'] = 'Email est requis.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Email invalide.';
+        }
+
+        // Name validation
+        if (!$nom) {
+            $errors['nom'] = 'Nom est requis.';
+        } elseif (strlen($nom) < 2) {
+            $errors['nom'] = 'Nom doit contenir au moins 2 caractères.';
+        }
+
+        // Prenom validation
+        if (!$prenom) {
+            $errors['prenom'] = 'Prénom est requis.';
+        } elseif (strlen($prenom) < 2) {
+            $errors['prenom'] = 'Prénom doit contenir au moins 2 caractères.';
+        }
+
+        // Password validation
+        if (!$password) {
+            $errors['password'] = 'Mot de passe est requis.';
+        } elseif (strlen($password) < 6) {
+            $errors['password'] = 'Mot de passe doit contenir au moins 6 caractères.';
+        }
+
+        // Role validation
+        if (!in_array($role, ['participant', 'organisateur', 'admin'], true)) {
+            $role = 'participant';
+        }
+
+        if (!empty($errors)) {
+            return new JsonResponse([
+                'success' => false,
+                'errors' => $errors
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Check if user exists
+        $existingUser = $doctrine->getRepository(User::class)->findOneBy(['email' => $email]);
+        if ($existingUser) {
+            return new JsonResponse([
+                'success' => false,
+                'errors' => ['email' => 'Cet email existe déjà.']
+            ], Response::HTTP_CONFLICT);
+        }
+
+        // Create user
+        try {
+            $user = new User();
+            $user->setEmail($email);
+            $user->setNom($nom);
+            $user->setPrenom($prenom);
+            $user->setRole(in_array($role, ['admin', 'organisateur'], true) ? $role : 'participant');
+            $user->setPassword($password);
+            $user->setCreatedAt(new \DateTime());
+            $user->setUpdatedAt(new \DateTime());
+
+            $entityManager = $doctrine->getManager();
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            return new JsonResponse([
+                'success' => true,
+                'message' => 'Compte créé avec succès. Veuillez vous connecter.',
+                'userId' => $user->getId()
+            ], Response::HTTP_CREATED);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Erreur lors de la création du compte.'
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    #[Route('/login-validate', name: 'api_login_validate', methods: ['POST'])]
+    public function loginValidate(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+
+        $errors = [];
+        $email = trim($data['email'] ?? '');
+        $password = $data['password'] ?? '';
+
+        if (!$email) {
+            $errors['email'] = 'Email est requis.';
+        }
+        if (!$password) {
+            $errors['password'] = 'Mot de passe est requis.';
+        }
+
+        if (!empty($errors)) {
+            return new JsonResponse([
+                'success' => false,
+                'errors' => $errors
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user = $doctrine->getRepository(User::class)->findOneBy(['email' => $email]);
+        
+        if (!$user || $user->getPassword() !== $password) {
+            return new JsonResponse([
+                'success' => false,
+                'message' => 'Email ou mot de passe incorrect.'
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Données valides.',
+            'role' => $user->getRole(),
+            'userId' => $user->getId()
+        ]);
+    }
+
+    private function serializeUser(User $user): array
+    {
+        $photoUrl = $user->getPhoto() && $user->getPhoto() !== 'default.jpg' 
+            ? '/uploads/users/' . $user->getPhoto() 
+            : '/uploads/users/default.jpg';
+            
+        return [
+            'id' => $user->getId(),
+            'nom' => $user->getNom(),
+            'prenom' => $user->getPrenom(),
+            'email' => $user->getEmail(),
+            'role' => $user->getRole(),
+            'genre' => $user->getGenre() ? $user->getGenre()->getSexe() : null,
+            'photo' => $user->getPhoto(),
+            'photoUrl' => $photoUrl,
+            'createdAt' => $user->getCreatedAt() ? $user->getCreatedAt()->format('Y-m-d H:i:s') : null,
+            'updatedAt' => $user->getUpdatedAt() ? $user->getUpdatedAt()->format('Y-m-d H:i:s') : null,
+            'displayName' => trim($user->getPrenom() . ' ' . $user->getNom()),
+        ];
+    }
+
+    private function normalizeRole(string $role): string
+    {
+        return in_array($role, ['admin', 'organisateur', 'participant'], true) ? $role : 'participant';
+    }
+
+    private function findGenre(string $genre, GenreRepository $genreRepository): ?Genre
+    {
+        return $genreRepository->findOneBy(['sexe' => $genre]);
+    }
+
+    #[Route('/admin/users', name: 'api_admin_users', methods: ['GET'])]
+    public function listAdminUsers(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $search = trim($request->query->get('q', ''));
+        $role = trim($request->query->get('role', ''));
+
+        $qb = $doctrine->getRepository(User::class)->createQueryBuilder('u');
+
+        if ($role && in_array($role, ['admin', 'organisateur', 'participant'], true)) {
+            $qb->andWhere('u.role = :role')->setParameter('role', $role);
+        }
+
+        if ($search) {
+            $qb->andWhere('u.nom LIKE :search OR u.prenom LIKE :search OR u.email LIKE :search')
+                ->setParameter('search', '%' . $search . '%');
+        }
+
+        $users = $qb->orderBy('u.created_at', 'DESC')->getQuery()->getResult();
+
+        return new JsonResponse([
+            'success' => true,
+            'users' => array_map([$this, 'serializeUser'], $users)
+        ]);
+    }
+
+    #[Route('/admin/user', name: 'api_admin_user_create', methods: ['POST'])]
+    public function createAdminUser(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $data = json_decode($request->getContent(), true) ?? [];
+        $errors = [];
+
+        $email = trim($data['email'] ?? '');
+        $nom = trim($data['nom'] ?? '');
+        $prenom = trim($data['prenom'] ?? '');
+        $password = $data['password'] ?? '';
+        $role = $this->normalizeRole(trim($data['role'] ?? 'participant'));
+        $genre = trim($data['genre'] ?? '');
+        $photo = $data['photo'] ?? null;
+
+        if (!$email) {
+            $errors['email'] = 'Email est requis.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Email invalide.';
+        }
+
+        if (!$nom) {
+            $errors['nom'] = 'Nom est requis.';
+        } elseif (strlen($nom) < 2) {
+            $errors['nom'] = 'Nom doit contenir au moins 2 caractères.';
+        }
+
+        if (!$prenom) {
+            $errors['prenom'] = 'Prénom est requis.';
+        } elseif (strlen($prenom) < 2) {
+            $errors['prenom'] = 'Prénom doit contenir au moins 2 caractères.';
+        }
+
+        if (!$password) {
+            $errors['password'] = 'Mot de passe est requis.';
+        } elseif (strlen($password) < 6) {
+            $errors['password'] = 'Mot de passe doit contenir au moins 6 caractères.';
+        }
+
+        if (!empty($errors)) {
+            return new JsonResponse(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
+        }
+
+        $existingUser = $doctrine->getRepository(User::class)->findOneBy(['email' => $email]);
+        if ($existingUser) {
+            return new JsonResponse(['success' => false, 'errors' => ['email' => 'Cet email existe déjà.']], Response::HTTP_CONFLICT);
+        }
+
+        $user = new User();
+        $user->setEmail($email);
+        $user->setNom($nom);
+        $user->setPrenom($prenom);
+        $user->setRole($role);
+        $user->setPassword($password);
+        $user->setCreatedAt(new \DateTime());
+        $user->setUpdatedAt(new \DateTime());
+
+        if ($genre) {
+            $genreEntity = $this->findGenre($genre, $doctrine->getRepository(Genre::class));
+            if ($genreEntity) {
+                $user->setGenre($genreEntity);
+            }
+        }
+
+        if ($photo) {
+            $photoFilename = $this->saveBase64Photo($photo, $user->getId() ?? uniqid());
+            $user->setPhoto($photoFilename);
+        } else {
+            $user->setPhoto('default.jpg');
+        }
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => true, 'user' => $this->serializeUser($user)], Response::HTTP_CREATED);
+    }
+
+    #[Route('/admin/user/{id}', name: 'api_admin_user_update', methods: ['PUT', 'PATCH'])]
+    public function updateAdminUser(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $data = json_decode($request->getContent(), true) ?? [];
+        $user = $doctrine->getRepository(User::class)->find($id);
+
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur introuvable.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $errors = [];
+
+        $email = trim($data['email'] ?? $user->getEmail());
+        $nom = trim($data['nom'] ?? $user->getNom());
+        $prenom = trim($data['prenom'] ?? $user->getPrenom());
+        $password = $data['password'] ?? null;
+        $role = $this->normalizeRole(trim($data['role'] ?? $user->getRole()));
+        $genre = trim($data['genre'] ?? ($user->getGenre() ? $user->getGenre()->getSexe() : ''));
+        $photo = $data['photo'] ?? null;
+
+        if (!$email) {
+            $errors['email'] = 'Email est requis.';
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors['email'] = 'Email invalide.';
+        }
+
+        if (!$nom) {
+            $errors['nom'] = 'Nom est requis.';
+        } elseif (strlen($nom) < 2) {
+            $errors['nom'] = 'Nom doit contenir au moins 2 caractères.';
+        }
+
+        if (!$prenom) {
+            $errors['prenom'] = 'Prénom est requis.';
+        } elseif (strlen($prenom) < 2) {
+            $errors['prenom'] = 'Prénom doit contenir au moins 2 caractères.';
+        }
+
+        if ($password !== null && $password !== '' && strlen($password) < 6) {
+            $errors['password'] = 'Mot de passe doit contenir au moins 6 caractères.';
+        }
+
+        if (!empty($errors)) {
+            return new JsonResponse(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
+        }
+
+        $existingEmailUser = $doctrine->getRepository(User::class)->findOneBy(['email' => $email]);
+        if ($existingEmailUser && $existingEmailUser->getId() !== $user->getId()) {
+            return new JsonResponse(['success' => false, 'errors' => ['email' => 'Cet email est déjà utilisé.']], Response::HTTP_CONFLICT);
+        }
+
+        $user->setEmail($email);
+        $user->setNom($nom);
+        $user->setPrenom($prenom);
+        $user->setRole($role);
+
+        if ($password) {
+            $user->setPassword($password);
+        }
+
+        if ($genre) {
+            $genreEntity = $this->findGenre($genre, $doctrine->getRepository(Genre::class));
+            if ($genreEntity) {
+                $user->setGenre($genreEntity);
+            }
+        } else {
+            $user->setGenre(null);
+        }
+
+        if ($photo) {
+            $photoFilename = $this->saveBase64Photo($photo, $user->getId());
+            $user->setPhoto($photoFilename);
+        }
+
+        $user->setUpdatedAt(new \DateTime());
+        $doctrine->getManager()->flush();
+
+        return new JsonResponse(['success' => true, 'user' => $this->serializeUser($user)]);
+    }
+
+    #[Route('/admin/user/{id}', name: 'api_admin_user_delete', methods: ['DELETE'])]
+    public function deleteAdminUser(int $id, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $user = $doctrine->getRepository(User::class)->find($id);
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur introuvable.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->remove($user);
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Utilisateur supprimé avec succès.']);
+    }
+
+    #[Route('/admin/user/{id}', name: 'api_admin_user_show', methods: ['GET'])]
+    public function showAdminUser(int $id, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $user = $doctrine->getRepository(User::class)->find($id);
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur introuvable.'], Response::HTTP_NOT_FOUND);
+        }
+
+        return new JsonResponse(['success' => true, 'user' => $this->serializeUser($user)]);
+    }
+
+    #[Route('/admin/users/import', name: 'api_admin_users_import', methods: ['POST'])]
+    public function importAdminUsers(Request $request, ManagerRegistry $doctrine, GenreRepository $genreRepository): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $file = $request->files->get('csv');
+        if (!$file || !$file->isValid()) {
+            return new JsonResponse(['success' => false, 'message' => 'Fichier CSV invalide.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $handle = fopen($file->getPathname(), 'r');
+        if (!$handle) {
+            return new JsonResponse(['success' => false, 'message' => 'Impossible de lire le fichier CSV.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $header = fgetcsv($handle, 0, ',');
+        if (!$header) {
+            fclose($handle);
+            return new JsonResponse(['success' => false, 'message' => 'CSV vide ou mal formé.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $header = array_map('strtolower', array_map('trim', $header));
+        $mapping = array_flip($header);
+        $allowed = ['email', 'nom', 'prenom', 'role', 'genre', 'password'];
+        $rows = [];
+        $results = ['created' => 0, 'updated' => 0, 'skipped' => 0, 'errors' => []];
+
+        while (($row = fgetcsv($handle, 0, ',')) !== false) {
+            if (count(array_filter($row, 'strlen')) === 0) {
+                continue;
+            }
+
+            $data = [];
+            foreach ($allowed as $field) {
+                $data[$field] = isset($mapping[$field]) ? trim($row[$mapping[$field]]) : '';
+            }
+
+            $email = $data['email'];
+            if (!$email || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $results['errors'][] = 'Email invalide sur une ligne.';
+                $results['skipped']++;
+                continue;
+            }
+
+            $user = $doctrine->getRepository(User::class)->findOneBy(['email' => $email]);
+            $isNew = $user === null;
+            if ($isNew) {
+                $user = new User();
+                $user->setCreatedAt(new \DateTime());
+            }
+
+            $user->setEmail($email);
+            $user->setNom($data['nom'] ?: 'Inconnu');
+            $user->setPrenom($data['prenom'] ?: 'Utilisateur');
+            $user->setRole($this->normalizeRole($data['role']));
+            if ($data['password']) {
+                $user->setPassword($data['password']);
+            } elseif ($isNew) {
+                $user->setPassword('changeme');
+            }
+
+            $genreEntity = $this->findGenre($data['genre'], $genreRepository);
+            $user->setGenre($genreEntity);
+            $user->setUpdatedAt(new \DateTime());
+
+            $entityManager = $doctrine->getManager();
+            $entityManager->persist($user);
+            $isNew ? $results['created']++ : $results['updated']++;
+        }
+
+        fclose($handle);
+        $doctrine->getManager()->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Import CSV terminé.', 'results' => $results]);
+    }
+
+    private function saveBase64Photo(string $base64Data, $userId): string
+    {
+        $uploadsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/users';
+        
+        if (!is_dir($uploadsDir)) {
+            mkdir($uploadsDir, 0755, true);
+        }
+
+        if (preg_match('/^data:image\/([a-z]+);base64,(.+)$/i', $base64Data, $matches)) {
+            $extension = $matches[1];
+            $data = base64_decode($matches[2]);
+            $filename = 'user_' . $userId . '_' . time() . '.' . $extension;
+            file_put_contents($uploadsDir . '/' . $filename, $data);
+            return $filename;
+        }
+        
+        return 'default.jpg';
+    }
+
+    private function saveUploadedFile(UploadedFile $uploadedFile): string
+    {
+        $uploadsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/users';
+        
+        if (!is_dir($uploadsDir)) {
+            mkdir($uploadsDir, 0755, true);
+        }
+
+        $filename = uniqid('user_') . '.' . $uploadedFile->guessExtension();
+        $uploadedFile->move($uploadsDir, $filename);
+        
+        return $filename;
+    }
+
+    #[Route('/admin/events', name: 'api_admin_events', methods: ['GET'])]
+    public function getAdminEvents(ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $events = $doctrine->getRepository('App\Entity\Evenement')->findAll();
+        $users = $doctrine->getRepository('App\Entity\User')->findAll();
+        $participationRepo = $doctrine->getRepository('App\Entity\Participation');
+
+        $userMap = [];
+        foreach ($users as $user) {
+            $userMap[$user->getId()] = $user;
+        }
+
+        $eventsData = [];
+        foreach ($events as $event) {
+            $organisateur = isset($userMap[$event->getIdOrganisateur()]) ? $userMap[$event->getIdOrganisateur()] : null;
+            $participantsCount = $participationRepo->countByEvent($event->getIdEvenement());
+
+            $eventsData[] = [
+                'id' => $event->getIdEvenement(),
+                'titre' => $event->getTitre(),
+                'description' => $event->getDescription(),
+                'date_evenement' => $event->getDateEvenement() ? $event->getDateEvenement()->format('Y-m-d H:i:s') : null,
+                'lieu' => $event->getLieu(),
+                'organisateur' => $organisateur ? $organisateur->getDisplayName() : 'Inconnu',
+                'id_organisateur' => $event->getIdOrganisateur(),
+                'capacite_max' => $event->getCapaciteMax(),
+                'image_evenement' => $event->getImageEvenement(),
+                'statut' => $event->getStatutValidation(),
+                'participants_count' => $participantsCount,
+                'created_at' => $event->getCreatedAt() ? $event->getCreatedAt()->format('Y-m-d H:i:s') : null,
+                'updated_at' => $event->getUpdatedAt() ? $event->getUpdatedAt()->format('Y-m-d H:i:s') : null,
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'events' => $eventsData]);
+    }
+
+    #[Route('/admin/events', name: 'api_admin_events_create', methods: ['POST'])]
+    public function createEvent(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $data = json_decode($request->getContent(), true) ?? [];
+        $errors = [];
+
+        // Validation des données
+        $titre = trim($data['titre'] ?? '');
+        $description = trim($data['description'] ?? '');
+        $dateEvenement = $data['date_evenement'] ?? '';
+        $lieu = trim($data['lieu'] ?? '');
+        $idOrganisateur = (int)($data['id_organisateur'] ?? 0);
+        $capaciteMax = (int)($data['capacite_max'] ?? 0);
+
+        if (!$titre) {
+            $errors['titre'] = 'Le titre est requis.';
+        } elseif (strlen($titre) < 3) {
+            $errors['titre'] = 'Le titre doit contenir au moins 3 caractères.';
+        } elseif (strlen($titre) > 200) {
+            $errors['titre'] = 'Le titre ne peut pas dépasser 200 caractères.';
+        }
+
+        if (!$description) {
+            $errors['description'] = 'La description est requise.';
+        } elseif (strlen($description) < 10) {
+            $errors['description'] = 'La description doit contenir au moins 10 caractères.';
+        }
+
+        if (!$dateEvenement) {
+            $errors['date_evenement'] = 'La date de l\'événement est requise.';
+        } else {
+            try {
+                $dateObj = new \DateTime($dateEvenement);
+                if ($dateObj < new \DateTime()) {
+                    $errors['date_evenement'] = 'La date de l\'événement ne peut pas être dans le passé.';
+                }
+            } catch (\Exception $e) {
+                $errors['date_evenement'] = 'Format de date invalide.';
+            }
+        }
+
+        if (!$lieu) {
+            $errors['lieu'] = 'Le lieu est requis.';
+        } elseif (strlen($lieu) > 200) {
+            $errors['lieu'] = 'Le lieu ne peut pas dépasser 200 caractères.';
+        }
+
+        if ($idOrganisateur <= 0) {
+            $errors['id_organisateur'] = 'L\'organisateur est requis.';
+        } else {
+            $organisateur = $doctrine->getRepository('App\Entity\User')->find($idOrganisateur);
+            if (!$organisateur || !in_array($organisateur->getRole(), ['organisateur', 'admin'])) {
+                $errors['id_organisateur'] = 'Organisateur invalide.';
+            }
+        }
+
+        if ($capaciteMax <= 0) {
+            $errors['capacite_max'] = 'La capacité maximale doit être supérieure à 0.';
+        } elseif ($capaciteMax > 1000) {
+            $errors['capacite_max'] = 'La capacité maximale ne peut pas dépasser 1000 participants.';
+        }
+
+        if (!empty($errors)) {
+            return new JsonResponse(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Créer l'événement
+        $event = new \App\Entity\Evenement();
+        $event->setTitre($titre);
+        $event->setDescription($description);
+        $event->setDateEvenement(new \DateTime($dateEvenement));
+        $event->setLieu($lieu);
+        $event->setIdOrganisateur($idOrganisateur);
+        $event->setCapaciteMax($capaciteMax);
+        $event->setStatut('en_attente');
+        $event->setCreatedAt(new \DateTime());
+        $event->setUpdatedAt(new \DateTime());
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->persist($event);
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Événement créé avec succès.',
+            'event' => [
+                'id' => $event->getIdEvenement(),
+                'titre' => $event->getTitre(),
+                'description' => $event->getDescription(),
+                'date_evenement' => $event->getDateEvenement()->format('Y-m-d H:i:s'),
+                'lieu' => $event->getLieu(),
+                'organisateur' => $organisateur->getDisplayName(),
+                'id_organisateur' => $event->getIdOrganisateur(),
+                'capacite_max' => $event->getCapaciteMax(),
+                'statut' => $event->getStatut(),
+                'created_at' => $event->getCreatedAt()->format('Y-m-d H:i:s'),
+                'updated_at' => $event->getUpdatedAt()->format('Y-m-d H:i:s'),
+            ]
+        ], Response::HTTP_CREATED);
+    }
+
+    #[Route('/admin/events/{id}', name: 'api_admin_events_update', methods: ['PUT'])]
+    public function updateEvent(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
+        if (!$event) {
+            return new JsonResponse(['success' => false, 'message' => 'Événement introuvable.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $data = json_decode($request->getContent(), true) ?? [];
+        $errors = [];
+
+        // Validation des données
+        $titre = trim($data['titre'] ?? $event->getTitre());
+        $description = trim($data['description'] ?? $event->getDescription());
+        $dateEvenement = $data['date_evenement'] ?? $event->getDateEvenement()->format('Y-m-d H:i:s');
+        $lieu = trim($data['lieu'] ?? $event->getLieu());
+        $idOrganisateur = (int)($data['id_organisateur'] ?? $event->getIdOrganisateur());
+        $capaciteMax = (int)($data['capacite_max'] ?? $event->getCapaciteMax());
+
+        if (!$titre) {
+            $errors['titre'] = 'Le titre est requis.';
+        } elseif (strlen($titre) < 3) {
+            $errors['titre'] = 'Le titre doit contenir au moins 3 caractères.';
+        } elseif (strlen($titre) > 200) {
+            $errors['titre'] = 'Le titre ne peut pas dépasser 200 caractères.';
+        }
+
+        if (!$description) {
+            $errors['description'] = 'La description est requise.';
+        } elseif (strlen($description) < 10) {
+            $errors['description'] = 'La description doit contenir au moins 10 caractères.';
+        }
+
+        if (!$dateEvenement) {
+            $errors['date_evenement'] = 'La date de l\'événement est requise.';
+        } else {
+            try {
+                $dateObj = new \DateTime($dateEvenement);
+                if ($dateObj < new \DateTime() && $event->getStatut() === 'en_attente') {
+                    $errors['date_evenement'] = 'La date de l\'événement ne peut pas être dans le passé.';
+                }
+            } catch (\Exception $e) {
+                $errors['date_evenement'] = 'Format de date invalide.';
+            }
+        }
+
+        if (!$lieu) {
+            $errors['lieu'] = 'Le lieu est requis.';
+        } elseif (strlen($lieu) > 200) {
+            $errors['lieu'] = 'Le lieu ne peut pas dépasser 200 caractères.';
+        }
+
+        if ($idOrganisateur <= 0) {
+            $errors['id_organisateur'] = 'L\'organisateur est requis.';
+        } else {
+            $organisateur = $doctrine->getRepository('App\Entity\User')->find($idOrganisateur);
+            if (!$organisateur || !in_array($organisateur->getRole(), ['organisateur', 'admin'])) {
+                $errors['id_organisateur'] = 'Organisateur invalide.';
+            }
+        }
+
+        if ($capaciteMax <= 0) {
+            $errors['capacite_max'] = 'La capacité maximale doit être supérieure à 0.';
+        } elseif ($capaciteMax > 1000) {
+            $errors['capacite_max'] = 'La capacité maximale ne peut pas dépasser 1000 participants.';
+        }
+
+        if (!empty($errors)) {
+            return new JsonResponse(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Mettre à jour l'événement
+        $event->setTitre($titre);
+        $event->setDescription($description);
+        $event->setDateEvenement(new \DateTime($dateEvenement));
+        $event->setLieu($lieu);
+        $event->setIdOrganisateur($idOrganisateur);
+        $event->setCapaciteMax($capaciteMax);
+        $event->setUpdatedAt(new \DateTime());
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->flush();
+
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Événement mis à jour avec succès.',
+            'event' => [
+                'id' => $event->getIdEvenement(),
+                'titre' => $event->getTitre(),
+                'description' => $event->getDescription(),
+                'date_evenement' => $event->getDateEvenement()->format('Y-m-d H:i:s'),
+                'lieu' => $event->getLieu(),
+                'organisateur' => $organisateur->getDisplayName(),
+                'id_organisateur' => $event->getIdOrganisateur(),
+                'capacite_max' => $event->getCapaciteMax(),
+                'statut' => $event->getStatut(),
+                'created_at' => $event->getCreatedAt()->format('Y-m-d H:i:s'),
+                'updated_at' => $event->getUpdatedAt()->format('Y-m-d H:i:s'),
+            ]
+        ]);
+    }
+
+    #[Route('/admin/events/{id}', name: 'api_admin_events_show', methods: ['GET'])]
+    public function showEvent(int $id, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
+        if (!$event) {
+            return new JsonResponse(['success' => false, 'message' => 'Événement introuvable.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $organisateur = $doctrine->getRepository('App\Entity\User')->find($event->getIdOrganisateur());
+
+        // Récupérer les participants
+        $participations = $doctrine->getRepository('App\Entity\Participation')->findByEvent($id);
+        $participants = [];
+
+        foreach ($participations as $participation) {
+            $user = $doctrine->getRepository('App\Entity\User')->find($participation->getIdUser());
+            if ($user) {
+                $participants[] = [
+                    'id' => $participation->getId(),
+                    'nom' => $user->getNom(),
+                    'prenom' => $user->getPrenom(),
+                    'email' => $user->getEmail(),
+                    'contact' => $participation->getContact(),
+                    'age' => $participation->getAge(),
+                    'statut' => $participation->getStatut(),
+                    'date_inscription' => $participation->getDateInscription() ? $participation->getDateInscription()->format('Y-m-d H:i:s') : null,
+                ];
+            }
+        }
+
+        return new JsonResponse([
+            'success' => true,
+            'event' => [
+                'id' => $event->getIdEvenement(),
+                'titre' => $event->getTitre(),
+                'description' => $event->getDescription(),
+                'date_evenement' => $event->getDateEvenement() ? $event->getDateEvenement()->format('Y-m-d H:i:s') : null,
+                'lieu' => $event->getLieu(),
+                'organisateur' => $organisateur ? $organisateur->getDisplayName() : 'Inconnu',
+                'id_organisateur' => $event->getIdOrganisateur(),
+                'capacite_max' => $event->getCapaciteMax(),
+                'image_evenement' => $event->getImageEvenement(),
+                'statut' => $event->getStatutValidation(),
+                'created_at' => $event->getCreatedAt() ? $event->getCreatedAt()->format('Y-m-d H:i:s') : null,
+                'updated_at' => $event->getUpdatedAt() ? $event->getUpdatedAt()->format('Y-m-d H:i:s') : null,
+            ],
+            'participants' => $participants,
+        ]);
+    }
+
+    #[Route('/admin/events/{id}', name: 'api_admin_events_delete', methods: ['DELETE'])]
+    public function deleteEvent(int $id, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
+        if (!$event) {
+            return new JsonResponse(['success' => false, 'message' => 'Événement introuvable.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->remove($event);
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Événement supprimé avec succès.']);
+    }
+
+    #[Route('/admin/events/{id}/validate', name: 'api_admin_event_validate', methods: ['POST'])]
+    public function validateEvent(int $id, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
+        if (!$event) {
+            return new JsonResponse(['success' => false, 'message' => 'Événement introuvable.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $event->setStatutValidation('approuve');
+        $event->setDateValidation(new \DateTime());
+        $event->setUpdatedAt(new \DateTime());
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Événement validé avec succès.']);
+    }
+
+    #[Route('/admin/events/{id}/reject', name: 'api_admin_event_reject', methods: ['POST'])]
+    public function rejectEvent(int $id, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
+        if (!$event) {
+            return new JsonResponse(['success' => false, 'message' => 'Événement introuvable.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $event->setStatutValidation('rejete');
+        $event->setDateValidation(new \DateTime());
+        $event->setUpdatedAt(new \DateTime());
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Événement rejeté avec succès.']);
+    }
+
+    #[Route('/admin/organisateurs', name: 'api_admin_organisateurs', methods: ['GET'])]
+    public function getOrganisateurs(ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $organisateurs = $doctrine->getRepository('App\Entity\User')->findBy(['role' => ['organisateur', 'admin']]);
+
+        $data = [];
+        foreach ($organisateurs as $user) {
+            $data[] = [
+                'id' => $user->getId(),
+                'nom' => $user->getNom(),
+                'prenom' => $user->getPrenom(),
+                'displayName' => $user->getDisplayName(),
+                'email' => $user->getEmail(),
+                'role' => $user->getRole(),
+                'genre' => $user->getGenre() ? $user->getGenre()->getSexe() : 'Non précisé',
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'organisateurs' => $data]);
+    }
+
+    #[Route('/admin/events/export', name: 'api_admin_events_export', methods: ['GET'])]
+    public function exportEvents(ManagerRegistry $doctrine): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $events = $doctrine->getRepository('App\Entity\Evenement')->findAll();
+        $users = $doctrine->getRepository('App\Entity\User')->findAll();
+        $participationRepo = $doctrine->getRepository('App\Entity\Participation');
+
+        $userMap = [];
+        foreach ($users as $user) {
+            $userMap[$user->getId()] = $user;
+        }
+
+        // Créer le contenu CSV
+        $csvContent = "ID,Titre,Organisateur,Date,Lieu,Capacité,Participants,Statut,Créé le,Modifié le\n";
+
+        foreach ($events as $event) {
+            $organisateur = isset($userMap[$event->getIdOrganisateur()]) ? $userMap[$event->getIdOrganisateur()] : null;
+            $participantsCount = $participationRepo->countByEvent($event->getIdEvenement());
+
+            $row = [
+                $event->getIdEvenement(),
+                '"' . str_replace('"', '""', $event->getTitre()) . '"',
+                '"' . str_replace('"', '""', $organisateur ? $organisateur->getDisplayName() : 'Inconnu') . '"',
+                $event->getDateEvenement() ? $event->getDateEvenement()->format('Y-m-d H:i:s') : '',
+                '"' . str_replace('"', '""', $event->getLieu()) . '"',
+                $event->getCapaciteMax(),
+                $participantsCount,
+                $this->getStatusText($event->getStatut()),
+                $event->getCreatedAt() ? $event->getCreatedAt()->format('Y-m-d H:i:s') : '',
+                $event->getUpdatedAt() ? $event->getUpdatedAt()->format('Y-m-d H:i:s') : '',
+            ];
+
+            $csvContent .= implode(',', $row) . "\n";
+        }
+
+        // Retourner le fichier CSV
+        $response = new Response($csvContent);
+        $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
+        $response->headers->set('Content-Disposition', 'attachment; filename="evenements_' . date('Y-m-d') . '.csv"');
+
+        return $response;
+    }
+
+    private function getStatusText(?string $status): string
+    {
+        switch ($status) {
+            case 'valide': return 'Validé';
+            case 'rejete': return 'Rejeté';
+            case 'en_attente': return 'En attente';
+            default: return $status ?? 'Inconnu';
+        }
+    }
+
+    // ─── ADMIN PRODUCTS ───
+
+    #[Route('/admin/products', name: 'api_admin_products', methods: ['GET'])]
+    public function getAdminProducts(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $search = $request->query->get('search', '');
+        $category = $request->query->get('category', '');
+        $organisateur = $request->query->get('organisateur', '');
+
+        $qb = $doctrine->getRepository(Produit::class)->createQueryBuilder('p')
+            ->leftJoin('p.category', 'c')
+            ->leftJoin('p.user', 'u')
+            ->addSelect('c', 'u');
+
+        if ($search) {
+            $qb->andWhere('p.nomProduit LIKE :search OR p.description LIKE :search')
+               ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($category) {
+            $qb->andWhere('c.nomCat = :category')
+               ->setParameter('category', $category);
+        }
+
+        if ($organisateur) {
+            $qb->andWhere('u.nom LIKE :organisateur OR u.prenom LIKE :organisateur OR CONCAT(u.nom, \' \', u.prenom) LIKE :organisateur OR CONCAT(u.prenom, \' \', u.nom) LIKE :organisateur')
+               ->setParameter('organisateur', '%' . $organisateur . '%');
+        }
+
+        $products = $qb->getQuery()->getResult();
+
+        $data = [];
+        foreach ($products as $product) {
+            $feedbacks = $doctrine->getRepository(Feedback::class)->findBy(['produit' => $product]);
+            $avgRating = count($feedbacks) > 0 ? array_sum(array_map(fn($f) => $f->getNote(), $feedbacks)) / count($feedbacks) : 0;
+
+            $data[] = [
+                'id' => $product->getId(),
+                'nomProduit' => $product->getNomProduit(),
+                'description' => $product->getDescription(),
+                'imageProduit' => $product->getImageProduit(),
+                'category' => $product->getCategory() ? $product->getCategory()->getNomCat() : null,
+                'organisateur' => $product->getUser() ? $product->getUser()->getNom() . ' ' . $product->getUser()->getPrenom() : null,
+                'createdAt' => $product->getCreatedAt()?->format('Y-m-d'),
+                'favoris' => count($doctrine->getRepository(Favoris::class)->findBy(['produit' => $product])),
+                'noteMoyenne' => round($avgRating, 1),
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $data]);
+    }
+
+    #[Route('/admin/products/{id}', name: 'api_admin_products_delete', methods: ['DELETE'])]
+    public function deleteAdminProduct(int $id, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $product = $doctrine->getRepository(Produit::class)->find($id);
+        if (!$product) {
+            return new JsonResponse(['success' => false, 'message' => 'Produit non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->remove($product);
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Produit supprimé']);
+    }
+
+    // ─── ADMIN COLLECTIONS ───
+
+    #[Route('/admin/collections', name: 'api_admin_collections', methods: ['GET'])]
+    public function getAdminCollections(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $search = $request->query->get('search', '');
+        $organisateur = $request->query->get('organisateur', '');
+
+        $qb = $doctrine->getRepository(Collection::class)->createQueryBuilder('c')
+            ->leftJoin('c.user', 'u')
+            ->addSelect('u');
+
+        if ($search) {
+            $qb->andWhere('c.title LIKE :search OR c.materialType LIKE :search')
+               ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($organisateur) {
+            $qb->andWhere('u.nom LIKE :organisateur OR u.prenom LIKE :organisateur')
+               ->setParameter('organisateur', '%' . $organisateur . '%');
+        }
+
+        $collections = $qb->getQuery()->getResult();
+
+        $data = [];
+        foreach ($collections as $collection) {
+            $donations = $doctrine->getRepository(Donation::class)->findBy(['collection' => $collection, 'status' => 'confirmé']);
+            $totalDonated = array_sum(array_map(fn($d) => (float)$d->getAmount(), $donations));
+
+            $data[] = [
+                'id' => $collection->getId(),
+                'title' => $collection->getTitle(),
+                'materialType' => $collection->getMaterialType(),
+                'goalAmount' => $collection->getGoalAmount(),
+                'currentAmount' => $totalDonated,
+                'unit' => $collection->getUnit(),
+                'status' => $collection->getStatus(),
+                'organisateur' => $collection->getUser() ? $collection->getUser()->getNom() . ' ' . $collection->getUser()->getPrenom() : null,
+                'createdAt' => $collection->getCreatedAt()?->format('Y-m-d'),
+                'progress' => $collection->getGoalAmount() > 0 ? ($totalDonated / (float)$collection->getGoalAmount()) * 100 : 0,
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $data]);
+    }
+
+    // ─── ADMIN DONATIONS ───
+
+    #[Route('/admin/donations', name: 'api_admin_donations', methods: ['GET'])]
+    public function getAdminDonations(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $search = $request->query->get('search', '');
+        $status = $request->query->get('status', '');
+
+        $qb = $doctrine->getRepository(Donation::class)->createQueryBuilder('d')
+            ->leftJoin('d.user', 'u')
+            ->leftJoin('d.collection', 'c')
+            ->addSelect('u', 'c')
+            ->orderBy('d.donationDate', 'DESC');
+
+        if ($search) {
+            $qb->andWhere('u.nom LIKE :search OR u.prenom LIKE :search OR u.email LIKE :search OR c.title LIKE :search')
+               ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($status) {
+            $qb->andWhere('d.status = :status')
+               ->setParameter('status', $status);
+        }
+
+        $donations = $qb->getQuery()->getResult();
+
+        $data = [];
+        foreach ($donations as $donation) {
+            $data[] = [
+                'id' => $donation->getId(),
+                'donateur' => $donation->getUser() ? [
+                    'id' => $donation->getUser()->getId(),
+                    'nom' => $donation->getUser()->getNom(),
+                    'prenom' => $donation->getUser()->getPrenom(),
+                    'email' => $donation->getUser()->getEmail(),
+                ] : null,
+                'collection' => $donation->getCollection() ? $donation->getCollection()->getTitle() : null,
+                'amount' => $donation->getAmount(),
+                'unit' => $donation->getCollection() ? $donation->getCollection()->getUnit() : null,
+                'donationDate' => $donation->getDonationDate()?->format('Y-m-d H:i'),
+                'status' => $donation->getStatus(),
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $data]);
+    }
+
+    // ─── ADMIN COUPONS ───
+
+    #[Route('/admin/coupons', name: 'api_admin_coupons', methods: ['GET'])]
+    public function getAdminCoupons(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $search = $request->query->get('search', '');
+        $status = $request->query->get('status', '');
+
+        $qb = $doctrine->getRepository(Coupon::class)->createQueryBuilder('co')
+            ->leftJoin('co.user', 'u')
+            ->leftJoin('co.donation', 'd')
+            ->addSelect('u', 'd');
+
+        if ($search) {
+            $qb->andWhere('co.code LIKE :search OR u.nom LIKE :search OR u.prenom LIKE :search OR u.email LIKE :search')
+               ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($status) {
+            $qb->andWhere('co.isUsed = :isUsed')
+               ->setParameter('isUsed', $status === 'used' ? true : false);
+        }
+
+        $coupons = $qb->getQuery()->getResult();
+
+        $data = [];
+        foreach ($coupons as $coupon) {
+            $data[] = [
+                'id' => $coupon->getId(),
+                'code' => $coupon->getCode(),
+                'discountPercent' => $coupon->getDiscountPercent(),
+                'user' => $coupon->getUser() ? $coupon->getUser()->getNom() . ' ' . $coupon->getUser()->getPrenom() : null,
+                'donation' => $coupon->getDonation() ? 'Donation #' . $coupon->getDonation()->getId() : null,
+                'expirationDate' => $coupon->getExpirationDate()?->format('Y-m-d'),
+                'used' => $coupon->isUsed(),
+                'createdAt' => $coupon->getCreatedAt()?->format('Y-m-d'),
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $data]);
+    }
+
+    #[Route('/admin/coupons/{id}', name: 'api_admin_coupons_delete', methods: ['DELETE'])]
+    public function deleteAdminCoupon(int $id, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $coupon = $doctrine->getRepository(Coupon::class)->find($id);
+        if (!$coupon) {
+            return new JsonResponse(['success' => false, 'message' => 'Coupon non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->remove($coupon);
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Coupon supprimé']);
+    }
+
+    #[Route('/admin/gallery/stats', name: 'api_admin_gallery_stats', methods: ['GET'])]
+    public function getGalleryStats(ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        // 1. Products by Category
+        $products = $doctrine->getRepository(Produit::class)->findAll();
+        $productsByCategory = [];
+        foreach ($products as $p) {
+            $cat = $p->getCategory() ? $p->getCategory()->getNomCat() : 'N/A';
+            $productsByCategory[$cat] = ($productsByCategory[$cat] ?? 0) + 1;
+        }
+
+        // 2. Organizers by Gender
+        $organisateurs = $doctrine->getRepository(User::class)->findBy(['role' => ['organisateur', 'admin']]);
+        $organisateursByGender = [];
+        foreach ($organisateurs as $u) {
+            $g = $u->getGenre() ? $u->getGenre()->getSexe() : 'Non précisé';
+            $organisateursByGender[$g] = ($organisateursByGender[$g] ?? 0) + 1;
+        }
+
+        // 3. Feedbacks Stats & Participant Activity
+        $feedbacks = $doctrine->getRepository(Feedback::class)->findAll();
+        $flaggedCount = 0;
+        $participantActivity = [];
+        foreach ($feedbacks as $f) {
+            if ($this->hasBadWords($f->getCommentaire() ?? '')) {
+                $flaggedCount++;
+            }
+            $user = $f->getUser() ? $f->getUser()->getNom() . ' ' . $f->getUser()->getPrenom() : 'Anonyme';
+            $participantActivity[$user] = ($participantActivity[$user] ?? 0) + 1;
+        }
+
+        // Sort and slice top 8 participants
+        arsort($participantActivity);
+        $participantActivity = array_slice($participantActivity, 0, 8, true);
+
+        return new JsonResponse([
+            'success' => true,
+            'stats' => [
+                'productsByCategory' => $productsByCategory,
+                'organisateursByGender' => $organisateursByGender,
+                'participantActivity' => $participantActivity,
+                'feedbackStats' => [
+                    'total' => count($feedbacks),
+                    'flagged' => $flaggedCount,
+                    'normal' => count($feedbacks) - $flaggedCount
+                ],
+                'totals' => [
+                    'products' => count($products),
+                    'organisateurs' => count($organisateurs)
+                ]
+            ]
+        ]);
+    }
+
+    // ─── ADMIN FEEDBACKS ───
+    
+    private function hasBadWords(string $text): bool
+    {
+        $badWords = [
+            'badword1', 'badword2', 'con', 'merde', 'putain', 'salope', 'connard', 
+            'fuck', 'shit', 'asshole', 'bitch', 'zab', 'asba', 'nayek', 'mika'
+        ];
+        
+        $text = mb_strtolower($text);
+        foreach ($badWords as $word) {
+            if (str_contains($text, $word)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    #[Route('/admin/feedbacks', name: 'api_admin_feedbacks', methods: ['GET'])]
+    public function getAdminFeedbacks(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $search = $request->query->get('search', '');
+        $rating = $request->query->get('rating', '');
+
+        $qb = $doctrine->getRepository(Feedback::class)->createQueryBuilder('f')
+            ->leftJoin('f.produit', 'p')
+            ->leftJoin('f.user', 'u')
+            ->addSelect('p', 'u')
+            ->orderBy('f.dateCommentaire', 'DESC');
+
+        if ($search) {
+            $qb->andWhere('p.nomProduit LIKE :search OR u.nom LIKE :search OR u.prenom LIKE :search OR u.email LIKE :search OR f.commentaire LIKE :search')
+               ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($rating) {
+            $qb->andWhere('f.note = :rating')
+               ->setParameter('rating', (int)$rating);
+        }
+
+        $feedbacks = $qb->getQuery()->getResult();
+
+        $data = [];
+        foreach ($feedbacks as $feedback) {
+            $data[] = [
+                'id' => $feedback->getId(),
+                'produit' => $feedback->getProduit() ? $feedback->getProduit()->getNomProduit() : null,
+                'user' => $feedback->getUser() ? $feedback->getUser()->getNom() . ' ' . $feedback->getUser()->getPrenom() : null,
+                'note' => $feedback->getNote(),
+                'commentaire' => $feedback->getCommentaire(),
+                'dateCommentaire' => $feedback->getDateCommentaire()?->format('Y-m-d'),
+                'isFlagged' => $this->hasBadWords($feedback->getCommentaire() ?? ''),
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $data]);
+    }
+
+    #[Route('/admin/feedbacks/{id}', name: 'api_admin_feedbacks_delete', methods: ['DELETE'])]
+    public function deleteAdminFeedback(int $id, ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $feedback = $doctrine->getRepository(Feedback::class)->find($id);
+        if (!$feedback) {
+            return new JsonResponse(['success' => false, 'message' => 'Avis non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        $entityManager = $doctrine->getManager();
+        $entityManager->remove($feedback);
+        $entityManager->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Avis supprimé']);
+    }
+    #[Route('/participant/recommendations', name: 'api_participant_recommendations', methods: ['GET'])]
+    public function getRecommendations(ManagerRegistry $doctrine): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) return new JsonResponse(['success' => false, 'message' => 'Non connecté']);
+
+        $produitRepo = $doctrine->getRepository(Produit::class);
+        $favorisRepo = $doctrine->getRepository(Favoris::class);
+        $feedbackRepo = $doctrine->getRepository(Feedback::class);
+
+        // 1. "Pour vous" (Basé sur les catégories des favoris)
+        $userFavoris = $favorisRepo->findBy(['user' => $user]);
+        $favoriteProductIds = array_map(fn($f) => $f->getProduit()->getId(), $userFavoris);
+        
+        $categoryIds = [];
+        foreach ($userFavoris as $fav) {
+            if ($fav->getProduit()->getCategory()) {
+                $categoryIds[] = $fav->getProduit()->getCategory()->getId();
+            }
+        }
+        $categoryIds = array_unique($categoryIds);
+
+        $forYou = [];
+        if (!empty($categoryIds)) {
+            $qb = $produitRepo->createQueryBuilder('p')
+                ->where('p.category IN (:cats)')
+                ->setParameter('cats', $categoryIds);
+            
+            if (!empty($favoriteProductIds)) {
+                $qb->andWhere('p.id NOT IN (:favs)')
+                   ->setParameter('favs', $favoriteProductIds);
+            }
+            
+            $forYou = $qb->setMaxResults(4)->getQuery()->getResult();
+        }
+        
+        // Si pas assez de recommandations basées sur les catégories, on complète avec des produits récents
+        if (count($forYou) < 4) {
+            $excludeIds = array_merge($favoriteProductIds, array_map(fn($p) => $p->getId(), $forYou));
+            $qb = $produitRepo->createQueryBuilder('p')
+                ->orderBy('p.id', 'DESC')
+                ->setMaxResults(4 - count($forYou));
+            
+            if (!empty($excludeIds)) {
+                $qb->andWhere('p.id NOT IN (:exclude)')
+                   ->setParameter('exclude', $excludeIds);
+            }
+            
+            $recent = $qb->getQuery()->getResult();
+            $forYou = array_merge($forYou, $recent);
+        }
+
+        // 2. "Les mieux notées"
+        $allProducts = $produitRepo->findAll();
+        $ratedProducts = [];
+        foreach ($allProducts as $p) {
+            $feedbacks = $feedbackRepo->findBy(['produit' => $p]);
+            $avg = count($feedbacks) > 0 ? array_sum(array_map(fn($f) => $f->getNote(), $feedbacks)) / count($feedbacks) : 0;
+            if ($avg >= 3.5) {
+                $ratedProducts[] = ['product' => $p, 'avg' => $avg];
+            }
+        }
+        usort($ratedProducts, fn($a, $b) => $b['avg'] <=> $a['avg']);
+        $topRated = array_slice($ratedProducts, 0, 4);
+
+        $serialize = function($p, $avg = null) {
+            return [
+                'id' => $p->getId(),
+                'nomProduit' => $p->getNomProduit(),
+                'imageProduit' => $p->getImageProduit(),
+                'category' => $p->getCategory() ? $p->getCategory()->getNomCat() : 'N/A',
+                'avgRating' => $avg ?? 0,
+            ];
+        };
+
+        return new JsonResponse([
+            'success' => true,
+            'forYou' => array_map(fn($p) => $serialize($p), $forYou),
+            'topRated' => array_map(fn($item) => $serialize($item['product'], $item['avg']), $topRated)
+        ]);
+    }
+
+    #[Route('/organisateur/products', name: 'api_organisateur_products', methods: ['GET'])]
+    public function getOrganizerProducts(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) return new JsonResponse(['success' => false, 'message' => 'Non connecté']);
+
+        $search = $request->query->get('search', '');
+        $category = $request->query->get('category', '');
+        $sortBy = $request->query->get('sort', 'date_desc');
+
+        $qb = $doctrine->getRepository(Produit::class)->createQueryBuilder('p')
+            ->leftJoin('p.category', 'c')
+            ->addSelect('c')
+            ->where('p.user = :user')
+            ->setParameter('user', $user);
+
+        if ($search) {
+            $qb->andWhere('p.nomProduit LIKE :search OR p.description LIKE :search')
+               ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($category) {
+            $qb->andWhere('c.nomCat = :category')
+               ->setParameter('category', $category);
+        }
+
+        switch ($sortBy) {
+            case 'name_asc': $qb->orderBy('p.nomProduit', 'ASC'); break;
+            case 'name_desc': $qb->orderBy('p.nomProduit', 'DESC'); break;
+            case 'date_asc': $qb->orderBy('p.id', 'ASC'); break;
+            default: $qb->orderBy('p.id', 'DESC'); break;
+        }
+
+        $products = $qb->getQuery()->getResult();
+
+        $data = [];
+        foreach ($products as $product) {
+            $data[] = [
+                'id' => $product->getId(),
+                'nomProduit' => $product->getNomProduit(),
+                'description' => $product->getDescription(),
+                'imageProduit' => $product->getImageProduit(),
+                'category' => $product->getCategory() ? $product->getCategory()->getNomCat() : null,
+                'date' => $product->getCreatedAt() ? $product->getCreatedAt()->format('d M Y') : 'N/A',
+                'status' => $product->getStatus(),
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $data]);
+    }
+
+    #[Route('/generate-description', name: 'api_generate_description', methods: ['POST'])]
+    public function generateDescription(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+        $name = $data['name'] ?? '';
+        $description = $data['description'] ?? '';
+
+        if (empty($name)) {
+            return new JsonResponse(['success' => false, 'message' => 'Le nom du produit est requis']);
+        }
+
+        $apiKey = $_ENV['GEMINI_API_KEY'] ?? 'AIzaSyCbTgeOtQUw9Yh4PsVTbxlSTWuAJ1hnXKU';
+        $url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=' . $apiKey;
+
+        $prompt = "En tant qu'expert en marketing pour une plateforme d'artisanat nommée Loopi, rédige une description captivante, élégante et professionnelle pour un produit.
+        Nom du produit : {$name}
+        Description courte ou mots-clés : {$description}
+        
+        La description doit être riche, utiliser un ton premium et mettre en valeur le côté artisanal et unique. Réponds uniquement avec le texte de la description, sans commentaires ni titres.";
+
+        $payload = [
+            'contents' => [
+                [
+                    'parts' => [
+                        ['text' => $prompt]
+                    ]
+                ]
+            ]
+        ];
+
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($payload));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
+        curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false); // For local dev environments where SSL certs might be tricky
+
+        $result = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $error = curl_error($ch);
+        curl_close($ch);
+        
+        if ($result === false) {
+            return new JsonResponse(['success' => false, 'message' => 'Erreur de connexion : ' . $error]);
+        }
+
+        $response = json_decode($result, true);
+        
+        if (isset($response['error'])) {
+            return new JsonResponse([
+                'success' => false, 
+                'message' => 'Erreur API (' . $httpCode . ') : ' . ($response['error']['message'] ?? 'Inconnue'),
+                'debug' => $response
+            ]);
+        }
+
+        if (isset($response['candidates'][0]['content']['parts'][0]['text'])) {
+            $generatedText = trim($response['candidates'][0]['content']['parts'][0]['text']);
+            return new JsonResponse(['success' => true, 'description' => $generatedText]);
+        }
+
+        // Handle safety filters or empty responses
+        $finishReason = $response['candidates'][0]['finishReason'] ?? 'N/A';
+        if ($finishReason === 'SAFETY') {
+            return new JsonResponse(['success' => false, 'message' => 'Le contenu a été bloqué par les filtres de sécurité.']);
+        }
+
+        return new JsonResponse([
+            'success' => false, 
+            'message' => 'L\'IA n\'a pas pu générer de réponse (Raison : ' . $finishReason . ')', 
+            'http_code' => $httpCode,
+            'debug' => $response
+        ]);
+    }
+
+    #[Route('/admin/feedbacks/{id}/pdf', name: 'api_admin_feedback_pdf', methods: ['GET'])]
+    public function generateFeedbackPdf(int $id, ManagerRegistry $doctrine): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        
+        $feedback = $doctrine->getRepository(Feedback::class)->find($id);
+        if (!$feedback) {
+            throw $this->createNotFoundException('Avis non trouvé');
+        }
+
+        $html = $this->renderView('pdf/feedback_report.html.twig', [
+            'feedback' => $feedback,
+        ]);
+
+        $this->knpSnappy->setTimeout(300);
+
+        return new Response(
+            $this->knpSnappy->getOutputFromHtml($html),
+            200,
+            [
+                'Content-Type'        => 'application/pdf',
+                'Content-Disposition' => sprintf('inline; filename="rapport_avis_%s.pdf"', $id),
+            ]
+        );
+    }
+
+    #[Route('/admin/products/{id}/pdf', name: 'api_admin_product_pdf', methods: ['GET'])]
+    public function generateProductPdf(int $id, ManagerRegistry $doctrine): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+        
+        $product = $doctrine->getRepository(Produit::class)->find($id);
+        if (!$product) {
+            throw $this->createNotFoundException('Produit non trouvé');
+        }
+
+        $feedbacks = $doctrine->getRepository(Feedback::class)->findBy(['produit' => $product]);
+        $avgRating = count($feedbacks) > 0 ? array_sum(array_map(fn($f) => $f->getNote(), $feedbacks)) / count($feedbacks) : 0;
+        $favCount = count($doctrine->getRepository(Favoris::class)->findBy(['produit' => $product]));
+
+        // Encoder l'image en base64 pour éviter les problèmes de timeout/boucle HTTP
+        $base64Image = null;
+        if ($product->getImageProduit()) {
+            $imagePath = $this->getParameter('kernel.project_dir') . '/public/uploads/products/' . $product->getImageProduit();
+            if (file_exists($imagePath)) {
+                $type = pathinfo($imagePath, PATHINFO_EXTENSION);
+                $data = file_get_contents($imagePath);
+                $base64Image = 'data:image/' . $type . ';base64,' . base64_encode($data);
+            }
+        }
+
+        $html = $this->renderView('pdf/product_sheet.html.twig', [
+            'product' => $product,
+            'avgRating' => round($avgRating, 1),
+            'favCount' => $favCount,
+            'base64Image' => $base64Image
+        ]);
+
+        $this->knpSnappy->setTimeout(300);
+
+        return new Response(
+            $this->knpSnappy->getOutputFromHtml($html),
+            200,
+            [
+                'Content-Type'        => 'application/pdf',
+                'Content-Disposition' => sprintf('inline; filename="produit_%s.pdf"', $id),
+            ]
+        );
+    }
+}

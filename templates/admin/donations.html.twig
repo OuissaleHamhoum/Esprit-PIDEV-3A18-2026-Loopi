@@ -1,0 +1,20 @@
+<!-- ─── PAGE: DONATIONS ─── -->
+  <div id="page-donations" style="display:none">
+    <div class="blk">
+      <div class="blk-title">Historique des donations <span class="sub" id="donationsSummary">0 confirmées · 0 en attente</span></div>
+      <div class="search-bar">
+        <input id="donationSearch" class="search-input" placeholder="🔍 Rechercher par donateur ou collection…">
+        <select id="donationStatusFilter" class="filter">
+          <option value="">Tous les statuts</option>
+          <option value="confirmed">Confirmées</option>
+          <option value="pending">En attente</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="refreshDonationsTable()">🔄 Actualiser</button>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Donateur</th><th>Collection</th><th>Quantité</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
+        <tbody id="donationsTableBody"></tbody>
+      </table>
+      <div id="donationsEmptyState" style="display:none;padding:18px;color:var(--muted)">Aucune donation trouvée.</div>
+    </div>
+  </div>

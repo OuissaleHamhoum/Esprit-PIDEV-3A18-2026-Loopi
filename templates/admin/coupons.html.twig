@@ -1,0 +1,20 @@
+<!-- ─── PAGE: COUPONS ─── -->
+  <div id="page-coupons" style="display:none">
+    <div class="blk">
+      <div class="blk-title">Gestion des coupons <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="showToast('Créer un coupon')">+ Créer coupon</button></div>
+      <div class="search-bar">
+        <input id="couponSearch" class="search-input" placeholder="🔍 Rechercher par code ou utilisateur…">
+        <select id="couponStatusFilter" class="filter">
+          <option value="">Tous les statuts</option>
+          <option value="unused">Non utilisés</option>
+          <option value="used">Utilisés</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="refreshCouponsTable()">🔄 Actualiser</button>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Code</th><th>Réduction</th><th>Assigné à</th><th>Don lié</th><th>Date expiration</th><th>Utilisé</th><th>Actions</th></tr></thead>
+        <tbody id="couponsTableBody"></tbody>
+      </table>
+      <div id="couponsEmptyState" style="display:none;padding:18px;color:var(--muted)">Aucun coupon trouvé.</div>
+    </div>
+  </div>

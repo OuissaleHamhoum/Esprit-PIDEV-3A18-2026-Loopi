@@ -1,0 +1,46 @@
+<!-- ─── PAGE: GALLERY ANALYSIS ─── -->
+<div id="page-gallery-analysis" style="display:none">
+  <div class="blk-title" style="margin-bottom:24px">
+    <div>Analyse approfondie de la Galerie <span class="sub">Données en temps réel sur les produits, organisateurs et avis</span></div>
+    <button class="btn btn-primary btn-sm" onclick="refreshGalleryAnalysis()">🔄 Actualiser l'analyse</button>
+  </div>
+
+  <!-- Row 1: Products and Organizers -->
+  <div class="g2">
+    <div class="blk">
+      <div class="blk-title">📦 Répartition des Produits par Catégorie</div>
+      <div style="height:300px; position:relative">
+        <canvas id="chartProductsByCategory"></canvas>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-title">👤 Genre des Organisateurs</div>
+      <div style="height:300px; position:relative">
+        <canvas id="chartOrganizersByGender"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Row 2: Feedbacks -->
+  <div class="g2">
+    <div class="blk">
+      <div class="blk-title">📈 Activité des Participants (Nombre d'avis)</div>
+      <div style="height:300px; position:relative">
+        <canvas id="chartParticipantActivity"></canvas>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-title">⭐ Qualité des Avis (Normaux vs Signalés)</div>
+      <div style="height:300px; position:relative">
+        <canvas id="chartFeedbackQuality"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="blk" style="margin-top:20px">
+    <div class="blk-title">💡 Résumé Analytique</div>
+    <div id="analysisSummaryText" style="color:var(--muted); line-height:1.6; font-size:0.9rem">
+      Chargement de l'analyse en cours...
+    </div>
+  </div>
+</div>

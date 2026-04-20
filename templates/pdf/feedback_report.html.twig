@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Rapport de Réclamation</title>
+    <style>
+        body { font-family: 'Helvetica', sans-serif; color: #333; line-height: 1.6; margin: 40px; }
+        .header { text-align: center; border-bottom: 2px solid #28a745; padding-bottom: 20px; margin-bottom: 30px; }
+        .logo { color: #28a745; font-size: 32px; font-weight: bold; }
+        .title { font-size: 24px; color: #333; margin-top: 10px; }
+        .section { margin-bottom: 25px; }
+        .section-title { font-weight: bold; border-left: 4px solid #28a745; padding-left: 10px; margin-bottom: 10px; color: #28a745; }
+        .content-box { background: #f9f9f9; padding: 15px; border-radius: 5px; border: 1px solid #eee; }
+        .info-grid { display: table; width: 100%; }
+        .info-row { display: table-row; }
+        .info-label { display: table-cell; font-weight: bold; width: 150px; padding: 5px 0; }
+        .info-value { display: table-cell; padding: 5px 0; }
+        .flagged { color: #dc3545; font-weight: bold; }
+        .footer { margin-top: 50px; text-align: center; font-size: 12px; color: #888; border-top: 1px solid #eee; padding-top: 10px; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Loopi</div>
+        <div class="title">Rapport de Modération</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Informations Générales</div>
+        <div class="info-grid">
+            <div class="info-row">
+                <div class="info-label">ID Avis :</div>
+                <div class="info-value">#{{ feedback.id }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Date :</div>
+                <div class="info-value">{{ feedback.dateCommentaire|date('d/m/Y') }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Produit :</div>
+                <div class="info-value">{{ feedback.produit.nomProduit }}</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">Auteur :</div>
+                <div class="info-value">{{ feedback.user.prenom }} {{ feedback.user.nom }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Contenu Signalé</div>
+        <div class="content-box">
+            <p><strong>Commentaire :</strong></p>
+            <p style="font-style: italic; color: #555;">"{{ feedback.commentaire }}"</p>
+            <p><strong>Note attribuée :</strong> {{ feedback.note }}/5</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Analyse Automatique</div>
+        <div class="content-box">
+            <p>Statut : <span class="flagged">SIGNALÉ (Mots inappropriés détectés)</span></p>
+            <p>Ce contenu a été automatiquement filtré pour violation des conditions d'utilisation de la plateforme Loopi.</p>
+        </div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Actions Requises</div>
+        <p>☐ Avertissement à l'utilisateur</p>
+        <p>☐ Suppression définitive du commentaire</p>
+        <p>☐ Suspension du compte (si récidive)</p>
+    </div>
+
+    <div class="footer">
+        Généré automatiquement par le système d'administration Loopi le {{ "now"|date('d/m/Y H:i') }}
+    </div>
+</body>
+</html>

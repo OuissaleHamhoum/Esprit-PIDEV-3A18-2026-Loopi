@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loopi — Espace Organisateur</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0F1C15;--surface:#162318;--card:#1E3228;--card2:#243B2D;--border:rgba(255,255,255,0.07);--forest:#1E3A2F;--moss:#3D6B4F;--sage:#7A9E7E;--sand:#C9A96E;--rust:#B05A2F;--light:#E8F0E4;--muted:rgba(255,255,255,.45);--text:rgba(255,255,255,.9);--accent:#5DA87A;--danger:#E05A3A}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh}
+
+/* SIDEBAR */
+.sidebar{width:250px;background:var(--surface);min-height:100vh;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;border-right:1px solid var(--border)}
+.sidebar-logo{padding:26px 22px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px}
+.logo-text{font-family:'Playfair Display',serif;font-size:1.3rem;font-weight:900;color:white}
+.logo-badge{background:linear-gradient(135deg,var(--moss),var(--accent));border-radius:8px;padding:2px 8px;font-size:.62rem;font-weight:700;color:white;letter-spacing:.04em}
+.sidebar-user{padding:16px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px}
+.user-av{width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--moss));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:white;flex-shrink:0}
+.user-info .u-name{font-size:.82rem;font-weight:600;color:white}
+.user-info .u-role{font-size:.65rem;color:var(--muted)}
+nav.snav{padding:14px 10px;flex:1}
+.nsec{font-size:.6rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.2);padding:14px 12px 5px}
+.ni{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:9px;cursor:pointer;transition:all .18s;margin-bottom:2px;text-decoration:none;color:var(--muted);font-size:.82rem;font-weight:500}
+.ni:hover{background:rgba(255,255,255,.06);color:white}
+.ni.active{background:linear-gradient(135deg,rgba(93,168,122,.18),rgba(61,107,79,.12));color:var(--accent)}
+.ni .ic{width:17px;text-align:center;font-size:.9rem}
+.ni .badge{margin-left:auto;background:var(--accent);color:white;border-radius:50px;padding:1px 6px;font-size:.6rem;font-weight:700}
+.sbot{padding:14px 10px;border-top:1px solid var(--border)}
+
+/* MAIN */
+.main{margin-left:250px;flex:1;padding:28px;min-height:100vh;background:var(--bg)}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:28px}
+.page-title{font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:white}
+.page-sub{font-size:.78rem;color:var(--muted);margin-top:2px}
+.ta{display:flex;gap:10px;align-items:center}
+
+/* BUTTONS */
+.btn{padding:8px 18px;border-radius:8px;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .2s;border:none;font-family:'DM Sans',sans-serif}
+.btn-g{background:linear-gradient(135deg,var(--accent),var(--moss));color:white}
+.btn-g:hover{opacity:.88;transform:translateY(-1px)}
+.btn-ghost{background:rgba(255,255,255,.06);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+.btn-danger{background:rgba(224,90,58,.15);color:var(--danger);border:1px solid rgba(224,90,58,.2)}
+.btn-danger:hover{background:rgba(224,90,58,.25)}
+
+/* CARDS */
+.cards-row{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+.sc{background:var(--card);border-radius:16px;padding:20px;border:1px solid var(--border);transition:transform .2s}
+.sc:hover{transform:translateY(-3px)}
+.sc-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;margin-bottom:12px}
+.sc-val{font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:700;color:white;line-height:1}
+.sc-lbl{font-size:.72rem;color:var(--muted);margin-top:3px}
+.sc-trend{font-size:.7rem;margin-top:6px;font-weight:600;color:var(--accent)}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:18px}
+.g32{display:grid;grid-template-columns:2fr 1fr;gap:18px;margin-bottom:18px}
+
+/* BLOCK */
+.blk{background:var(--card);border-radius:16px;padding:20px;border:1px solid var(--border)}
+.blk-title{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:white;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.blk-title span{font-family:'DM Sans',sans-serif;font-size:.72rem;color:var(--accent);cursor:pointer}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem}
+.tbl th{text-align:left;padding:8px 10px;font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+.tbl td{padding:10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+
+/* STATUS BADGES */
+.sbadge{padding:3px 9px;border-radius:50px;font-size:.62rem;font-weight:700;white-space:nowrap}
+.s-active{background:rgba(93,168,122,.15);color:var(--accent)}
+.s-pending{background:rgba(201,169,110,.15);color:var(--sand)}
+.s-rejected{background:rgba(224,90,58,.12);color:var(--danger)}
+.s-full{background:rgba(255,255,255,.08);color:var(--muted)}
+.s-archived{background:rgba(255,255,255,.1);color:var(--muted);border:1px solid rgba(255,255,255,.15)}
+
+/* PRODUCT CARDS */
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.prod-card{background:var(--card2);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .18s;border:1px solid var(--border)}
+.prod-card:hover{transform:translateY(-3px)}
+.prod-img{height:120px;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative}
+.prod-body{padding:10px 12px}
+.prod-name{font-size:.8rem;font-weight:700;color:white}
+.prod-cat{font-size:.65rem;color:var(--muted);margin-top:2px}
+.prod-actions{display:flex;gap:6px;margin-top:8px}
+
+/* PARTICIPANT ROW */
+.part-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.79rem}
+.part-row:last-child{border-bottom:none}
+.part-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:white;flex-shrink:0}
+.part-name{flex:1;color:white;font-weight:500}
+.part-meta{font-size:.7rem;color:var(--muted)}
+
+/* COLLECTION CARD */
+.coll-card{background:var(--card2);border-radius:13px;padding:16px;border:1px solid var(--border);margin-bottom:10px}
+.coll-header{display:flex;justify-content:space-between;margin-bottom:10px}
+.coll-title{font-weight:700;color:white;font-size:.88rem}
+.coll-mat{background:rgba(93,168,122,.12);color:var(--accent);border-radius:8px;padding:2px 8px;font-size:.65rem;font-weight:600}
+.prog-bar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin:8px 0 4px}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(to right,var(--accent),var(--sage))}
+.prog-nums{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted)}
+
+/* CHART BARS (CSS only) */
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:100px;margin-top:10px}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px}
+.bar{width:100%;border-radius:5px 5px 0 0;background:linear-gradient(to top,var(--moss),var(--accent));min-height:4px;transition:height .6s ease}
+.bar-lbl{font-size:.6rem;color:var(--muted)}
+
+/* FORM */
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:.73rem;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:5px}
+.fg input,.fg textarea,.fg select{width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none;transition:border-color .2s}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--accent)}
+.fg textarea{resize:vertical;min-height:80px}
+
+/* NOTIFICATION FEED */
+.notif-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.79rem}
+.notif-item:last-child{border-bottom:none}
+.notif-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;background:rgba(93,168,122,.12)}
+.notif-body{flex:1}
+.notif-text{color:white;font-weight:500}
+.notif-time{font-size:.68rem;color:var(--muted);margin-top:2px}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:2000;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal{background:var(--card);border-radius:20px;width:480px;max-width:92vw;padding:28px;border:1px solid var(--border);animation:slideUp .25s ease}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.modal-title{font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:white;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
+.modal-close{background:none;border:none;color:var(--muted);font-size:1.2rem;cursor:pointer}
+
+/* TOAST */
+.toast{position:fixed;bottom:22px;right:22px;background:var(--accent);color:white;padding:11px 18px;border-radius:11px;font-size:.82rem;font-weight:600;z-index:9999;transform:translateY(70px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+.main > *{animation:fadeUp .35s ease both}
+</style>
+</head>
+<body>
+
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div style="width:28px;height:28px;background:linear-gradient(135deg,var(--accent),var(--moss));border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:.9rem">🌿</div>
+    <div>
+      <div class="logo-text">Loopi</div>
+    </div>
+    <div class="logo-badge" style="margin-left:auto">ORG</div>
+  </div>
+  <div class="sidebar-user">
+    <div class="user-av">{{ app.user.nom|default('E')[:1]|upper }}</div>
+    <div class="user-info"><div class="u-name">{{ app.user.nom|default('Eco Organisateur') }}</div><div class="u-role">{{ app.user.email|default('organisateur@loopi.tn') }}</div></div>
+  </div>
+  <nav class="snav">
+    <div class="nsec">Principal</div>
+    <a href="#" class="ni active" onclick="showPage('dashboard',this)"><span class="ic">📊</span> Tableau de bord</a>
+    <a href="#" class="ni" onclick="showPage('evenements',this)"><span class="ic">📅</span> Mes événements<span class="badge">2</span></a>
+    <a href="#" class="ni" onclick="showPage('participants',this)"><span class="ic">👥</span> Participants</a>
+    <div class="nsec">Contenu</div>
+    <a href="#" class="ni" onclick="showPage('produits',this)"><span class="ic">🎨</span> Mes produits</a>
+    <a href="#" class="ni" onclick="showPage('collections',this)"><span class="ic">♻️</span> Collections</a>
+    <a href="#" class="ni" onclick="showPage('galerie',this)"><span class="ic">🖼️</span> Galerie analytique</a>
+    <div class="nsec">Compte</div>
+    <a href="#" class="ni" onclick="showPage('notifs',this)"><span class="ic">🔔</span> Notifications<span class="badge">3</span></a>
+    <a href="#" class="ni" onclick="showPage('profil',this)"><span class="ic">👤</span> Profil</a>
+  </nav>
+  <div class="sbot">
+    <a href="/logout" class="ni"><span class="ic">🚪</span> Déconnexion</a>
+  </div>
+</aside>
+
+<main class="main" id="mainContent">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard">
+    <div class="topbar">
+      <div><div class="page-title">Bonjour, Eco 🌿</div><div class="page-sub">Vue d'ensemble de votre activité</div></div>
+      <div class="ta">
+        <button class="btn btn-ghost" onclick="openModal()">+ Nouvel événement</button>
+        <button class="btn btn-g" onclick="showPage('produits',document.querySelector('[onclick*=produits]'))">+ Ajouter produit</button>
+      </div>
+    </div>
+
+    <div class="cards-row">
+      <div class="sc">
+        <div class="sc-icon" style="background:rgba(93,168,122,.12)">📅</div>
+        <div class="sc-val">2</div>
+        <div class="sc-lbl">Événements créés</div>
+        <div class="sc-trend">↑ 2 actifs</div>
+      </div>
+      <div class="sc">
+        <div class="sc-icon" style="background:rgba(201,169,110,.12)">👥</div>
+        <div class="sc-val">42</div>
+        <div class="sc-lbl">Total participants</div>
+        <div class="sc-trend">↑ +8 ce mois</div>
+      </div>
+      <div class="sc">
+        <div class="sc-icon" style="background:rgba(176,90,47,.12)">🎨</div>
+        <div class="sc-val">{{ stats.publies|default(0) }}</div>
+        <div class="sc-lbl">Produits publiés</div>
+        <div class="sc-trend">↑ {{ stats.archives|default(0) }} archivés</div>
+      </div>
+      <div class="sc">
+        <div class="sc-icon" style="background:rgba(255,255,255,.06)">♻️</div>
+        <div class="sc-val">1390</div>
+        <div class="sc-lbl">kg objectif total</div>
+        <div class="sc-trend">→ 24.6 kg collectés</div>
+      </div>
+    </div>
+
+    {% for message in app.flashes('success') %}
+      <div style="background:rgba(93,168,122,.15);border:1px solid rgba(93,168,122,.3);border-radius:8px;padding:12px;margin-bottom:16px;color:var(--accent);font-weight:600">
+        ✅ {{ message }}
+      </div>
+    {% endfor %}
+    {% for message in app.flashes('error') %}
+      <div style="background:rgba(224,90,58,.15);border:1px solid rgba(224,90,58,.3);border-radius:8px;padding:12px;margin-bottom:16px;color:var(--danger);font-weight:600">
+        ❌ {{ message }}
+      </div>
+    {% endfor %}
+
+    <div class="g32">
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div class="blk">
+          <div class="blk-title">Mes événements <span onclick="showPage('evenements',null)">Gérer →</span></div>
+          <table class="tbl">
+            <thead><tr><th>Événement</th><th>Date</th><th>Lieu</th><th>Participants</th><th>Statut</th><th>Action</th></tr></thead>
+            <tbody>
+              <tr>
+                <td style="color:white;font-weight:600">Nettoyage de Plage</td>
+                <td style="color:var(--muted)">15 juin 2024</td>
+                <td style="color:var(--muted)">Plage Sousse</td>
+                <td><div style="display:flex;align-items:center;gap:6px"><div style="height:4px;width:50px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden"><div style="width:60%;height:100%;background:var(--accent);border-radius:2px"></div></div><span style="font-size:.7rem;color:var(--muted)">30/50</span></div></td>
+                <td><span class="sbadge s-active">Actif</span></td>
+                <td><button class="btn btn-ghost" style="font-size:.7rem;padding:4px 10px" onclick="showPage('participants',null)">Voir</button></td>
+              </tr>
+              <tr>
+                <td style="color:white;font-weight:600">Atelier Recyclage</td>
+                <td style="color:var(--muted)">20 juin 2024</td>
+                <td style="color:var(--muted)">Centre Tunis</td>
+                <td><div style="display:flex;align-items:center;gap:6px"><div style="height:4px;width:50px;background:rgba(255,255,255,.08);border-radius:2px;overflow:hidden"><div style="width:40%;height:100%;background:var(--sand);border-radius:2px"></div></div><span style="font-size:.7rem;color:var(--muted)">12/30</span></div></td>
+                <td><span class="sbadge s-active">Actif</span></td>
+                <td><button class="btn btn-ghost" style="font-size:.7rem;padding:4px 10px" onclick="showPage('participants',null)">Voir</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="blk">
+          <div class="blk-title">Mes derniers produits <span onclick="showPage('produits',null)">Tout voir →</span></div>
+          <div class="prod-grid">
+            {% for p in produits|slice(0, 3) %}
+            <div class="prod-card" onclick="openEditModal({{ p.id }})">
+              <div class="prod-img" style="background:linear-gradient(135deg,#1a3a2a,#2d5a3d)">
+                {% if p.imageProduit %}
+                  <img src="/uploads/{{ p.imageProduit }}" style="width:100%;height:100%;object-fit:cover" alt="{{ p.nomProduit }}">
+                {% else %}
+                  🎨
+                {% endif %}
+                <span class="sbadge {{ p.status == 'publié' ? 's-active' : 's-archived' }}" style="position:absolute;top:8px;right:8px;font-size:.55rem">{{ p.status|capitalize }}</span>
+              </div>
+              <div class="prod-body">
+                <div class="prod-name">{{ p.nomProduit }}</div>
+                <div class="prod-cat">{{ p.category ? p.category.nomCat : 'Sans catégorie' }}</div>
+                <div class="prod-actions">
+                  <button class="btn btn-ghost" style="font-size:.65rem;padding:4px 8px" onclick="event.stopPropagation(); openEditModal({{ p.id }})">Éditer</button>
+                </div>
+              </div>
+            </div>
+            {% else %}
+            <div style="grid-column:1/-1;text-align:center;padding:20px;color:var(--muted);font-size:.8rem">Aucun produit pour l'instant.</div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div class="blk">
+          <div class="blk-title">Collections</div>
+          <div class="coll-card">
+            <div class="coll-header"><div class="coll-title">Piece Mario</div><span class="coll-mat">Verre</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:20%"></div></div>
+            <div class="prog-nums"><span style="color:var(--accent)">24.6 kg</span><span>/ 123 kg</span></div>
+            <button class="btn btn-ghost" style="width:100%;margin-top:10px;font-size:.75rem" onclick="showToast('Détail de Piece Mario')">Voir détails</button>
+          </div>
+          <div class="coll-card">
+            <div class="coll-header"><div class="coll-title">PIECE Métal</div><span class="coll-mat" style="background:rgba(201,169,110,.1);color:var(--sand)">Métal</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:1%"></div></div>
+            <div class="prog-nums"><span style="color:var(--sand)">0 kg</span><span>/ 1267 kg</span></div>
+            <button class="btn btn-ghost" style="width:100%;margin-top:10px;font-size:.75rem" onclick="showToast('Détail de PIECE Métal')">Voir détails</button>
+          </div>
+          <button class="btn btn-g" style="width:100%;margin-top:4px" onclick="showToast('Créer nouvelle collection')">+ Nouvelle collection</button>
+        </div>
+
+        <div class="blk">
+          <div class="blk-title">Activité récente</div>
+          <div class="notif-item">
+            <div class="notif-icon">♻️</div>
+            <div class="notif-body"><div class="notif-text">Test Participant — 24.6 kg de verre</div><div class="notif-time">Il y a 2 heures · Piece Mario</div></div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-icon">👤</div>
+            <div class="notif-body"><div class="notif-text">Nouvelle inscription: Ali Ben</div><div class="notif-time">Il y a 5 heures · Nettoyage plage</div></div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-icon">❤️</div>
+            <div class="notif-body"><div class="notif-text">Chaise Artisanale ajoutée en favori</div><div class="notif-time">Il y a 1 jour</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENEMENTS -->
+  <div id="page-evenements" style="display:none">
+    <div class="topbar">
+      <div><div class="page-title">Mes Événements</div><div class="page-sub">Gérez vos événements communautaires</div></div>
+      <button class="btn btn-g" onclick="openModal()">+ Créer un événement</button>
+    </div>
+    <div class="blk" style="margin-bottom:18px">
+      <table class="tbl">
+        <thead><tr><th>Titre</th><th>Date</th><th>Lieu</th><th>Capacité</th><th>Inscrits</th><th>Statut valid.</th><th>Actions</th></tr></thead>
+        <tbody>
+          <tr>
+            <td style="color:white;font-weight:600">Nettoyage de Plage</td>
+            <td style="color:var(--muted)">15 juin 2024 · 9h00</td>
+            <td style="color:var(--muted)">Plage Sousse</td>
+            <td style="color:var(--muted)">50</td>
+            <td><span style="color:var(--accent);font-weight:700">30</span></td>
+            <td><span class="sbadge s-active">Validé</span></td>
+            <td><div style="display:flex;gap:6px"><button class="btn btn-ghost" style="font-size:.7rem;padding:4px 8px" onclick="showToast('Modifier événement')">Éditer</button><button class="btn btn-danger" style="font-size:.7rem;padding:4px 8px" onclick="showToast('Confirmer la suppression')">Suppr.</button></div></td>
+          </tr>
+          <tr>
+            <td style="color:white;font-weight:600">Atelier Recyclage</td>
+            <td style="color:var(--muted)">20 juin 2024 · 14h00</td>
+            <td style="color:var(--muted)">Centre Tunis</td>
+            <td style="color:var(--muted)">30</td>
+            <td><span style="color:var(--sand);font-weight:700">12</span></td>
+            <td><span class="sbadge s-active">Validé</span></td>
+            <td><div style="display:flex;gap:6px"><button class="btn btn-ghost" style="font-size:.7rem;padding:4px 8px" onclick="showToast('Modifier événement')">Éditer</button><button class="btn btn-danger" style="font-size:.7rem;padding:4px 8px" onclick="showToast('Confirmer la suppression')">Suppr.</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="g2">
+      <div class="blk">
+        <div class="blk-title">Statistiques des inscriptions</div>
+        <div class="chart-bars">
+          <div class="bar-col"><div class="bar" style="height:30%"></div><div class="bar-lbl">Lun</div></div>
+          <div class="bar-col"><div class="bar" style="height:55%"></div><div class="bar-lbl">Mar</div></div>
+          <div class="bar-col"><div class="bar" style="height:45%"></div><div class="bar-lbl">Mer</div></div>
+          <div class="bar-col"><div class="bar" style="height:80%"></div><div class="bar-lbl">Jeu</div></div>
+          <div class="bar-col"><div class="bar" style="height:65%"></div><div class="bar-lbl">Ven</div></div>
+          <div class="bar-col"><div class="bar" style="height:90%"></div><div class="bar-lbl">Sam</div></div>
+          <div class="bar-col"><div class="bar" style="height:40%"></div><div class="bar-lbl">Dim</div></div>
+        </div>
+        <div style="text-align:center;font-size:.72rem;color:var(--muted);margin-top:8px">Inscriptions cette semaine: 42 total</div>
+      </div>
+      <div class="blk">
+        <div class="blk-title">Carte de localisation</div>
+        <div style="background:rgba(93,168,122,.06);border:1px dashed rgba(93,168,122,.2);border-radius:12px;height:120px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:6px;cursor:pointer" onclick="showToast('Ouverture de la carte')">
+          <div style="font-size:2rem">🗺️</div>
+          <div style="font-size:.75rem;color:var(--muted)">Voir les événements sur la carte</div>
+        </div>
+        <div style="margin-top:12px;font-size:.78rem">
+          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border)"><span style="color:var(--muted)">Plage Sousse</span><span style="color:var(--accent)">📍 33.8719° N</span></div>
+          <div style="display:flex;justify-content:space-between;padding:6px 0"><span style="color:var(--muted)">Centre Tunis</span><span style="color:var(--accent)">📍 36.8065° N</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PARTICIPANTS -->
+  <div id="page-participants" style="display:none">
+    <div class="topbar">
+      <div><div class="page-title">Participants</div><div class="page-sub">Gérez les inscriptions à vos événements</div></div>
+      <div class="ta">
+        <input type="text" placeholder="🔍 Rechercher…" style="padding:7px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.8rem;color:white;outline:none;width:200px">
+        <button class="btn btn-ghost" onclick="showToast('Export CSV généré')">📥 Exporter CSV</button>
+      </div>
+    </div>
+    <div class="g2" style="margin-bottom:18px">
+      <div class="blk">
+        <div class="blk-title">Nettoyage de Plage (30/50)</div>
+        <div class="part-row"><div class="part-av" style="background:linear-gradient(135deg,var(--sage),var(--moss))">T</div><div class="part-name">Test Participant<div class="part-meta">participant@loopi.tn · Age: 25</div></div><span class="sbadge s-active">Confirmé</span></div>
+        <div class="part-row"><div class="part-av" style="background:linear-gradient(135deg,#8a7a5a,#6b5a3d)">B</div><div class="part-name">Ali Ben<div class="part-meta">ben.ali@email.com · Age: 30</div></div><span class="sbadge s-active">Confirmé</span></div>
+        <div class="part-row"><div class="part-av" style="background:linear-gradient(135deg,#7a8a9a,#4a6a7a)">M</div><div class="part-name">Marie Dupont<div class="part-meta">marie.dupont@email.com · Age: 27</div></div><span class="sbadge s-pending">En attente</span></div>
+        <div style="text-align:center;padding:10px 0;font-size:.75rem;color:var(--muted)">+ 27 autres participants</div>
+      </div>
+      <div class="blk">
+        <div class="blk-title">Atelier Recyclage (12/30)</div>
+        <div class="part-row"><div class="part-av" style="background:linear-gradient(135deg,var(--sage),var(--moss))">T</div><div class="part-name">Test Participant<div class="part-meta">participant@loopi.tn · Age: 25</div></div><span class="sbadge s-active">Confirmé</span></div>
+        <div class="part-row"><div class="part-av" style="background:linear-gradient(135deg,#7a8a9a,#4a6a7a)">M</div><div class="part-name">Marie Dupont<div class="part-meta">marie.dupont@email.com · Age: 27</div></div><span class="sbadge s-active">Confirmé</span></div>
+        <div style="text-align:center;padding:10px 0;font-size:.75rem;color:var(--muted)">+ 10 autres participants</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PRODUITS -->
+  <div id="page-produits" style="display:none">
+    <div class="topbar" style="flex-wrap:wrap;gap:15px">
+      <div><div class="page-title">Mes Produits</div><div class="page-sub">Gérez vos œuvres et recevez les avis</div></div>
+      <div style="display:flex;gap:10px;flex:1;justify-content:flex-end;min-width:300px">
+        <input type="text" id="prodSearch" placeholder="🔍 Rechercher..." oninput="refreshProducts()" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.8rem;color:white;outline:none;width:180px">
+        <select id="prodCat" onchange="refreshProducts()" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.8rem;color:white;outline:none;cursor:pointer">
+          <option value="">Toutes catégories</option>
+          {% for cat in categories %}
+            <option value="{{ cat.nomCat }}">{{ cat.nomCat }}</option>
+          {% endfor %}
+        </select>
+        <select id="prodSort" onchange="refreshProducts()" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:.8rem;color:white;outline:none;cursor:pointer">
+          <option value="date_desc">Plus récent</option>
+          <option value="date_asc">Plus ancien</option>
+          <option value="name_asc">Nom A-Z</option>
+          <option value="name_desc">Nom Z-A</option>
+        </select>
+        <button class="btn btn-g" onclick="openProductModal()">+ Ajouter</button>
+      </div>
+    </div>
+    <div id="productsGrid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-bottom:18px">
+      <!-- Dynamic Content -->
+      </div>
+  </div>
+  </div>
+
+  <!-- NOTIFS -->
+  <div id="page-notifs" style="display:none">
+    <div class="topbar">
+      <div><div class="page-title">Notifications</div><div class="page-sub">Mises à jour de vos événements et produits</div></div>
+      <button class="btn btn-ghost" onclick="showToast('Tout marqué comme lu')">Tout lire</button>
+    </div>
+    <div class="blk">
+      <div class="notif-item">
+        <div class="notif-icon" style="background:rgba(93,168,122,.15)">♻️</div>
+        <div class="notif-body"><div class="notif-text">Test Participant a fait un don de 24.6 kg de verre à Piece Mario</div><div class="notif-time">16 Fév 2026 · 08:47</div></div>
+        <span class="sbadge s-active" style="flex-shrink:0">Don</span>
+      </div>
+      <div class="notif-item">
+        <div class="notif-icon" style="background:rgba(201,169,110,.1)">👤</div>
+        <div class="notif-body"><div class="notif-text">Ali Ben s'est inscrit à Nettoyage de Plage</div><div class="notif-time">Il y a 5 heures</div></div>
+        <span class="sbadge s-pending" style="flex-shrink:0">Inscription</span>
+      </div>
+      <div class="notif-item">
+        <div class="notif-icon" style="background:rgba(224,90,58,.1)">⭐</div>
+        <div class="notif-body"><div class="notif-text">Nouvel avis sur 3D Mosaic: 5/5 — "Magnifique, unique!"</div><div class="notif-time">Il y a 1 jour</div></div>
+        <span class="sbadge" style="background:rgba(224,90,58,.12);color:var(--danger);flex-shrink:0">Avis</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFIL -->
+  <div id="page-profil" style="display:none">
+    <div class="topbar">
+      <div><div class="page-title">Mon Profil</div><div class="page-sub">Informations du compte organisateur</div></div>
+      <button class="btn btn-g" onclick="showToast('Profil mis à jour ✓')">Sauvegarder</button>
+    </div>
+    <div class="g2">
+      <div class="blk">
+        <div class="blk-title">Informations</div>
+        <div class="form-row2">
+          <div class="fg"><label>Nom</label><input value="Organisateur"></div>
+          <div class="fg"><label>Prénom</label><input value="Eco"></div>
+        </div>
+        <div class="fg"><label>Email</label><input value="organisateur@loopi.tn"></div>
+        <div class="fg"><label>Nouveau mot de passe</label><input type="password" placeholder="••••••••"></div>
+        <div class="fg"><label>Bio / Description</label><textarea placeholder="Décrivez votre activité artistique..."></textarea></div>
+      </div>
+      <div class="blk">
+        <div class="blk-title">Résumé activité</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px">
+          <div style="background:rgba(93,168,122,.08);border:1px solid rgba(93,168,122,.15);border-radius:12px;padding:14px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--accent)">2</div><div style="font-size:.7rem;color:var(--muted)">Événements</div></div>
+          <div style="background:rgba(201,169,110,.08);border:1px solid rgba(201,169,110,.15);border-radius:12px;padding:14px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--sand)">8</div><div style="font-size:.7rem;color:var(--muted)">Produits</div></div>
+          <div style="background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:12px;padding:14px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:white">42</div><div style="font-size:.7rem;color:var(--muted)">Participants</div></div>
+          <div style="background:rgba(176,90,47,.08);border:1px solid rgba(176,90,47,.15);border-radius:12px;padding:14px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--rust)">2</div><div style="font-size:.7rem;color:var(--muted)">Collections</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GALERIE ANALYTIQUE -->
+  <div id="page-galerie" style="display:none">
+    <div class="topbar"><div><div class="page-title">Galerie Analytique</div><div class="page-sub">Performance de vos œuvres</div></div></div>
+    <div class="cards-row">
+      <div class="sc"><div class="sc-icon" style="background:rgba(93,168,122,.12)">👁️</div><div class="sc-val">284</div><div class="sc-lbl">Vues totales</div></div>
+      <div class="sc"><div class="sc-icon" style="background:rgba(224,90,58,.12)">❤️</div><div class="sc-val">35</div><div class="sc-lbl">Favoris total</div></div>
+      <div class="sc"><div class="sc-icon" style="background:rgba(201,169,110,.12)">⭐</div><div class="sc-val">4.6</div><div class="sc-lbl">Note moyenne</div></div>
+      <div class="sc"><div class="sc-icon" style="background:rgba(255,255,255,.06)">🔗</div><div class="sc-val">18</div><div class="sc-lbl">Partages sociaux</div></div>
+    </div>
+    <div class="blk">
+      <div class="blk-title">Performance par œuvre</div>
+      <table class="tbl">
+        <thead><tr><th>Œuvre</th><th>Catégorie</th><th>Vues</th><th>Favoris</th><th>Note</th><th>Partages</th></tr></thead>
+        <tbody>
+          <tr><td style="color:white">🪑 Chaise Artisanale</td><td style="color:var(--muted)">Mobilier</td><td style="color:var(--accent)">94</td><td style="color:var(--danger)">♥ 12</td><td style="color:var(--sand)">★ 4.5</td><td style="color:var(--muted)">6</td></tr>
+          <tr><td style="color:white">🫙 Glass Artwork</td><td style="color:var(--muted)">Installations</td><td style="color:var(--accent)">72</td><td style="color:var(--danger)">♥ 8</td><td style="color:var(--sand)">★ 4.8</td><td style="color:var(--muted)">4</td></tr>
+          <tr><td style="color:white">🍄 Mushrooms Sculpture</td><td style="color:var(--muted)">Décoratif</td><td style="color:var(--accent)">58</td><td style="color:var(--danger)">♥ 6</td><td style="color:var(--sand)">★ 4.2</td><td style="color:var(--muted)">3</td></tr>
+          <tr><td style="color:white">🪵 3D Mosaic</td><td style="color:var(--muted)">Art mural</td><td style="color:var(--accent)">60</td><td style="color:var(--danger)">♥ 9</td><td style="color:var(--sand)">★ 5.0</td><td style="color:var(--muted)">5</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- COLLECTIONS -->
+  <div id="page-collections" style="display:none">
+    <div class="topbar">
+      <div><div class="page-title">Mes Collections</div><div class="page-sub">Suivez vos collectes de matériaux</div></div>
+      <button class="btn btn-g" onclick="showToast('Créer une nouvelle collection')">+ Nouvelle collection</button>
+    </div>
+    <div class="g2">
+      <div class="blk">
+        <div class="blk-title">Piece Mario — Verre</div>
+        <div class="prog-bar" style="height:10px;margin:16px 0"><div class="prog-fill" style="width:20%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:16px"><span style="color:var(--accent);font-weight:700">24.6 kg collectés</span><span style="color:var(--muted)">Objectif: 123 kg · 20%</span></div>
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:12px">3 donations · Statut: Actif</div>
+        <div class="part-row"><div class="part-av" style="background:linear-gradient(135deg,var(--sage),var(--moss))">T</div><div class="part-name">Test Participant<div class="part-meta">24.6 kg · 16 Fév</div></div><span class="sbadge s-active">Confirmé</span></div>
+      </div>
+      <div class="blk">
+        <div class="blk-title">PIECE — Métal</div>
+        <div class="prog-bar" style="height:10px;margin:16px 0"><div class="prog-fill" style="width:1%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:.8rem;margin-bottom:16px"><span style="color:var(--sand);font-weight:700">0 kg collectés</span><span style="color:var(--muted)">Objectif: 1267 kg · 0%</span></div>
+        <div style="font-size:.8rem;color:var(--muted);margin-bottom:12px">0 donations · Statut: Actif</div>
+        <div style="text-align:center;padding:20px 0;color:var(--muted);font-size:.82rem">Aucun don pour l'instant.<br>Partagez ce lien pour attirer des donateurs.</div>
+        <button class="btn btn-ghost" style="width:100%" onclick="showToast('Lien copié!')">📋 Copier le lien de collecte</button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- MODAL CREER EVENEMENT -->
+<div class="modal-overlay" id="eventModal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">Créer un événement <button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="form-row2">
+      <div class="fg"><label>Titre</label><input placeholder="Nom de l'événement"></div>
+      <div class="fg"><label>Date</label><input type="date"></div>
+    </div>
+    <div class="fg"><label>Lieu</label><input placeholder="Adresse complète"></div>
+    <div class="form-row2">
+      <div class="fg"><label>Capacité max</label><input type="number" placeholder="50"></div>
+      <div class="fg"><label>Heure</label><input type="time" value="09:00"></div>
+    </div>
+    <div class="fg"><label>Description</label><textarea placeholder="Décrivez l'événement…"></textarea></div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+      <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-g" onclick="closeModal();showToast('Événement créé et envoyé pour validation ✓')">Créer & Soumettre</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- MODAL AJOUTER PRODUIT -->
+<div class="modal-overlay" id="productModal" onclick="if(event.target===this)closeProductModal()">
+  <div class="modal">
+    <div class="modal-title">{{ editProduit is defined and editProduit ? 'Modifier le produit' : 'Ajouter une œuvre' }} <button class="modal-close" onclick="closeProductModal()">✕</button></div>
+    <form id="productForm" method="POST" action="{{ editProduit is defined and editProduit ? path('app_produit_edit', {'id': editProduit.id}) : path('app_produit_add') }}" enctype="multipart/form-data">
+      <div class="fg"><label>Nom du produit</label><input type="text" name="nomProduit" id="productName" placeholder="Nom de votre œuvre" value="{{ editProduit is defined and editProduit ? editProduit.nomProduit : '' }}" required minlength="3" pattern="[A-Za-z0-9\s]+" title="Lettres et chiffres seulement, minimum 3 caractères"></div>
+      <div class="fg"><label>Catégorie</label>
+        <select name="category" required>
+          <option value="">-- Sélectionner une catégorie --</option>
+          {% for category in categories %}
+            <option value="{{ category.id }}" {{ editProduit is defined and editProduit and editProduit.category and editProduit.category.id == category.id ? 'selected' : '' }}>{{ category.nomCat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="fg">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <label style="margin-bottom:0;">Description</label>
+          <button type="button" class="btn btn-ghost" id="aiGenBtn" onclick="generateAIDescription()" style="font-size:.65rem;padding:4px 8px;background:rgba(122,158,126,0.1);color:var(--accent);border:1px solid rgba(122,158,126,0.2);">
+            ✨ Améliorer avec l'IA
+          </button>
+        </div>
+        <textarea name="description" id="productDescription" placeholder="Décrivez votre œuvre…" required>{{ editProduit is defined and editProduit ? editProduit.description : '' }}</textarea>
+      </div>
+      <div class="fg"><label>Image {{ editProduit is defined and editProduit ? '(optionnel)' : '' }}</label>
+        <input type="file" name="imageProduit" accept="image/*" {{ editProduit is defined and editProduit ? '' : 'required' }}>
+        {% if editProduit is defined and editProduit and editProduit.imageProduit %}
+          <div style="margin-top:8px;font-size:.75rem;color:var(--muted)">Image actuelle: {{ editProduit.imageProduit }}</div>
+        {% endif %}
+      </div>
+      <div class="fg"><label>Visibilité</label>
+        <select name="status" required>
+          <option value="publié" {{ editProduit is defined and editProduit and editProduit.status == 'publié' ? 'selected' : '' }}>Publié (Visible aux participants)</option>
+          <option value="archivé" {{ editProduit is defined and editProduit and editProduit.status == 'archivé' ? 'selected' : '' }}>Archivé (Masqué)</option>
+        </select>
+      </div>
+      <div id="formErrorMessage" style="display:none;background:rgba(224,90,58,.15);border:1px solid rgba(224,90,58,.3);border-radius:8px;padding:10px;margin-bottom:10px;color:var(--danger);font-weight:600"></div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:4px">
+        <button type="button" class="btn btn-ghost" onclick="closeProductModal()">Annuler</button>
+        <button type="submit" class="btn btn-g">{{ editProduit is defined and editProduit ? 'Modifier' : 'Ajouter' }}</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+function showPage(name, navEl) {
+  document.querySelectorAll('[id^=page-]').forEach(p => p.style.display = 'none');
+  document.getElementById('page-' + name).style.display = 'block';
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  
+  if (name === 'produits') {
+    refreshProducts();
+  }
+}
+
+async function generateAIDescription() {
+  const name = document.getElementById('productName').value;
+  const description = document.getElementById('productDescription').value;
+  const btn = document.getElementById('aiGenBtn');
+  
+  if (!name || name.length < 3) {
+    showToast('Veuillez d\'abord saisir un nom de produit (min. 3 caractères)');
+    return;
+  }
+  
+  const originalText = btn.innerHTML;
+  btn.innerHTML = '⌛ Génération...';
+  btn.disabled = true;
+  
+  try {
+    const response = await fetch('/api/generate-description', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, description })
+    });
+    
+    const data = await response.json();
+    if (data.success) {
+      document.getElementById('productDescription').value = data.description;
+      showToast('Description améliorée avec succès ! ✨');
+    } else {
+      showToast('Erreur : ' + (data.message || 'L\'IA n\'a pas pu répondre'));
+    }
+  } catch (error) {
+    console.error('AI Error:', error);
+    showToast('Erreur lors de la communication avec l\'IA');
+  } finally {
+    btn.innerHTML = originalText;
+    btn.disabled = false;
+  }
+}
+
+async function refreshProducts() {
+  const search = document.getElementById('prodSearch') ? document.getElementById('prodSearch').value : '';
+  const cat = document.getElementById('prodCat') ? document.getElementById('prodCat').value : '';
+  const sort = document.getElementById('prodSort') ? document.getElementById('prodSort').value : 'date_desc';
+  const grid = document.getElementById('productsGrid');
+  if (!grid) return;
+
+  grid.style.opacity = '0.6';
+  try {
+    const res = await fetch(`/api/organisateur/products?search=${encodeURIComponent(search)}&category=${encodeURIComponent(cat)}&sort=${sort}`);
+    const result = await res.json();
+    grid.style.opacity = '1';
+    
+    if (!result.success) throw new Error(result.message);
+
+    if (result.data.length === 0) {
+      grid.innerHTML = `
+        <div class="blk" style="grid-column:1/-1;text-align:center;padding:40px 20px">
+          <div style="font-size:3rem;margin-bottom:12px">📦</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:white;margin-bottom:6px">Aucun produit trouvé</div>
+          <div style="font-size:.82rem;color:var(--muted)">Essayez de modifier vos filtres ou d'ajouter une œuvre</div>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = result.data.map(p => `
+      <div class="blk" style="display:flex;flex-direction:column">
+        <div style="display:flex;gap:16px;flex:1">
+          <div style="width:140px;height:140px;border-radius:12px;background:linear-gradient(135deg,var(--card2),var(--forest));display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden">
+            ${p.imageProduit ? `<img src="/uploads/${p.imageProduit}" style="width:100%;height:100%;object-fit:cover" alt="${p.nomProduit}" onerror="this.parentElement.innerHTML='<span style=\'font-size:3rem\'>🎨</span>'">` : `<span style="font-size:3rem">🎨</span>`}
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start">
+              <h3 style="font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:white;margin-bottom:6px">${p.nomProduit}</h3>
+              <span class="sbadge ${p.status === 'publié' ? 's-active' : 's-archived'}">${p.status === 'publié' ? 'Publié' : 'Archivé'}</span>
+            </div>
+            ${p.category ? `<span class="sbadge s-active" style="width:fit-content;margin-bottom:8px">${p.category}</span>` : ''}
+            <p style="font-size:.78rem;color:var(--muted);line-height:1.4;margin-bottom:10px;flex:1">${p.description ? p.description.substring(0, 100) + (p.description.length > 100 ? '...' : '') : 'Pas de description'}</p>
+            <div style="font-size:.7rem;color:var(--muted)">Créé le ${p.date}</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+          <button class="btn btn-ghost" style="flex:1;font-size:.75rem" onclick="openEditModal(${p.id})">✏️ Modifier</button>
+          <form method="POST" action="/organisateur/produit/toggle-status/${p.id}" style="flex:1">
+            <button type="submit" class="btn btn-ghost" style="width:100%;font-size:.75rem">${p.status === 'publié' ? '📁 Archiver' : '🌍 Publier'}</button>
+          </form>
+          <form method="POST" action="/produit/delete/${p.id}" style="flex:1" onsubmit="return confirm('Êtes-vous sûr ?')">
+            <button type="submit" class="btn btn-danger" style="width:100%;font-size:.75rem">🗑️ Supprimer</button>
+          </form>
+        </div>
+      </div>
+    `).join('');
+
+  } catch (e) {
+    grid.style.opacity = '1';
+    console.error(e);
+    showToast('Erreur lors du chargement des produits');
+  }
+}
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+function openModal() { document.getElementById('eventModal').classList.add('active'); }
+function closeModal() { document.getElementById('eventModal').classList.remove('active'); }
+function openProductModal() { document.getElementById('productModal').classList.add('active'); }
+function closeProductModal() { document.getElementById('productModal').classList.remove('active'); }
+function openEditModal(productId) {
+  // For now, redirect to edit page. In a more advanced implementation, we could load the edit form via AJAX
+  window.location.href = '/organisateur/produit/edit/' + productId;
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeProductModal(); } });
+
+function showFormError(message) {
+  const errorBox = document.getElementById('formErrorMessage');
+  if (!errorBox) return;
+  errorBox.textContent = message;
+  errorBox.style.display = 'block';
+}
+
+function clearFormError() {
+  const errorBox = document.getElementById('formErrorMessage');
+  if (!errorBox) return;
+  errorBox.textContent = '';
+  errorBox.style.display = 'none';
+}
+
+// Show edit modal if editProduit exists
+document.addEventListener('DOMContentLoaded', function() {
+  // Show the active page
+  {% if activePage is defined and activePage %}
+  showPage('{{ activePage }}');
+  {% else %}
+  showPage('dashboard');
+  {% endif %}
+  
+  {% if editProduit is defined and editProduit %}
+  openProductModal();
+  {% else %}
+  closeProductModal();
+  {% endif %}
+
+  const productForm = document.getElementById('productForm');
+  const currentImageName = '{{ editProduit is defined and editProduit and editProduit.imageProduit ? editProduit.imageProduit : '' }}';
+  const existingImageNames = [
+    {% for produit in produits %}
+      {% if produit.imageProduit %}
+        '{{ produit.imageProduit }}'{% if not loop.last %}, {% endif %}
+      {% endif %}
+    {% endfor %}
+  ];
+
+  const imageInput = productForm ? productForm.querySelector('input[name="imageProduit"]') : null;
+  if (imageInput) {
+    imageInput.addEventListener('change', function() {
+      clearFormError();
+      if (!this.files || this.files.length === 0) {
+        return;
+      }
+      const fileName = this.files[0].name;
+      if (currentImageName && fileName === currentImageName) {
+        showFormError('Vous avez sélectionné la même image que l\'actuelle. Choisissez-en une autre pour modifier.');
+        return;
+      }
+      if (existingImageNames.includes(fileName) && fileName !== currentImageName) {
+        showFormError('Cette image est déjà utilisée par un autre produit. Choisissez une autre image.');
+      }
+    });
+  }
+
+  if (productForm) {
+    productForm.addEventListener('submit', function(e) {
+      clearFormError();
+      const nomProduit = productForm.nomProduit.value.trim();
+      const description = productForm.description.value.trim();
+      const pattern = /^[A-Za-z0-9]+$/;
+
+      if (nomProduit.length < 3 || !pattern.test(nomProduit)) {
+        showFormError('Le nom doit contenir au moins 3 caractères et seulement des lettres ou des chiffres.');
+        e.preventDefault();
+        return;
+      }
+
+      if (description === '') {
+        showFormError('La description est obligatoire.');
+        e.preventDefault();
+        return;
+      }
+
+      const isEditMode = {{ editProduit is defined and editProduit ? 'true' : 'false' }};
+      if (!isEditMode && imageInput && imageInput.files.length === 0) {
+        showFormError('L\'image est requise.');
+        e.preventDefault();
+      }
+    });
+  }
+});
+
+// Image upload handling - removed for simple file input
+</script>
+</body>
+</html>

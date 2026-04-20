@@ -1,0 +1,24 @@
+<!-- ─── PAGE: FEEDBACKS ─── -->
+  <div id="page-feedbacks" style="display:none">
+    <div class="blk">
+      <div class="blk-title">Avis & Feedbacks <span class="sub" id="feedbacksSummary">Modération des commentaires</span></div>
+      <div class="alert alert-info">ℹ️ Les avis avec des mots inappropriés sont automatiquement signalés.</div>
+      <div class="search-bar">
+        <input id="feedbackSearch" class="search-input" placeholder="🔍 Rechercher par produit ou utilisateur…">
+        <select id="feedbackRatingFilter" class="filter">
+          <option value="">Toutes les notes</option>
+          <option value="5">⭐⭐⭐⭐⭐ (5)</option>
+          <option value="4">⭐⭐⭐⭐ (4)</option>
+          <option value="3">⭐⭐⭐ (3)</option>
+          <option value="2">⭐⭐ (2)</option>
+          <option value="1">⭐ (1)</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="refreshFeedbacksTable()">🔄 Actualiser</button>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Produit</th><th>Utilisateur</th><th>Note</th><th>Commentaire</th><th>Date</th><th>Actions</th></tr></thead>
+        <tbody id="feedbacksTableBody"></tbody>
+      </table>
+      <div id="feedbacksEmptyState" style="display:none;padding:18px;color:var(--muted)">Aucun avis trouvé.</div>
+    </div>
+  </div>

@@ -1,0 +1,1014 @@
+<!-- ─── PAGE: EVENTS ─── -->
+  <div id="page-events" style="display:none">
+    <div class="blk" style="margin-bottom:16px">
+      <div class="blk-title">
+        Gestion des événements
+        <span class="sub">Validation & Modération</span>
+        <div style="float:right;display:flex;gap:10px;margin-top:-4px">
+          <button id="btnExportEvents" class="btn btn-outline" title="Exporter les événements">
+            <i class="fas fa-download"></i> Exporter
+          </button>
+          <button id="btnCreateEvent" class="btn btn-primary">
+            <i class="fas fa-plus"></i> Créer un événement
+          </button>
+        </div>
+      </div>
+
+      <!-- Barre de recherche et filtres -->
+      <div style="margin-bottom:16px;padding:16px;background:var(--bg-secondary);border-radius:8px">
+        <div style="display:flex;gap:16px;align-items:flex-end;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px">
+            <label for="searchEvents" style="display:block;margin-bottom:4px;font-weight:500">Rechercher</label>
+            <input type="text" id="searchEvents" placeholder="Titre, organisateur, lieu..." style="width:100%">
+          </div>
+          <div style="min-width:150px">
+            <label for="filterStatus" style="display:block;margin-bottom:4px;font-weight:500">Statut</label>
+            <select id="filterStatus" style="width:100%">
+              <option value="">Tous les statuts</option>
+              <option value="en_attente">En attente</option>
+              <option value="valide">Validé</option>
+              <option value="rejete">Rejeté</option>
+            </select>
+          </div>
+          <div style="min-width:150px">
+            <label for="filterOrganisateur" style="display:block;margin-bottom:4px;font-weight:500">Organisateur</label>
+            <select id="filterOrganisateur" style="width:100%">
+              <option value="">Tous les organisateurs</option>
+            </select>
+          </div>
+          <div style="min-width:150px">
+            <label for="filterDate" style="display:block;margin-bottom:4px;font-weight:500">Période</label>
+            <select id="filterDate" style="width:100%">
+              <option value="">Toutes les dates</option>
+              <option value="today">Aujourd'hui</option>
+              <option value="week">Cette semaine</option>
+              <option value="month">Ce mois</option>
+              <option value="upcoming">À venir</option>
+              <option value="past">Passés</option>
+            </select>
+          </div>
+          <button id="btnResetFilters" class="btn btn-secondary" style="height:38px">
+            <i class="fas fa-times"></i> Réinitialiser
+          </button>
+        </div>
+      </div>
+
+      <div id="eventsAlert" class="alert alert-warn" style="display:none"></div>
+      <div id="eventsSummary" style="margin-bottom:12px;color:var(--muted);font-size:.8rem"></div>
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Titre</th>
+            <th>Organisateur</th>
+            <th>Date</th>
+            <th>Lieu</th>
+            <th>Capacité</th>
+            <th>Participants</th>
+            <th>Statut</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="eventsTableBody">
+          <tr id="eventsLoadingRow">
+            <td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">
+              Chargement des événements...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Modal de détails d'événement -->
+    <div id="eventDetailsModal" class="modal" style="display:none">
+      <div class="modal-content" style="max-width:800px">
+        <div class="modal-header">
+          <h3>Détails de l'événement</h3>
+          <span class="modal-close" onclick="closeEventDetailsModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <div id="eventDetailsContent">
+            <!-- Contenu chargé dynamiquement -->
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeEventDetailsModal()">Fermer</button>
+        </div>
+      </div>
+    </div>
+    <div id="eventModal" class="modal" style="display:none">
+      <div class="modal-content" style="max-width:600px">
+        <div class="modal-header">
+          <h3 id="eventModalTitle">Créer un événement</h3>
+          <span class="modal-close" onclick="closeEventModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <form id="eventForm">
+            <input type="hidden" id="eventId" name="id">
+
+            <div class="form-group">
+              <label for="eventTitre">Titre *</label>
+              <input type="text" id="eventTitre" name="titre" required maxlength="200" placeholder="Titre de l'événement">
+              <div class="error-message" id="error-titre"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="eventDescription">Description *</label>
+              <textarea id="eventDescription" name="description" required rows="4" placeholder="Description détaillée de l'événement"></textarea>
+              <div class="error-message" id="error-description"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="eventDate">Date et heure *</label>
+              <input type="datetime-local" id="eventDate" name="date_evenement" required>
+              <div class="error-message" id="error-date_evenement"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="eventLieu">Lieu *</label>
+              <input type="text" id="eventLieu" name="lieu" required maxlength="200" placeholder="Adresse ou lieu de l'événement">
+              <div class="error-message" id="error-lieu"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="eventOrganisateur">Organisateur *</label>
+              <select id="eventOrganisateur" name="id_organisateur" required>
+                <option value="">Sélectionner un organisateur</option>
+              </select>
+              <div class="error-message" id="error-id_organisateur"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="eventCapacite">Capacité maximale *</label>
+              <input type="number" id="eventCapacite" name="capacite_max" required min="1" max="1000" placeholder="Nombre maximum de participants">
+              <div class="error-message" id="error-capacite_max"></div>
+            </div>
+
+            <div class="form-group">
+              <label for="eventImage">Image de l'événement</label>
+              <input type="file" id="eventImage" name="image_evenement" accept="image/*">
+              <small class="form-hint">Formats acceptés: JPG, PNG, GIF. Taille maximale: 5MB</small>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeEventModal()">Annuler</button>
+          <button type="button" class="btn btn-primary" id="btnSaveEvent" onclick="saveEvent()">
+            <i class="fas fa-save"></i> Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmation de suppression -->
+    <div id="deleteEventModal" class="modal" style="display:none">
+      <div class="modal-content" style="max-width:400px">
+        <div class="modal-header">
+          <h3>Confirmer la suppression</h3>
+          <span class="modal-close" onclick="closeDeleteModal()">&times;</span>
+        </div>
+        <div class="modal-body">
+          <p>Êtes-vous sûr de vouloir supprimer cet événement ?</p>
+          <p><strong id="deleteEventTitle"></strong></p>
+          <p class="text-danger">Cette action est irréversible.</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeDeleteModal()">Annuler</button>
+          <button type="button" class="btn btn-danger" id="btnConfirmDelete" onclick="confirmDeleteEvent()">
+            <i class="fas fa-trash"></i> Supprimer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let eventsData = [];
+    let organisateursData = [];
+    let currentEventId = null;
+
+    // Chargement initial
+    document.addEventListener('DOMContentLoaded', function() {
+      loadEvents();
+      loadOrganisateurs();
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      // Recherche
+      document.getElementById('searchEvents').addEventListener('input', filterEvents);
+
+      // Filtres
+      document.getElementById('filterStatus').addEventListener('change', filterEvents);
+      document.getElementById('filterOrganisateur').addEventListener('change', filterEvents);
+      document.getElementById('filterDate').addEventListener('change', filterEvents);
+
+      // Réinitialiser les filtres
+      document.getElementById('btnResetFilters').addEventListener('click', resetFilters);
+
+      // Export
+      document.getElementById('btnExportEvents').addEventListener('click', exportEvents);
+    }
+
+    // Fonctions de chargement des données
+    async function loadEvents() {
+      try {
+        const response = await fetch('/api/admin/events', {
+          headers: {
+            'Authorization': 'Bearer ' + getAuthToken(),
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          eventsData = data.events;
+          renderEventsTable();
+          updateEventsSummary();
+        } else {
+          showAlert('Erreur lors du chargement des événements', 'error');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        showAlert('Erreur de connexion', 'error');
+      }
+    }
+
+    async function loadOrganisateurs() {
+      try {
+        const response = await fetch('/api/admin/organisateurs', {
+          headers: {
+            'Authorization': 'Bearer ' + getAuthToken(),
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          organisateursData = data.organisateurs;
+          renderOrganisateursSelect();
+        }
+      } catch (error) {
+        console.error('Erreur chargement organisateurs:', error);
+      }
+    }
+
+    // Rendu de la table des événements
+    function renderEventsTable() {
+      const tbody = document.getElementById('eventsTableBody');
+      tbody.innerHTML = '';
+
+        tbody.innerHTML = '';
+
+      if (eventsData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">Aucun événement trouvé</td></tr>';
+        return;
+      }
+
+      eventsData.forEach(event => {
+        const statusClass = getStatusClass(event.statut);
+        const statusText = getStatusText(event.statut);
+        const participantsCount = event.participants_count || 0;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${escapeHtml(event.titre)}</td>
+          <td>${escapeHtml(event.organisateur)}</td>
+          <td>${formatDate(event.date_evenement)}</td>
+          <td>${escapeHtml(event.lieu)}</td>
+          <td>${event.capacite_max}</td>
+          <td>
+            <span class="participant-count" style="cursor:pointer;color:var(--primary)" onclick="viewEventParticipants(${event.id})">
+              ${participantsCount}/${event.capacite_max}
+            </span>
+          </td>
+          <td><span class="badge ${statusClass}">${statusText}</span></td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn btn-sm btn-info" onclick="viewEventDetails(${event.id})" title="Voir les détails">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-warning" onclick="editEvent(${event.id})" title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
+              ${event.statut === 'en_attente' ? `
+                <button class="btn btn-sm btn-success" onclick="validateEvent(${event.id})" title="Valider">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="rejectEvent(${event.id})" title="Rejeter">
+                  <i class="fas fa-times"></i>
+                </button>
+              ` : ''}
+              <button class="btn btn-sm btn-danger" onclick="deleteEvent(${event.id}, '${escapeHtml(event.titre)}')" title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function renderOrganisateursSelect() {
+      const select = document.getElementById('filterOrganisateur');
+      select.innerHTML = '<option value="">Tous les organisateurs</option>';
+
+      // Obtenir la liste unique des organisateurs
+      const uniqueOrganisateurs = [...new Set(eventsData.map(e => e.organisateur))].sort();
+
+      uniqueOrganisateurs.forEach(org => {
+        const option = document.createElement('option');
+        option.value = org;
+        option.textContent = org;
+        select.appendChild(option);
+      });
+    }
+
+    // Fonctions de filtrage et recherche
+    function filterEvents() {
+      const searchTerm = document.getElementById('searchEvents').value.toLowerCase();
+      const statusFilter = document.getElementById('filterStatus').value;
+      const organisateurFilter = document.getElementById('filterOrganisateur').value;
+      const dateFilter = document.getElementById('filterDate').value;
+
+      let filteredEvents = eventsData.filter(event => {
+        // Recherche textuelle
+        const matchesSearch = !searchTerm ||
+          event.titre.toLowerCase().includes(searchTerm) ||
+          event.organisateur.toLowerCase().includes(searchTerm) ||
+          event.lieu.toLowerCase().includes(searchTerm) ||
+          event.description.toLowerCase().includes(searchTerm);
+
+        // Filtre par statut
+        const matchesStatus = !statusFilter || event.statut === statusFilter;
+
+        // Filtre par organisateur
+        const matchesOrganisateur = !organisateurFilter || event.organisateur === organisateurFilter;
+
+        // Filtre par date
+        const matchesDate = !dateFilter || checkDateFilter(event.date_evenement, dateFilter);
+
+        return matchesSearch && matchesStatus && matchesOrganisateur && matchesDate;
+      });
+
+      renderFilteredEvents(filteredEvents);
+      updateEventsSummary(filteredEvents);
+    }
+
+    function checkDateFilter(eventDate, filter) {
+      if (!eventDate) return false;
+
+      const eventDateTime = new Date(eventDate);
+      const now = new Date();
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+      switch (filter) {
+        case 'today':
+          return eventDateTime.toDateString() === today.toDateString();
+        case 'week':
+          const weekStart = new Date(today);
+          weekStart.setDate(today.getDate() - today.getDay());
+          const weekEnd = new Date(weekStart);
+          weekEnd.setDate(weekStart.getDate() + 6);
+          return eventDateTime >= weekStart && eventDateTime <= weekEnd;
+        case 'month':
+          return eventDateTime.getMonth() === now.getMonth() && eventDateTime.getFullYear() === now.getFullYear();
+        case 'upcoming':
+          return eventDateTime >= now;
+        case 'past':
+          return eventDateTime < now;
+        default:
+          return true;
+      }
+    }
+
+    function renderFilteredEvents(filteredEvents) {
+      const tbody = document.getElementById('eventsTableBody');
+      tbody.innerHTML = '';
+
+      if (filteredEvents.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;color:var(--muted)">Aucun événement trouvé</td></tr>';
+        return;
+      }
+
+      filteredEvents.forEach(event => {
+        const statusClass = getStatusClass(event.statut);
+        const statusText = getStatusText(event.statut);
+        const participantsCount = event.participants_count || 0;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+          <td>${escapeHtml(event.titre)}</td>
+          <td>${escapeHtml(event.organisateur)}</td>
+          <td>${formatDate(event.date_evenement)}</td>
+          <td>${escapeHtml(event.lieu)}</td>
+          <td>${event.capacite_max}</td>
+          <td>
+            <span class="participant-count" style="cursor:pointer;color:var(--primary)" onclick="viewEventParticipants(${event.id})">
+              ${participantsCount}/${event.capacite_max}
+            </span>
+          </td>
+          <td><span class="badge ${statusClass}">${statusText}</span></td>
+          <td>
+            <div class="action-buttons">
+              <button class="btn btn-sm btn-info" onclick="viewEventDetails(${event.id})" title="Voir les détails">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="btn btn-sm btn-warning" onclick="editEvent(${event.id})" title="Modifier">
+                <i class="fas fa-edit"></i>
+              </button>
+              ${event.statut === 'en_attente' ? `
+                <button class="btn btn-sm btn-success" onclick="validateEvent(${event.id})" title="Valider">
+                  <i class="fas fa-check"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="rejectEvent(${event.id})" title="Rejeter">
+                  <i class="fas fa-times"></i>
+                </button>
+              ` : ''}
+              <button class="btn btn-sm btn-danger" onclick="deleteEvent(${event.id}, '${escapeHtml(event.titre)}')" title="Supprimer">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(row);
+      });
+    }
+
+    function resetFilters() {
+      document.getElementById('searchEvents').value = '';
+      document.getElementById('filterStatus').value = '';
+      document.getElementById('filterOrganisateur').value = '';
+      document.getElementById('filterDate').value = '';
+      renderEventsTable();
+      updateEventsSummary();
+    }
+
+    function updateEventsSummary(filteredEvents = null) {
+      const events = filteredEvents || eventsData;
+      const total = events.length;
+      const valide = events.filter(e => e.statut === 'valide').length;
+      const enAttente = events.filter(e => e.statut === 'en_attente').length;
+      const rejete = events.filter(e => e.statut === 'rejete').length;
+
+      const summary = document.getElementById('eventsSummary');
+      summary.innerHTML = `Total: ${total} | Validés: ${valide} | En attente: ${enAttente} | Rejetés: ${rejete}`;
+    }
+
+    // Gestion des modals
+    function openEventModal() {
+      document.getElementById('eventModal').style.display = 'block';
+    }
+
+    function closeEventModal() {
+      document.getElementById('eventModal').style.display = 'none';
+      document.getElementById('eventForm').reset();
+      document.getElementById('eventId').value = '';
+      currentEventId = null;
+      clearFormErrors();
+    }
+
+    function closeDeleteModal() {
+      document.getElementById('deleteEventModal').style.display = 'none';
+    }
+
+    // CRUD operations
+    document.getElementById('btnCreateEvent').addEventListener('click', function() {
+      document.getElementById('eventModalTitle').textContent = 'Créer un événement';
+      document.getElementById('btnSaveEvent').innerHTML = '<i class="fas fa-save"></i> Créer';
+      openEventModal();
+    });
+
+    function editEvent(id) {
+      const event = eventsData.find(e => e.id === id);
+      if (!event) return;
+
+      document.getElementById('eventModalTitle').textContent = 'Modifier l\'événement';
+      document.getElementById('btnSaveEvent').innerHTML = '<i class="fas fa-save"></i> Modifier';
+
+      document.getElementById('eventId').value = event.id;
+      document.getElementById('eventTitre').value = event.titre;
+      document.getElementById('eventDescription').value = event.description;
+      document.getElementById('eventDate').value = event.date_evenement ? event.date_evenement.substring(0, 16) : '';
+      document.getElementById('eventLieu').value = event.lieu;
+      document.getElementById('eventOrganisateur').value = event.id_organisateur;
+      document.getElementById('eventCapacite').value = event.capacite_max;
+
+      currentEventId = id;
+      openEventModal();
+    }
+
+    async function saveEvent() {
+      const formData = new FormData(document.getElementById('eventForm'));
+      const data = Object.fromEntries(formData.entries());
+
+      // Validation côté client
+      if (!validateEventForm(data)) {
+        return;
+      }
+
+      const isUpdate = currentEventId !== null;
+      const url = isUpdate ? `/api/admin/events/${currentEventId}` : '/api/admin/events';
+      const method = isUpdate ? 'PUT' : 'POST';
+
+      try {
+        const response = await fetch(url, {
+          method: method,
+          headers: {
+            'Authorization': 'Bearer ' + getAuthToken(),
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert(result.message, 'success');
+          closeEventModal();
+          await loadEvents();
+        } else if (result.errors) {
+          displayFormErrors(result.errors);
+        } else {
+          showAlert(result.message || 'Erreur lors de la sauvegarde', 'error');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        showAlert('Erreur de connexion', 'error');
+      }
+    }
+
+    function deleteEvent(id, title) {
+      currentEventId = id;
+      document.getElementById('deleteEventTitle').textContent = title;
+      document.getElementById('deleteEventModal').style.display = 'block';
+    }
+
+    async function confirmDeleteEvent() {
+      try {
+        const response = await fetch(`/api/admin/events/${currentEventId}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': 'Bearer ' + getAuthToken(),
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert(result.message, 'success');
+          closeDeleteModal();
+          await loadEvents();
+        } else {
+          showAlert(result.message || 'Erreur lors de la suppression', 'error');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        showAlert('Erreur de connexion', 'error');
+      }
+    }
+
+    async function validateEvent(id) {
+      if (!confirm('Êtes-vous sûr de vouloir valider cet événement ?')) return;
+
+      try {
+        const response = await fetch(`/api/admin/events/${id}/validate`, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + getAuthToken(),
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert(result.message, 'success');
+          await loadEvents();
+        } else {
+          showAlert(result.message || 'Erreur lors de la validation', 'error');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        showAlert('Erreur de connexion', 'error');
+      }
+    }
+
+    async function rejectEvent(id) {
+      if (!confirm('Êtes-vous sûr de vouloir rejeter cet événement ?')) return;
+
+      try {
+        const response = await fetch(`/api/admin/events/${id}/reject`, {
+          method: 'POST',
+          headers: {
+            'Authorization': 'Bearer ' + getAuthToken(),
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showAlert(result.message, 'success');
+          await loadEvents();
+        } else {
+          showAlert(result.message || 'Erreur lors du rejet', 'error');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        showAlert('Erreur de connexion', 'error');
+      }
+    }
+
+    async function exportEvents() {
+      try {
+        const response = await fetch('/api/admin/events/export', {
+          method: 'GET',
+          headers: {
+            'Authorization': 'Bearer ' + getAuthToken(),
+            'Content-Type': 'application/json'
+          }
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `evenements_${new Date().toISOString().split('T')[0]}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          window.URL.revokeObjectURL(url);
+          document.body.removeChild(a);
+          showAlert('Export réussi', 'success');
+        } else {
+          showAlert('Erreur lors de l\'export', 'error');
+        }
+      } catch (error) {
+        console.error('Erreur export:', error);
+        showAlert('Erreur de connexion', 'error');
+      }
+    }
+
+    async function viewEventDetails(id) {
+      try {
+        const response = await fetch(`/api/admin/events/${id}`, {
+          headers: {
+            'Authorization': 'Bearer ' + getAuthToken(),
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          const event = data.event;
+          const participants = data.participants || [];
+
+          let content = `
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px">
+              <div>
+                <h4 style="margin-bottom:10px;color:var(--primary)">Informations générales</h4>
+                <table class="tbl" style="margin-bottom:20px">
+                  <tr><td style="font-weight:500">Titre:</td><td>${escapeHtml(event.titre)}</td></tr>
+                  <tr><td style="font-weight:500">Organisateur:</td><td>${escapeHtml(event.organisateur)}</td></tr>
+                  <tr><td style="font-weight:500">Date:</td><td>${formatDate(event.date_evenement)}</td></tr>
+                  <tr><td style="font-weight:500">Lieu:</td><td>${escapeHtml(event.lieu)}</td></tr>
+                  <tr><td style="font-weight:500">Capacité:</td><td>${event.capacite_max}</td></tr>
+                  <tr><td style="font-weight:500">Statut:</td><td><span class="badge ${getStatusClass(event.statut)}">${getStatusText(event.statut)}</span></td></tr>
+                  <tr><td style="font-weight:500">Créé le:</td><td>${formatDate(event.created_at)}</td></tr>
+                  ${event.updated_at ? `<tr><td style="font-weight:500">Modifié le:</td><td>${formatDate(event.updated_at)}</td></tr>` : ''}
+                </table>
+              </div>
+              <div>
+                <h4 style="margin-bottom:10px;color:var(--primary)">Description</h4>
+                <div style="background:var(--bg-secondary);padding:15px;border-radius:8px;max-height:200px;overflow-y:auto">
+                  ${escapeHtml(event.description).replace(/\n/g, '<br>')}
+                </div>
+              </div>
+            </div>
+
+            <h4 style="margin-bottom:10px;color:var(--primary)">Participants (${participants.length}/${event.capacite_max})</h4>
+            <div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px">
+              <table class="tbl" style="margin:0;border:none">
+                <thead style="position:sticky;top:0;background:var(--bg)">
+                  <tr>
+                    <th>Nom</th>
+                    <th>Email</th>
+                    <th>Contact</th>
+                    <th>Âge</th>
+                    <th>Statut</th>
+                    <th>Inscription</th>
+                  </tr>
+                </thead>
+                <tbody>
+          `;
+
+          if (participants.length === 0) {
+            content += '<tr><td colspan="6" style="text-align:center;padding:20px;color:var(--muted)">Aucun participant inscrit</td></tr>';
+          } else {
+            participants.forEach(participant => {
+              const statusClass = participant.statut === 'present' ? 'badge-success' :
+                                participant.statut === 'absent' ? 'badge-danger' : 'badge-warning';
+              const statusText = participant.statut === 'present' ? 'Présent' :
+                               participant.statut === 'absent' ? 'Absent' : 'Inscrit';
+
+              content += `
+                <tr>
+                  <td>${escapeHtml(participant.nom)} ${escapeHtml(participant.prenom)}</td>
+                  <td>${escapeHtml(participant.email)}</td>
+                  <td>${escapeHtml(participant.contact || '-')}</td>
+                  <td>${participant.age || '-'}</td>
+                  <td><span class="badge ${statusClass}">${statusText}</span></td>
+                  <td>${formatDate(participant.date_inscription)}</td>
+                </tr>
+              `;
+            });
+          }
+
+          content += `
+                </tbody>
+              </table>
+            </div>
+          `;
+
+          document.getElementById('eventDetailsContent').innerHTML = content;
+          document.getElementById('eventDetailsModal').style.display = 'block';
+        } else {
+          showAlert('Erreur lors du chargement des détails', 'error');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        showAlert('Erreur de connexion', 'error');
+      }
+    }
+
+    function viewEventParticipants(id) {
+      viewEventDetails(id);
+    }
+
+    function closeEventDetailsModal() {
+      document.getElementById('eventDetailsModal').style.display = 'none';
+    }
+
+    // Fonctions utilitaires
+    function validateEventForm(data) {
+      clearFormErrors();
+      let isValid = true;
+
+      if (!data.titre || data.titre.trim().length < 3) {
+        showFieldError('titre', 'Le titre doit contenir au moins 3 caractères');
+        isValid = false;
+      }
+
+      if (!data.description || data.description.trim().length < 10) {
+        showFieldError('description', 'La description doit contenir au moins 10 caractères');
+        isValid = false;
+      }
+
+      if (!data.date_evenement) {
+        showFieldError('date_evenement', 'La date est requise');
+        isValid = false;
+      } else {
+        const eventDate = new Date(data.date_evenement);
+        const now = new Date();
+        if (eventDate < now) {
+          showFieldError('date_evenement', 'La date ne peut pas être dans le passé');
+          isValid = false;
+        }
+      }
+
+      if (!data.lieu || data.lieu.trim().length === 0) {
+        showFieldError('lieu', 'Le lieu est requis');
+        isValid = false;
+      }
+
+      if (!data.id_organisateur) {
+        showFieldError('id_organisateur', 'L\'organisateur est requis');
+        isValid = false;
+      }
+
+      const capacite = parseInt(data.capacite_max);
+      if (!capacite || capacite <= 0) {
+        showFieldError('capacite_max', 'La capacité doit être supérieure à 0');
+        isValid = false;
+      } else if (capacite > 1000) {
+        showFieldError('capacite_max', 'La capacité ne peut pas dépasser 1000');
+        isValid = false;
+      }
+
+      return isValid;
+    }
+
+    function showFieldError(field, message) {
+      const errorElement = document.getElementById(`error-${field}`);
+      if (errorElement) {
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+      }
+    }
+
+    function clearFormErrors() {
+      const errorElements = document.querySelectorAll('.error-message');
+      errorElements.forEach(el => {
+        el.textContent = '';
+        el.style.display = 'none';
+      });
+    }
+
+    function displayFormErrors(errors) {
+      Object.keys(errors).forEach(field => {
+        showFieldError(field, errors[field]);
+      });
+    }
+
+    function getStatusClass(status) {
+      switch (status) {
+        case 'valide': return 'badge-success';
+        case 'rejete': return 'badge-danger';
+        case 'en_attente': return 'badge-warning';
+        default: return 'badge-secondary';
+      }
+    }
+
+    function getStatusText(status) {
+      switch (status) {
+        case 'valide': return 'Validé';
+        case 'rejete': return 'Rejeté';
+        case 'en_attente': return 'En attente';
+        default: return status;
+      }
+    }
+
+    function formatDate(dateString) {
+      if (!dateString) return '-';
+      const date = new Date(dateString);
+      return date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+    }
+
+    function updateEventsSummary() {
+      const total = eventsData.length;
+      const valide = eventsData.filter(e => e.statut === 'valide').length;
+      const enAttente = eventsData.filter(e => e.statut === 'en_attente').length;
+      const rejete = eventsData.filter(e => e.statut === 'rejete').length;
+
+      const summary = document.getElementById('eventsSummary');
+      summary.innerHTML = `Total: ${total} | Validés: ${valide} | En attente: ${enAttente} | Rejetés: ${rejete}`;
+    }
+
+    function showAlert(message, type = 'info') {
+      const alertDiv = document.getElementById('eventsAlert');
+      alertDiv.className = `alert alert-${type === 'error' ? 'danger' : type}`;
+      alertDiv.textContent = message;
+      alertDiv.style.display = 'block';
+
+      setTimeout(() => {
+        alertDiv.style.display = 'none';
+      }, 5000);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function getAuthToken() {
+      return localStorage.getItem('authToken') || '';
+    }
+  </script>
+
+  <style>
+    .modal {
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: var(--bg);
+      margin: 5% auto;
+      padding: 0;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    .modal-header {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-body {
+      padding: 20px;
+    }
+
+    .modal-footer {
+      padding: 15px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .modal-close {
+      color: var(--muted);
+      font-size: 24px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .modal-close:hover {
+      color: var(--text);
+    }
+
+    .form-group {
+      margin-bottom: 15px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      background-color: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+    }
+
+    .form-group textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+
+    .form-hint {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .error-message {
+      color: #dc3545;
+      font-size: 12px;
+      margin-top: 4px;
+      display: none;
+    }
+
+    .badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .badge-success {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .badge-danger {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .badge-warning {
+      background-color: #ffc107;
+      color: black;
+    }
+
+    .badge-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+    }
+
+    .btn-sm {
+      padding: 4px 8px;
+      font-size: 12px;
+    }
+
+    .text-danger {
+      color: #dc3545;
+    }
+  </style>

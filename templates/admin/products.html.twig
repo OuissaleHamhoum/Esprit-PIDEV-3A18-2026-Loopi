@@ -1,0 +1,21 @@
+<!-- ─── PAGE: PRODUCTS ─── -->
+  <div id="page-products" style="display:none">
+    <div class="blk">
+      <div class="blk-title">Modération des produits <span class="sub" id="productsSummary">0 œuvres en galerie</span></div>
+      <div class="search-bar">
+        <input id="productSearch" class="search-input" placeholder="🔍 Rechercher une œuvre…">
+        <select id="productCategoryFilter" class="filter">
+          <option value="">Toutes catégories</option>
+        </select>
+        <select id="productOrganisateurFilter" class="filter">
+          <option value="">Tous organisateurs</option>
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="refreshProductTable()">🔄 Actualiser</button>
+      </div>
+      <table class="tbl">
+        <thead><tr><th>Produit</th><th>Catégorie</th><th>Organisateur</th><th>Créé le</th><th>Favoris</th><th>Note moy.</th><th>Actions</th></tr></thead>
+        <tbody id="productsTableBody"></tbody>
+      </table>
+      <div id="productsEmptyState" style="display:none;padding:18px;color:var(--muted)">Aucun produit trouvé. Essayez de réinitialiser ou de modifier le filtre.</div>
+    </div>
+  </div>

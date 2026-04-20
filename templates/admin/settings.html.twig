@@ -1,0 +1,26 @@
+<!-- ─── PAGE: SETTINGS ─── -->
+  <div id="page-settings" style="display:none">
+    <div class="g2">
+      <div class="blk">
+        <div class="blk-title">Paramètres généraux</div>
+        <div class="fg"><label>Langue</label><select><option>Français</option><option>English</option><option>العربية</option></select></div>
+        <div class="fg"><label>Fuseau horaire</label><select><option>GMT+1 (Paris)</option><option>UTC</option><option>GMT+2</option></select></div>
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px"><input type="checkbox" id="autosave" checked><label for="autosave" style="font-size:.8rem;color:var(--text)">Sauvegarde automatique</label></div>
+        <div style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="loginAlert" checked><label for="loginAlert" style="font-size:.8rem;color:var(--text)">Alerte nouvelle connexion</label></div>
+      </div>
+      <div class="blk">
+        <div class="blk-title">Apparence</div>
+        <div class="fg"><label>Thème</label><select><option>Clair</option><option>Sombre</option><option>Système</option></select></div>
+        <div class="fg"><label>Taille de police</label><select><option>Moyen</option><option>Petit</option><option>Grand</option></select></div>
+        <div style="display:flex;align-items:center;gap:10px"><input type="checkbox" id="compact"><label for="compact" style="font-size:.8rem;color:var(--text)">Vue compacte</label></div>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="blk-title">Actions système</div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <button class="btn btn-primary" onclick="showToast('Sauvegarde effectuée ✓')">📦 Sauvegarder</button>
+        <button class="btn btn-ghost" onclick="showToast('Restauration à venir')">🔄 Restaurer</button>
+        <button class="btn btn-danger" onclick="showToast('Cache vidé ✓')">🗑️ Vider le cache</button>
+      </div>
+    </div>
+  </div>

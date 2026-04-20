@@ -1,0 +1,1355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loopi — Espace Participant</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F4F1EB;
+  --cream: #FAF8F3;
+  --forest: #1E3A2F;
+  --moss: #3D6B4F;
+  --sage: #7A9E7E;
+  --sand: #C9A96E;
+  --rust: #B05A2F;
+  --light: #FDFCF9;
+  --dark: #111510;
+  --muted: #6B7468;
+  --card: #FFFFFF;
+  --border: rgba(30,58,47,0.09);
+  --shadow: 0 4px 24px rgba(30,58,47,0.08);
+  --shadow-lg: 0 12px 48px rgba(30,58,47,0.14);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  min-height: 100vh;
+}
+
+/* ── NAVBAR ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: rgba(30,58,47,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.leaf {
+  width: 20px; height: 20px;
+  background: var(--sage);
+  border-radius: 60% 10% 60% 10%;
+  transform: rotate(-20deg);
+  flex-shrink: 0;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+}
+
+.nav-links a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  font-size: .83rem;
+  font-weight: 500;
+  transition: all .2s;
+}
+
+.nav-links a:hover { background: rgba(255,255,255,.08); color: white; }
+.nav-links a.active { background: rgba(255,255,255,.12); color: white; }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.notif-btn {
+  position: relative;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: .95rem;
+  transition: background .2s;
+}
+.notif-btn:hover { background: rgba(255,255,255,.15); }
+.notif-dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 8px; height: 8px;
+  background: var(--rust);
+  border-radius: 50%;
+  border: 2px solid var(--forest);
+}
+
+.nav-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sage), var(--moss));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: .95rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,.2);
+}
+
+.btn-donate {
+  padding: 8px 18px;
+  border-radius: 9px;
+  background: var(--sand);
+  color: var(--forest);
+  font-size: .82rem;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all .2s;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-donate:hover { background: #d4b070; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(201,169,110,.35); }
+
+/* ── HERO / WELCOME STRIP ── */
+.hero-strip {
+  background: linear-gradient(135deg, var(--forest) 0%, var(--moss) 100%);
+  padding: 48px 40px 52px;
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-strip::before {
+  content: '';
+  position: absolute;
+  top: -60px; right: -60px;
+  width: 280px; height: 280px;
+  border-radius: 50%;
+  background: rgba(122,158,126,.15);
+}
+
+.hero-strip::after {
+  content: '';
+  position: absolute;
+  bottom: -80px; left: 30%;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  background: rgba(201,169,110,.08);
+}
+
+.hero-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-greeting {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1.2;
+}
+
+.hero-sub {
+  font-size: .9rem;
+  color: rgba(255,255,255,.55);
+  margin-top: 6px;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 32px;
+}
+
+.hero-stat {
+  text-align: center;
+  padding: 16px 24px;
+  background: rgba(255,255,255,.07);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.1);
+  backdrop-filter: blur(8px);
+}
+
+.hero-stat-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+}
+
+.hero-stat-lbl {
+  font-size: .72rem;
+  color: rgba(255,255,255,.5);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* ── TABS NAV ── */
+.section-tabs {
+  background: white;
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  display: flex;
+  gap: 0;
+  position: sticky;
+  top: 64px;
+  z-index: 100;
+}
+
+.stab {
+  padding: 16px 22px;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-size: .83rem;
+  font-weight: 600;
+  color: var(--muted);
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  white-space: nowrap;
+  border-left: none; border-right: none; border-top: none;
+  background: transparent;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.stab:hover { color: var(--forest); }
+.stab.active { color: var(--forest); border-bottom-color: var(--moss); }
+
+/* ── CONTENT ── */
+.page-section {
+  display: none;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px 40px 80px;
+  animation: fadeUp .35s ease both;
+}
+
+.page-section.active { display: block; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── GRID LAYOUTS ── */
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 32px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 24px; }
+.grid-3-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
+
+/* ── CARD ── */
+.card {
+  background: white;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  padding: 24px;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.card-title a {
+  font-family: 'DM Sans', sans-serif;
+  font-size: .75rem;
+  font-weight: 600;
+  color: var(--moss);
+  text-decoration: none;
+}
+
+.card-title a:hover { text-decoration: underline; }
+
+/* ── STAT CARD ── */
+.stat-card {
+  background: white;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  padding: 22px;
+  transition: transform .2s, box-shadow .2s;
+}
+
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+
+.stat-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 14px;
+}
+
+.stat-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.9rem;
+  font-weight: 700;
+  color: var(--forest);
+  line-height: 1;
+}
+
+.stat-lbl { font-size: .75rem; color: var(--muted); margin-top: 5px; font-weight: 500; }
+.stat-trend { font-size: .72rem; margin-top: 8px; font-weight: 600; }
+.trend-up { color: #3D9B5A; }
+.trend-neu { color: var(--muted); }
+
+/* ── GALLERY GRID ── */
+.gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.gal-item { border-radius: 14px; overflow: hidden; cursor: pointer; transition: transform .2s, box-shadow .2s; border: 1px solid var(--border); background: white; }
+.gal-item:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.gal-img { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 2.8rem; position: relative; }
+.gal-heart { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,.9); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; cursor: pointer; border: none; transition: transform .2s; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+.gal-heart:hover { transform: scale(1.2); }
+.gal-info { padding: 10px 12px 12px; }
+.gal-name { font-size: .82rem; font-weight: 700; color: var(--forest); }
+.gal-cat { font-size: .68rem; color: var(--muted); margin-top: 2px; }
+
+/* ── EVENTS ── */
+.event-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.event-item:last-child { border-bottom: none; padding-bottom: 0; }
+.ev-date { background: var(--forest); color: white; border-radius: 10px; width: 46px; height: 50px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; }
+.ev-day { font-size: 1.15rem; font-weight: 700; line-height: 1; }
+.ev-mon { font-size: .58rem; text-transform: uppercase; letter-spacing: .06em; opacity: .7; }
+.ev-info .ev-title { font-size: .87rem; font-weight: 700; color: var(--forest); margin-bottom: 3px; }
+.ev-info .ev-loc { font-size: .73rem; color: var(--muted); }
+.ev-badge { margin-left: auto; padding: 4px 10px; border-radius: 50px; font-size: .67rem; font-weight: 700; flex-shrink: 0; }
+.badge-inscrit { background: rgba(61,107,79,.1); color: var(--moss); }
+.badge-dispo { background: rgba(201,169,110,.15); color: #9a7040; }
+
+/* ── DONATIONS ── */
+.don-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: .82rem; }
+.don-row:last-child { border-bottom: none; }
+.don-av { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .82rem; font-weight: 700; color: white; flex-shrink: 0; }
+.don-coll { font-weight: 600; color: var(--forest); flex: 1; }
+.don-amount { font-weight: 700; color: var(--moss); }
+.don-status { padding: 3px 9px; border-radius: 50px; font-size: .64rem; font-weight: 700; }
+.status-conf { background: rgba(61,155,90,.1); color: #3D9B5A; }
+.status-pend { background: rgba(201,169,110,.15); color: #9a7040; }
+
+/* ── COUPONS ── */
+.coupon-card {
+  background: linear-gradient(135deg, var(--forest), var(--moss));
+  border-radius: 16px;
+  padding: 18px 22px;
+  color: white;
+  margin-bottom: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.coupon-code { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; }
+.coupon-disc { font-size: .75rem; opacity: .65; margin-top: 3px; }
+.coupon-pct { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: var(--sand); }
+
+/* ── PROGRESS ── */
+.prog-bar { height: 7px; background: rgba(30,58,47,.08); border-radius: 4px; overflow: hidden; margin: 6px 0; }
+.prog-fill { height: 100%; border-radius: 4px; background: linear-gradient(to right, var(--moss), var(--sage)); }
+
+/* ── PROFILE SECTION ── */
+.profile-hero {
+  background: linear-gradient(135deg, var(--forest), var(--moss));
+  border-radius: 22px;
+  padding: 36px;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  margin-bottom: 24px;
+}
+
+.profile-avatar-lg {
+  width: 90px; height: 90px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sage), rgba(255,255,255,.3));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+  font-weight: 700;
+  color: white;
+  border: 3px solid rgba(255,255,255,.3);
+  flex-shrink: 0;
+}
+
+.profile-info .profile-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.profile-info .profile-email { font-size: .85rem; opacity: .6; margin-top: 4px; }
+.profile-info .profile-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 10px;
+  padding: 4px 12px;
+  background: rgba(255,255,255,.12);
+  border-radius: 50px;
+  font-size: .75rem;
+  font-weight: 600;
+  border: 1px solid rgba(255,255,255,.15);
+}
+
+.profile-stats-strip {
+  margin-left: auto;
+  display: flex;
+  gap: 20px;
+}
+
+.pstrip-stat {
+  text-align: center;
+  padding: 14px 18px;
+  background: rgba(255,255,255,.09);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.1);
+}
+
+.pstrip-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.pstrip-lbl { font-size: .68rem; opacity: .55; margin-top: 3px; }
+
+/* ── FORM FIELDS ── */
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-group label { font-size: .76rem; font-weight: 600; color: var(--forest); }
+.field-group input, .field-group select {
+  padding: 11px 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: .86rem;
+  outline: none;
+  background: var(--bg);
+  color: var(--dark);
+  transition: border-color .2s;
+}
+.field-group input:focus, .field-group select:focus { border-color: var(--moss); }
+
+/* ── BTNS ── */
+.btn { padding: 9px 20px; border-radius: 10px; font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .2s; border: none; font-family: 'DM Sans', sans-serif; }
+.btn-primary { background: var(--forest); color: white; }
+.btn-primary:hover { background: var(--moss); }
+.btn-outline { background: transparent; color: var(--forest); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--forest); }
+.btn-sm { padding: 7px 16px; border-radius: 8px; font-size: .78rem; }
+
+/* ── SECTION HEADING ── */
+.section-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.45rem;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 6px;
+}
+
+.section-sub { font-size: .84rem; color: var(--muted); margin-bottom: 28px; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  background: var(--forest);
+  color: white;
+  padding: 13px 22px;
+  border-radius: 13px;
+  font-size: .84rem;
+  font-weight: 600;
+  z-index: 9999;
+  transform: translateY(80px);
+  opacity: 0;
+  transition: all .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+  box-shadow: var(--shadow-lg);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 56px 0; color: var(--muted); }
+.empty-state .e-icon { font-size: 3.2rem; margin-bottom: 14px; }
+.empty-state p { font-size: .86rem; line-height: 1.6; }
+
+/* ── FOOTER ── */
+footer {
+  background: var(--forest);
+  color: rgba(255,255,255,.5);
+  text-align: center;
+  padding: 28px 40px;
+  font-size: .78rem;
+}
+
+footer span { color: var(--sage); font-weight: 600; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .navbar { padding: 0 20px; }
+  .section-tabs { padding: 0 20px; overflow-x: auto; }
+  .page-section { padding: 28px 20px 60px; }
+  .hero-strip { padding: 36px 20px 40px; }
+  .hero-inner { flex-direction: column; gap: 24px; align-items: flex-start; }
+  .hero-stats { flex-wrap: wrap; gap: 12px; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
+  .grid-2 { grid-template-columns: 1fr; }
+  .grid-3-2 { grid-template-columns: 1fr; }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  .profile-hero { flex-direction: column; gap: 20px; }
+  .profile-stats-strip { margin-left: 0; }
+  .nav-links { display: none; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar">
+  <a href="#" class="nav-logo"><span class="leaf"></span> Loopi</a>
+
+  <ul class="nav-links">
+    <li><a href="#" class="active" onclick="showSection('accueil',this)">🏠 Accueil</a></li>
+    <li><a href="#" onclick="showSection('galerie',this)">🎨 Galerie</a></li>
+    <li><a href="{{ path('app_favoris') }}">❤️ Favoris</a></li>
+    <li><a href="#" onclick="showSection('recommandations',this)">✨ Recommandations</a></li>
+    <li><a href="#" onclick="showSection('evenements',this)">📅 Événements</a></li>
+    <li><a href="#" onclick="showSection('collections',this)">♻️ Collections</a></li>
+    <li><a href="#" onclick="showSection('dons',this)">🤝 Mes dons</a></li>
+    <li><a href="#" onclick="showSection('coupons',this)">🎟️ Coupons</a></li>
+    <li><a href="#" onclick="showSection('profil',this)">👤 Profil</a></li>
+  </ul>
+
+  <div class="nav-right">
+    <div class="notif-btn" onclick="showToast('2 nouvelles notifications')">🔔<span class="notif-dot"></span></div>
+    <div class="nav-avatar" onclick="showSection('profil', document.querySelector('[onclick*=profil]'))">T</div>
+    <button class="btn-donate" onclick="showSection('collections', document.querySelector('[onclick*=collections]'))">♻️ Faire un don</button>
+  </div>
+</nav>
+
+<!-- ══ HERO STRIP ══ -->
+<div class="hero-strip">
+  <div class="hero-inner">
+    <div>
+      <div class="hero-greeting">Bonjour, Test 👋</div>
+      <div class="hero-sub">Voici un aperçu de votre activité sur Loopi · Avril 2026</div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-stat">
+        <div class="hero-stat-val">8</div>
+        <div class="hero-stat-lbl">Favoris</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">32.8 kg</div>
+        <div class="hero-stat-lbl">Donnés</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">2</div>
+        <div class="hero-stat-lbl">Événements</div>
+      </div>
+      <div class="hero-stat">
+        <div class="hero-stat-val">2</div>
+        <div class="hero-stat-lbl">Coupons</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SECTION TABS (mobile-friendly) ══ -->
+<div class="section-tabs">
+  <button class="stab active" onclick="showSection('accueil',this)">🏠 Tableau de bord</button>
+  <button class="stab" onclick="showSection('galerie',this)">🎨 Galerie</button>
+  <button class="stab" onclick="window.location.href='{{ path('app_favoris') }}'">❤️ Favoris</button>
+  <button class="stab" onclick="showSection('recommandations',this)">✨ Recommandations</button>
+  <button class="stab" onclick="showSection('evenements',this)">📅 Événements</button>
+  <button class="stab" onclick="showSection('collections',this)">♻️ Collections</button>
+  <button class="stab" onclick="showSection('dons',this)">🤝 Dons</button>
+  <button class="stab" onclick="showSection('coupons',this)">🎟️ Coupons</button>
+  <button class="stab" onclick="showSection('profil',this)">👤 Profil</button>
+</div>
+
+<!-- ══════════════════════════════ -->
+<!-- ACCUEIL -->
+<!-- ══════════════════════════════ -->
+<section id="sec-accueil" class="page-section active">
+  <div class="section-heading">Vue d'ensemble</div>
+  <div class="section-sub">Vos statistiques, galerie récente et prochains événements</div>
+
+  <!-- Stats row -->
+  <div class="grid-4">
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(61,107,79,.1)">❤️</div>
+      <div class="stat-val">8</div>
+      <div class="stat-lbl">Œuvres en favoris</div>
+      <div class="stat-trend trend-up">↑ 2 cette semaine</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(201,169,110,.12)">🤝</div>
+      <div class="stat-val">32,8</div>
+      <div class="stat-lbl">kg donnés au total</div>
+      <div class="stat-trend trend-up">↑ 24.6 kg ce mois</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(176,90,47,.1)">📅</div>
+      <div class="stat-val">2</div>
+      <div class="stat-lbl">Événements rejoints</div>
+      <div class="stat-trend trend-neu">→ Prochain: 15 juin</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(30,58,47,.07)">🎟️</div>
+      <div class="stat-val">2</div>
+      <div class="stat-lbl">Coupons disponibles</div>
+      <div class="stat-trend trend-up">ECO10 · GREEN15</div>
+    </div>
+  </div>
+
+  <!-- Gallery + Profile quick -->
+  <div class="grid-3-2">
+    <div class="card">
+      <div class="card-title">Galerie récente <a href="#" onclick="showSection('galerie',null)">Tout voir →</a></div>
+      <div class="gallery-grid">
+        <div class="gal-item">
+          <div class="gal-img" style="background:linear-gradient(135deg,#d4e8d4,#a8c8a8)">🪑<button class="gal-heart" onclick="toggleHeart(this)">❤️</button></div>
+          <div class="gal-info"><div class="gal-name">Chaise Artisanale</div><div class="gal-cat">Mobilier · Métal</div></div>
+        </div>
+        <div class="gal-item">
+          <div class="gal-img" style="background:linear-gradient(135deg,#e0f0f4,#a0c8d8)">🫙<button class="gal-heart" onclick="toggleHeart(this)">🤍</button></div>
+          <div class="gal-info"><div class="gal-name">Glass Artwork</div><div class="gal-cat">Installations · Verre</div></div>
+        </div>
+        <div class="gal-item">
+          <div class="gal-img" style="background:linear-gradient(135deg,#f0e8d4,#d8c090)">🍄<button class="gal-heart" onclick="toggleHeart(this)">🤍</button></div>
+          <div class="gal-info"><div class="gal-name">Mushrooms Sculpture</div><div class="gal-cat">Décoratif · Cuivre</div></div>
+        </div>
+        <div class="gal-item">
+          <div class="gal-img" style="background:linear-gradient(135deg,#ece4d8,#c8b898)">🪵<button class="gal-heart" onclick="toggleHeart(this)">❤️</button></div>
+          <div class="gal-info"><div class="gal-name">3D Mosaic</div><div class="gal-cat">Art mural · Bois</div></div>
+        </div>
+        <div class="gal-item">
+          <div class="gal-img" style="background:linear-gradient(135deg,#e8e0f0,#c0b0e0)">🐟<button class="gal-heart" onclick="toggleHeart(this)">🤍</button></div>
+          <div class="gal-info"><div class="gal-name">Tin Fish</div><div class="gal-cat">Décoratif · Étain</div></div>
+        </div>
+        <div class="gal-item">
+          <div class="gal-img" style="background:linear-gradient(135deg,#f0f4e0,#c8d8a0)">🎓<button class="gal-heart" onclick="toggleHeart(this)">🤍</button></div>
+          <div class="gal-info"><div class="gal-name">Esprit Étudiant</div><div class="gal-cat">Décoratif · Mixte</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <!-- Profile quick -->
+      <div class="card" style="text-align:center;padding:28px 24px">
+        <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--sage),var(--moss));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:white;margin:0 auto 12px;border:3px solid var(--bg)">T</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--forest)">Test Participant</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:2px">participant@loopi.tn</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-top:18px;border-top:1px solid var(--border);padding-top:14px">
+          <div style="text-align:center;padding:0 6px;border-right:1px solid var(--border)"><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest)">8</div><div style="font-size:.65rem;color:var(--muted)">Favoris</div></div>
+          <div style="text-align:center;padding:0 6px;border-right:1px solid var(--border)"><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest)">3</div><div style="font-size:.65rem;color:var(--muted)">Dons</div></div>
+          <div style="text-align:center;padding:0 6px"><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest)">2</div><div style="font-size:.65rem;color:var(--muted)">Événements</div></div>
+        </div>
+      </div>
+      <!-- Coupons -->
+      <div class="card">
+        <div class="card-title">Mes coupons <a href="#" onclick="showSection('coupons',null)">Voir →</a></div>
+        <div class="coupon-card">
+          <div><div class="coupon-code">ECO10</div><div class="coupon-disc">Expire le 10 mars · min. 0 TND</div></div>
+          <div class="coupon-pct">10%</div>
+        </div>
+        <div class="coupon-card" style="background:linear-gradient(135deg,#8B6914,#c9a030)">
+          <div><div class="coupon-code">GREEN15</div><div class="coupon-disc">Expire le 9 avr · min. 0 TND</div></div>
+          <div class="coupon-pct">15%</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Events + Dons -->
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Prochains événements <a href="#" onclick="showSection('evenements',null)">Voir tout →</a></div>
+      <div class="event-item">
+        <div class="ev-date"><div class="ev-day">15</div><div class="ev-mon">Juin</div></div>
+        <div class="ev-info"><div class="ev-title">Nettoyage de Plage</div><div class="ev-loc">📍 Plage Sousse · Cap. 50</div></div>
+        <span class="ev-badge badge-inscrit">Inscrit ✓</span>
+      </div>
+      <div class="event-item">
+        <div class="ev-date"><div class="ev-day">20</div><div class="ev-mon">Juin</div></div>
+        <div class="ev-info"><div class="ev-title">Atelier Recyclage</div><div class="ev-loc">📍 Centre Tunis · Cap. 30</div></div>
+        <span class="ev-badge badge-inscrit">Inscrit ✓</span>
+      </div>
+      <div class="event-item">
+        <div class="ev-date" style="background:rgba(30,58,47,.12)"><div class="ev-day" style="color:var(--forest)">12</div><div class="ev-mon" style="color:var(--muted)">Juil</div></div>
+        <div class="ev-info"><div class="ev-title">Collecte Métal</div><div class="ev-loc">📍 Tunis · Cap. 40</div></div>
+        <span class="ev-badge badge-dispo">Disponible</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Historique des dons <a href="#" onclick="showSection('dons',null)">Voir tout →</a></div>
+      <div class="don-row">
+        <div class="don-av" style="background:linear-gradient(135deg,#5a8a7a,#3d6b5a)">P</div>
+        <div class="don-coll">Piece Mario<br><span style="font-weight:400;color:var(--muted)">Verre · Fév 2026</span></div>
+        <span class="don-amount">24.6 kg</span>
+        <span class="don-status status-conf">✓ Confirmé</span>
+      </div>
+      <div class="don-row">
+        <div class="don-av" style="background:linear-gradient(135deg,#8a7a5a,#6b5a3d)">M</div>
+        <div class="don-coll">Collection Verre<br><span style="font-weight:400;color:var(--muted)">Verre · Fév 2026</span></div>
+        <span class="don-amount">5.8 kg</span>
+        <span class="don-status status-conf">✓ Confirmé</span>
+      </div>
+      <div class="don-row">
+        <div class="don-av" style="background:linear-gradient(135deg,#7a6a5a,#5a4a3d)">V</div>
+        <div class="don-coll">Collection Verre<br><span style="font-weight:400;color:var(--muted)">Verre · Fév 2026</span></div>
+        <span class="don-amount">2.4 kg</span>
+        <span class="don-status status-conf">✓ Confirmé</span>
+      </div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:6px">Progression — Piece Mario</div>
+        <div class="prog-bar"><div class="prog-fill" style="width:20%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted)"><span>24.6 kg</span><span>Objectif: 123 kg</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ -->
+<!-- GALERIE -->
+<!-- ══════════════════════════════ -->
+<section id="sec-galerie" class="page-section">
+  <div class="section-heading">Galerie d'Art</div>
+  <div class="section-sub">Toutes les œuvres créées par nos artistes partenaires</div>
+
+  <!-- Filters -->
+  <div class="card" style="margin-bottom:24px;padding:16px 20px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input type="text" id="searchInput" oninput="applyFilters()" placeholder="🔍 Rechercher une œuvre…" style="padding:8px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;background:var(--bg);width:220px;margin-right:8px">
+        <button class="btn btn-primary btn-sm cat-btn" onclick="filterCat(this,'Tous')">Tous ({{ produits|length }})</button>
+        {% for category in categories %}
+        <button class="btn btn-outline btn-sm cat-btn" onclick="filterCat(this,'{{ category.nomCat }}')">{{ category.nomCat }} ({{ categoryCounts[category.nomCat] }})</button>
+        {% endfor %}
+      </div>
+      <div>
+        <select id="sortSelect" onchange="applyFilters()" style="padding:8px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;background:var(--bg);color:var(--forest);font-weight:600;cursor:pointer;">
+          <option value="newest">Plus récent</option>
+          <option value="az">De A à Z</option>
+          <option value="za">De Z à A</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-3" id="galleryGrid">
+    {% for produit in produits %}
+    <div class="card gallery-item" data-cat="{{ produit.category ? produit.category.nomCat : 'Sans catégorie' }}" data-name="{{ produit.nomProduit|lower|escape('html_attr') }}" data-id="{{ produit.id }}" style="padding:0;overflow:hidden;cursor:pointer" onclick="window.location.href='{{ path('app_detaile_produit', {'id': produit.id}) }}'">
+      <div style="height:200px;background:linear-gradient(135deg,#d4e8d4,#a8c8a8);display:flex;align-items:center;justify-content:center;font-size:5rem">
+        {% if produit.imageProduit %}
+          <img src="/uploads/{{ produit.imageProduit }}" alt="{{ produit.nomProduit }}" style="width:100%;height:100%;object-fit:cover;">
+        {% else %}
+          🎨
+        {% endif %}
+      </div>
+      <div style="padding:16px 18px">
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--forest)">{{ produit.nomProduit }}</div>
+        <div style="font-size:.75rem;color:var(--muted);margin:4px 0 12px">{{ produit.category ? produit.category.nomCat : 'Sans catégorie' }} · {{ produit.description ? produit.description|slice(0, 50) ~ '...' : 'Aucune description' }}</div>
+        <div style="display:flex;gap:8px">
+          {% set isFavori = favorisIds is defined and produit.id in favorisIds %}
+          <a href="{{ path('app_favoris_toggle', {'id': produit.id}) }}" class="btn btn-sm" onclick="event.stopPropagation();" style="text-decoration:none;display:flex;align-items:center;justify-content:center; {% if isFavori %}background:var(--rust);border-color:var(--rust);color:white;{% else %}background:var(--forest);color:white;{% endif %}">{% if isFavori %}❤️ Favoris{% else %}🤍 Favoris{% endif %}</a>
+          <a href="{{ path('app_detaile_produit', {'id': produit.id}) }}" class="btn btn-outline btn-sm" onclick="event.stopPropagation();" style="text-decoration:none;display:flex;align-items:center;justify-content:center;">Détails</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</section>
+
+<!-- Product Details Modal -->
+<div id="productModal" class="modal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center">
+  <div class="modal-content" style="background:white;border-radius:12px;max-width:500px;width:90%;max-height:80%;overflow-y:auto;padding:24px;position:relative">
+    <span class="close" onclick="closeProductModal()" style="position:absolute;top:10px;right:15px;font-size:28px;cursor:pointer">&times;</span>
+    <div id="modalImage" style="width:100%;height:200px;background:linear-gradient(135deg,#d4e8d4,#a8c8a8);display:flex;align-items:center;justify-content:center;font-size:5rem;border-radius:8px;margin-bottom:16px"></div>
+    <h2 id="modalName" style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--forest);margin-bottom:8px"></h2>
+    <p id="modalCategory" style="font-size:.9rem;color:var(--muted);margin-bottom:16px"></p>
+    <p id="modalDescription" style="font-size:1rem;color:#333;line-height:1.5"></p>
+  </div>
+</div>
+
+<!-- ══════════════════════════════ -->
+<!-- ÉVÉNEMENTS -->
+<!-- ══════════════════════════════ -->
+<section id="sec-evenements" class="page-section">
+  <div class="section-heading">Événements</div>
+  <div class="section-sub">Participez et collectez des matériaux recyclables pour soutenir les artistes</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Événements disponibles</div>
+      <div class="event-item" style="flex-direction:column;gap:10px;align-items:flex-start">
+        <div style="display:flex;gap:14px;width:100%;align-items:center">
+          <div class="ev-date"><div class="ev-day">15</div><div class="ev-mon">Juin</div></div>
+          <div class="ev-info" style="flex:1"><div class="ev-title">Nettoyage de Plage</div><div class="ev-loc">📍 Plage Sousse · 50 places · 9h00</div></div>
+          <span class="ev-badge badge-inscrit">Inscrit ✓</span>
+        </div>
+        <div style="width:100%;padding-left:60px">
+          <div class="prog-bar"><div class="prog-fill" style="width:60%"></div></div>
+          <div style="font-size:.7rem;color:var(--muted)">30/50 participants</div>
+        </div>
+      </div>
+      <div class="event-item" style="flex-direction:column;gap:10px;align-items:flex-start">
+        <div style="display:flex;gap:14px;width:100%;align-items:center">
+          <div class="ev-date"><div class="ev-day">20</div><div class="ev-mon">Juin</div></div>
+          <div class="ev-info" style="flex:1"><div class="ev-title">Atelier Recyclage</div><div class="ev-loc">📍 Centre Tunis · 30 places · 14h00</div></div>
+          <span class="ev-badge badge-inscrit">Inscrit ✓</span>
+        </div>
+        <div style="width:100%;padding-left:60px">
+          <div class="prog-bar"><div class="prog-fill" style="width:40%"></div></div>
+          <div style="font-size:.7rem;color:var(--muted)">12/30 participants</div>
+        </div>
+      </div>
+      <div class="event-item" style="align-items:center">
+        <div class="ev-date" style="background:rgba(30,58,47,.12)"><div class="ev-day" style="color:var(--forest)">12</div><div class="ev-mon" style="color:var(--muted)">Juil</div></div>
+        <div class="ev-info" style="flex:1"><div class="ev-title">Collecte de Métal</div><div class="ev-loc">📍 Tunis Ville · 40 places</div></div>
+        <button class="btn btn-primary btn-sm" onclick="showToast('Inscription confirmée! 🎉')">S'inscrire</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ma participation</div>
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-family:'Playfair Display',serif;font-size:3rem;font-weight:700;color:var(--forest)">2</div>
+        <div style="font-size:.84rem;color:var(--muted)">événements rejoints</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px">
+          <div style="background:var(--bg);border-radius:14px;padding:16px;text-align:center">
+            <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--forest)">32</div>
+            <div style="font-size:.72rem;color:var(--muted)">kg collectés</div>
+          </div>
+          <div style="background:var(--bg);border-radius:14px;padding:16px;text-align:center">
+            <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--moss)">2</div>
+            <div style="font-size:.72rem;color:var(--muted)">coupons gagnés</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ -->
+<!-- COLLECTIONS -->
+<!-- ══════════════════════════════ -->
+<section id="sec-collections" class="page-section">
+  <div class="section-heading">Collections de matériaux</div>
+  <div class="section-sub">Contribuez à des collections en cours et soutenez la création artistique recyclée</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Collections actives</div>
+      <div style="margin-bottom:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-weight:700;color:var(--forest);font-size:.9rem">Piece Mario — Verre</div>
+          <span style="font-size:.72rem;color:var(--muted)">20%</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" style="width:20%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:10px"><span>24.6 / 123 kg</span><span>Objectif: 123 kg</span></div>
+        <button class="btn btn-primary btn-sm" style="width:100%" onclick="showToast('Formulaire de don — Piece Mario')">+ Donner du verre</button>
+      </div>
+      <div style="border-top:1px solid var(--border);padding-top:20px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-weight:700;color:var(--forest);font-size:.9rem">PIECE — Métal</div>
+          <span style="font-size:.72rem;color:var(--muted)">0%</span>
+        </div>
+        <div class="prog-bar"><div class="prog-fill" style="width:1%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:10px"><span>0 / 1267 kg</span><span>Objectif: 1267 kg</span></div>
+        <button class="btn btn-outline btn-sm" style="width:100%" onclick="showToast('Formulaire de don — PIECE Métal')">+ Donner du métal</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">Comment ça marche ?</div>
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(61,107,79,.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">♻️</div>
+          <div><div style="font-size:.86rem;font-weight:700;color:var(--forest);margin-bottom:3px">Apportez vos matériaux</div><div style="font-size:.78rem;color:var(--muted);line-height:1.5">Déposez vos matériaux recyclables lors d'un événement ou directement dans un centre Loopi.</div></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(201,169,110,.12);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">✅</div>
+          <div><div style="font-size:.86rem;font-weight:700;color:var(--forest);margin-bottom:3px">Votre don est confirmé</div><div style="font-size:.78rem;color:var(--muted);line-height:1.5">Après pesage et validation, votre contribution est enregistrée automatiquement.</div></div>
+        </div>
+        <div style="display:flex;gap:14px;align-items:flex-start">
+          <div style="width:36px;height:36px;border-radius:10px;background:rgba(176,90,47,.1);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0">🎟️</div>
+          <div><div style="font-size:.86rem;font-weight:700;color:var(--forest);margin-bottom:3px">Recevez un coupon</div><div style="font-size:.78rem;color:var(--muted);line-height:1.5">Chaque donation confirmée génère un coupon de réduction utilisable dans la boutique Loopi.</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ -->
+<!-- DONS -->
+<!-- ══════════════════════════════ -->
+<section id="sec-dons" class="page-section">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px">
+    <div>
+      <div class="section-heading">Mes Dons</div>
+      <div class="section-sub" style="margin-bottom:0">Historique de vos contributions de matériaux</div>
+    </div>
+    <button class="btn btn-primary" onclick="showToast('Ouverture du formulaire de don')">+ Nouveau don</button>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Historique complet</div>
+      <div class="don-row">
+        <div class="don-av" style="background:linear-gradient(135deg,var(--moss),var(--forest))">P</div>
+        <div style="flex:1"><div class="don-coll">Piece Mario</div><div style="font-size:.7rem;color:var(--muted)">Verre · 16 Fév 2026 · 08:47</div></div>
+        <span class="don-amount">24.6 kg</span>
+        <span class="don-status status-conf">Confirmé</span>
+      </div>
+      <div class="don-row">
+        <div class="don-av" style="background:linear-gradient(135deg,var(--sand),#a08040)">V</div>
+        <div style="flex:1"><div class="don-coll">Collection Verre</div><div style="font-size:.7rem;color:var(--muted)">Verre · 11 Fév 2026 · 20:20</div></div>
+        <span class="don-amount">5.8 kg</span>
+        <span class="don-status status-conf">Confirmé</span>
+      </div>
+      <div class="don-row">
+        <div class="don-av" style="background:linear-gradient(135deg,#7a6a5a,#5a4a3d)">V</div>
+        <div style="flex:1"><div class="don-coll">Collection Verre</div><div style="font-size:.7rem;color:var(--muted)">Verre · 11 Fév 2026 · 18:07</div></div>
+        <span class="don-amount">2.4 kg</span>
+        <span class="don-status status-conf">Confirmé</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Collections actives</div>
+      <div style="margin-bottom:18px">
+        <div style="font-weight:600;color:var(--forest);font-size:.87rem;margin-bottom:6px">Piece Mario — Verre</div>
+        <div class="prog-bar"><div class="prog-fill" style="width:20%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)"><span>24.6 / 123 kg</span><span>20%</span></div>
+        <button class="btn btn-primary btn-sm" style="margin-top:10px;width:100%" onclick="showToast('Ajouter un don à Piece Mario')">+ Donner du verre</button>
+      </div>
+      <div>
+        <div style="font-weight:600;color:var(--forest);font-size:.87rem;margin-bottom:6px">PIECE — Métal</div>
+        <div class="prog-bar"><div class="prog-fill" style="width:1%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted)"><span>0 / 1267 kg</span><span>0%</span></div>
+        <button class="btn btn-outline btn-sm" style="margin-top:10px;width:100%" onclick="showToast('Ajouter un don à PIECE Métal')">+ Donner du métal</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ -->
+<!-- COUPONS -->
+<!-- ══════════════════════════════ -->
+<section id="sec-coupons" class="page-section">
+  <div class="section-heading">Mes Coupons</div>
+  <div class="section-sub">Réductions gagnées grâce à vos donations de matériaux recyclés</div>
+
+  <div class="grid-2">
+    <div>
+      <div class="card" style="margin-bottom:20px">
+        <div class="card-title">Coupons disponibles</div>
+        <div class="coupon-card">
+          <div>
+            <div class="coupon-code">ECO10</div>
+            <div class="coupon-disc" style="margin-top:4px">Don du 8 Fév · Expire le 10 Mars 2026</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.45);margin-top:6px">Minimum d'achat: 0 TND</div>
+          </div>
+          <div style="text-align:right">
+            <div class="coupon-pct">10%</div>
+            <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white;border:none;margin-top:8px;font-size:.72rem" onclick="showToast('Code ECO10 copié!')">📋 Copier</button>
+          </div>
+        </div>
+        <div class="coupon-card" style="background:linear-gradient(135deg,#8B6914,#c9a030)">
+          <div>
+            <div class="coupon-code">GREEN15</div>
+            <div class="coupon-disc" style="margin-top:4px">Don du 8 Fév · Expire le 9 Avr 2026</div>
+            <div style="font-size:.7rem;color:rgba(255,255,255,.45);margin-top:6px">Minimum d'achat: 0 TND</div>
+          </div>
+          <div style="text-align:right">
+            <div class="coupon-pct">15%</div>
+            <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white;border:none;margin-top:8px;font-size:.72rem" onclick="showToast('Code GREEN15 copié!')">📋 Copier</button>
+          </div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Comment gagner des coupons ?</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:.85rem;color:var(--muted);line-height:1.6;display:flex;align-items:flex-start;gap:10px"><span style="font-size:1.1rem">🎁</span><span>Chaque donation confirmée génère automatiquement un coupon de réduction.</span></div>
+          <div style="font-size:.85rem;color:var(--muted);line-height:1.6;display:flex;align-items:flex-start;gap:10px"><span style="font-size:1.1rem">♻️</span><span>Plus vous donnez de matériaux, plus le pourcentage augmente.</span></div>
+          <div style="font-size:.85rem;color:var(--muted);line-height:1.6;display:flex;align-items:flex-start;gap:10px"><span style="font-size:1.1rem">📅</span><span>Participez aux événements de collecte pour accumuler des réductions.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Historique d'utilisation</div>
+      <div class="empty-state">
+        <div class="e-icon">🎟️</div>
+        <p>Aucun coupon utilisé pour l'instant.<br>Utilisez <strong>ECO10</strong> ou <strong>GREEN15</strong> lors de votre prochain achat.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ -->
+<!-- RECOMMANDATIONS -->
+<!-- ══════════════════════════════ -->
+<section id="sec-recommandations" class="page-section">
+  <div style="margin-bottom:28px">
+    <div class="section-heading">Recommandations</div>
+    <div class="section-sub">Découvrez des œuvres et des artistes qui pourraient vous plaire</div>
+  </div>
+
+  <div style="margin-bottom:40px">
+    <div class="card-title" style="margin-bottom:20px">Pour vous <span style="font-size:0.8rem;color:var(--muted);font-weight:500;margin-left:8px">Basé sur vos favoris</span></div>
+    <div class="grid-4" id="recom-foryou">
+      <!-- Squelette de chargement -->
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card-title" style="margin-bottom:20px">Les mieux notées <span style="font-size:0.8rem;color:var(--muted);font-weight:500;margin-left:8px">Populaire dans la communauté</span></div>
+    <div class="grid-4" id="recom-toprated">
+      <!-- Squelette de chargement -->
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ -->
+<!-- PROFIL -->
+<!-- ══════════════════════════════ -->
+<section id="sec-profil" class="page-section">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px">
+    <div>
+      <div class="section-heading">Mon Profil</div>
+      <div class="section-sub" style="margin-bottom:0">Gérez vos informations personnelles et préférences</div>
+    </div>
+    <button class="btn btn-primary" onclick="showToast('Profil sauvegardé ✓')">Sauvegarder</button>
+  </div>
+
+  <!-- Profile hero -->
+  <div class="profile-hero">
+    <div class="profile-avatar-lg">T</div>
+    <div class="profile-info">
+      <div class="profile-name">Test Participant</div>
+      <div class="profile-email">participant@loopi.tn</div>
+      <div class="profile-badge">♻️ Participant actif</div>
+    </div>
+    <div class="profile-stats-strip">
+      <div class="pstrip-stat">
+        <div class="pstrip-val">8</div>
+        <div class="pstrip-lbl">Favoris</div>
+      </div>
+      <div class="pstrip-stat">
+        <div class="pstrip-val">3</div>
+        <div class="pstrip-lbl">Donations</div>
+      </div>
+      <div class="pstrip-stat">
+        <div class="pstrip-val">2</div>
+        <div class="pstrip-lbl">Événements</div>
+      </div>
+      <div class="pstrip-stat">
+        <div class="pstrip-val">2</div>
+        <div class="pstrip-lbl">Coupons</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Informations personnelles</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="field-group">
+            <label>Nom</label>
+            <input value="Participant">
+          </div>
+          <div class="field-group">
+            <label>Prénom</label>
+            <input value="Test">
+          </div>
+        </div>
+        <div class="field-group">
+          <label>Email</label>
+          <input value="participant@loopi.tn">
+        </div>
+        <div class="field-group">
+          <label>Nouveau mot de passe</label>
+          <input type="password" placeholder="••••••••">
+        </div>
+        <div class="field-group">
+          <label>Genre</label>
+          <select>
+            <option>Féminin</option>
+            <option>Masculin</option>
+            <option>Non précisé</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div class="card">
+        <div class="card-title">Photo de profil</div>
+        <div style="text-align:center;padding:12px 0">
+          <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--sage),var(--moss));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:white;margin:0 auto 16px;border:4px solid var(--bg)">T</div>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Sélection de photo')">Changer la photo</button>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Statistiques du compte</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="background:var(--bg);border-radius:12px;padding:14px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--forest)">8</div><div style="font-size:.72rem;color:var(--muted)">Favoris</div></div>
+          <div style="background:var(--bg);border-radius:12px;padding:14px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--moss)">3</div><div style="font-size:.72rem;color:var(--muted)">Donations</div></div>
+          <div style="background:var(--bg);border-radius:12px;padding:14px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--rust)">2</div><div style="font-size:.72rem;color:var(--muted)">Événements</div></div>
+          <div style="background:var(--bg);border-radius:12px;padding:14px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--sand)">2</div><div style="font-size:.72rem;color:var(--muted)">Coupons</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  © 2026 <span>Loopi</span> · Art recyclé, futur durable · Tunis, Tunisie
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Section switching ──
+function showSection(name, triggerEl) {
+  document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('sec-' + name).classList.add('active');
+
+  // sync both nav-links and stabs
+  document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
+  document.querySelectorAll('.stab').forEach(b => b.classList.remove('active'));
+
+  const navLink = document.querySelector(`.nav-links a[onclick*="${name}"]`);
+  const stab = document.querySelector(`.stab[onclick*="${name}"]`);
+  if (navLink) navLink.classList.add('active');
+  if (stab) stab.classList.add('active');
+
+  if (name === 'recommandations') {
+    loadRecommendations();
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Recommendations loading ──
+async function loadRecommendations() {
+  const containerForYou = document.getElementById('recom-foryou');
+  const containerTopRated = document.getElementById('recom-toprated');
+  if (!containerForYou || !containerTopRated) return;
+
+  try {
+    const res = await fetch('/api/participant/recommendations');
+    const data = await res.json();
+    if (!data.success) return;
+
+    // Render "Pour vous"
+    containerForYou.innerHTML = data.forYou.length > 0 
+      ? data.forYou.map(p => renderRecomCard(p)).join('')
+      : '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">Ajoutez des produits à vos favoris pour obtenir des recommandations personnalisées !</div>';
+
+    // Render "Les mieux notées"
+    containerTopRated.innerHTML = data.topRated.length > 0 
+      ? data.topRated.map(p => renderRecomCard(p, true)).join('')
+      : '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">Aucun produit noté pour le moment.</div>';
+
+  } catch (error) {
+    console.error('Error loading recommendations:', error);
+  }
+}
+
+function renderRecomCard(p, showRating = false) {
+  return `
+    <div class="card" style="padding: 0; overflow: hidden; display: flex; flex-direction: column; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);">
+      <div style="height: 150px; background: #f8f9fa; display: flex; align-items: center; justify-content: center; position: relative; overflow: hidden;">
+        ${p.imageProduit 
+          ? `<img src="/uploads/${p.imageProduit}" style="width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s;">`
+          : '<span style="font-size: 3rem; filter: grayscale(1); opacity: 0.3;">🖼️</span>'
+        }
+        <div style="position: absolute; top: 12px; right: 12px; padding: 4px 10px; background: rgba(255,255,255,0.95); border-radius: 50px; font-size: 0.65rem; font-weight: 700; color: var(--forest); box-shadow: 0 2px 8px rgba(0,0,0,0.1); backdrop-filter: blur(4px);">
+          ${p.category}
+        </div>
+      </div>
+      <div style="padding: 18px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between;">
+        <div>
+          <div style="font-family: 'Playfair Display', serif; font-size: 1rem; font-weight: 700; color: var(--forest); margin-bottom: 6px; line-height: 1.3;">${p.nomProduit}</div>
+          ${showRating 
+            ? `<div style="display: flex; align-items: center; gap: 4px; color: #ffc107; font-size: 0.85rem;">
+                <span style="letter-spacing: 1px;">${'★'.repeat(Math.round(p.avgRating))}${'☆'.repeat(5 - Math.round(p.avgRating))}</span>
+                <span style="color: var(--muted); font-size: 0.72rem; font-weight: 500;">(${p.avgRating.toFixed(1)})</span>
+               </div>`
+            : ''
+          }
+        </div>
+        <button class="btn btn-outline btn-sm" style="width: 100%; margin-top: 16px; font-size: 0.75rem; border-radius: 8px;" onclick="window.location.href='/produit/detaile/${p.id}'">Découvrir l'œuvre</button>
+      </div>
+    </div>
+  `;
+}
+
+// ── Product Modal ──
+function openProductModal(card) {
+  const name = card.dataset.name;
+  const description = card.dataset.description;
+  const category = card.dataset.category;
+  const image = card.dataset.image;
+
+  document.getElementById('modalName').textContent = name;
+  document.getElementById('modalDescription').textContent = description;
+  document.getElementById('modalCategory').textContent = category;
+
+  const imgDiv = document.getElementById('modalImage');
+  if (image) {
+    imgDiv.innerHTML = `<img src="/uploads/${image}" alt="${name}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;">`;
+  } else {
+    imgDiv.innerHTML = '🎨';
+  }
+
+  document.getElementById('productModal').style.display = 'flex';
+}
+
+function closeProductModal() {
+  document.getElementById('productModal').style.display = 'none';
+}
+
+// Close modal when clicking outside
+document.getElementById('productModal').addEventListener('click', function(event) {
+  if (event.target === this) {
+    closeProductModal();
+  }
+});
+
+// ── Toast ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+// ── Heart toggle ──
+function toggleHeart(btn) {
+  btn.textContent = btn.textContent === '🤍' ? '❤️' : '🤍';
+}
+
+// ── Gallery filter, search & sort ──
+let currentCat = 'Tous';
+
+function filterCat(btn, cat) {
+  document.querySelectorAll('.cat-btn').forEach(b => {
+    b.className = 'btn btn-outline btn-sm cat-btn';
+  });
+  btn.className = 'btn btn-primary btn-sm cat-btn';
+  currentCat = cat;
+  applyFilters();
+}
+
+function applyFilters() {
+  const searchInput = document.getElementById('searchInput');
+  const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
+  const sortSelect = document.getElementById('sortSelect');
+  const sortOption = sortSelect ? sortSelect.value : 'newest';
+  
+  const grid = document.getElementById('galleryGrid');
+  if (!grid) return;
+  
+  const cards = Array.from(grid.querySelectorAll('.gallery-item'));
+
+  cards.forEach(card => {
+    const name = card.dataset.name || '';
+    const cat = card.dataset.cat || '';
+    
+    const matchesSearch = name.includes(searchQuery);
+    const matchesCat = (currentCat === 'Tous' || cat === currentCat);
+    
+    if (matchesSearch && matchesCat) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  // Sorting
+  const visibleCards = cards.filter(card => card.style.display !== 'none');
+  
+  visibleCards.sort((a, b) => {
+    if (sortOption === 'az') {
+      return (a.dataset.name || '').localeCompare(b.dataset.name || '');
+    } else if (sortOption === 'za') {
+      return (b.dataset.name || '').localeCompare(a.dataset.name || '');
+    } else {
+      // newest (by id desc)
+      return parseInt(b.dataset.id || 0) - parseInt(a.dataset.id || 0);
+    }
+  });
+
+  // Re-append to DOM to apply sort visually
+  visibleCards.forEach(card => grid.appendChild(card));
+}
+
+// Init filtering on load just in case
+document.addEventListener('DOMContentLoaded', () => {
+  applyFilters();
+});
+</script>
+
+</body>
+</html>

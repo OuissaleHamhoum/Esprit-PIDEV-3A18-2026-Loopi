@@ -1,0 +1,21 @@
+<!-- ─── PAGE: COLLECTIONS ─── -->
+  <div id="page-collections" style="display:none">
+    <div class="blk" style="margin-bottom:16px">
+      <div class="blk-title">Gestion des collections <span class="sub" id="collectionsSummary">0 collections actives</span></div>
+      <div class="search-bar">
+        <input id="collectionSearch" class="search-input" placeholder="🔍 Rechercher une collection…">
+        <select id="collectionOrganisateurFilter" class="filter">
+          <option value="">Tous les organisateurs</option>
+          <!-- Options will be populated by JavaScript -->
+        </select>
+        <button class="btn btn-ghost btn-sm" onclick="refreshCollections()">🔄 Actualiser</button>
+        <button class="btn btn-primary btn-sm" style="margin-left:auto" onclick="showToast('Créer une collection')">+ Créer collection</button>
+      </div>
+    </div>
+    <div class="cards-grid" id="collectionsCards" style="grid-template-columns:repeat(3,1fr)">
+      <!-- Cards will be populated by JavaScript -->
+    </div>
+    <div class="g2" id="collectionsDetails">
+      <!-- Collection details will be populated by JavaScript -->
+    </div>
+  </div>
