@@ -1,0 +1,440 @@
+<!-- ─── PAGE: EVENTS MAP ─── -->
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+
+<style>
+  .events-map-container { position: relative; height: calc(100vh - 120px); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  .events-map { height: 100%; width: 100%; }
+
+  /* Map Controls */
+  .map-controls { position: absolute; top: 20px; left: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
+  .map-control-panel { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid var(--border); min-width: 280px; }
+  .map-control-title { font-size: 0.9rem; font-weight: 700; color: var(--forest); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .map-control-title .icon { font-size: 1rem; }
+
+  /* Filters */
+  .map-filters { display: flex; flex-direction: column; gap: 12px; }
+  .filter-group { display: flex; flex-direction: column; gap: 6px; }
+  .filter-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
+  .filter-input, .filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.8rem; background: white; }
+  .filter-input:focus, .filter-select:focus { outline: none; border-color: var(--accent); }
+
+  /* Search */
+  .map-search { position: relative; }
+  .search-input { padding-left: 36px; }
+  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.9rem; }
+
+  /* Legend */
+  .map-legend { position: absolute; bottom: 20px; right: 20px; z-index: 1000; background: white; border-radius: 12px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid var(--border); }
+  .legend-title { font-size: 0.85rem; font-weight: 700; color: var(--forest); margin-bottom: 10px; }
+  .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 0.75rem; }
+  .legend-item:last-child { margin-bottom: 0; }
+  .legend-color { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+
+  /* Event Markers */
+  .event-marker { border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+  .event-marker.valide { background: var(--success); }
+  .event-marker.en_attente { background: var(--warn); }
+  .event-marker.rejete { background: var(--danger); }
+
+  /* Popup */
+  .event-popup { min-width: 280px; }
+  .popup-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
+  .popup-image { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
+  .popup-content h3 { margin: 0 0 4px 0; font-size: 1rem; font-weight: 700; color: var(--forest); }
+  .popup-meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
+  .popup-description { font-size: 0.8rem; color: var(--text); margin-bottom: 12px; line-height: 1.4; }
+  .popup-actions { display: flex; gap: 8px; }
+  .popup-btn { padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
+  .popup-btn-primary { background: var(--forest); color: white; }
+  .popup-btn-primary:hover { background: var(--moss); }
+  .popup-btn-secondary { background: rgba(255,255,255,0.9); color: var(--muted); border: 1px solid var(--border); }
+  .popup-btn-secondary:hover { background: white; }
+
+  /* Loading */
+  .map-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; z-index: 1001; }
+  .loading-spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top: 2px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+
+  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+  /* Responsive */
+  @media (max-width: 768px) {
+    .map-controls { top: 10px; left: 10px; }
+    .map-control-panel { min-width: 250px; }
+    .map-legend { bottom: 10px; right: 10px; }
+    .events-map-container { height: calc(100vh - 100px); }
+  }
+</style>
+
+<div id="page-events-map" style="display:none">
+  <div class="blk" style="margin-bottom:16px">
+    <div class="blk-title">
+      <span>🗺️ Carte des Événements</span>
+      <span class="sub">Visualisation géographique de tous les événements</span>
+    </div>
+  </div>
+
+  <!-- Map Controls -->
+  <div class="map-controls">
+    <div class="map-control-panel">
+      <div class="map-control-title">
+        <span class="icon">🔍</span>
+        Filtres & Recherche
+      </div>
+      <div class="map-filters">
+        <div class="filter-group">
+          <label class="filter-label">Rechercher un événement</label>
+          <div class="map-search">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="filter-input search-input" id="mapSearch" placeholder="Nom, lieu, organisateur..." onkeyup="filterEvents()">
+          </div>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Statut</label>
+          <select class="filter-select" id="statusFilter" onchange="filterEvents()">
+            <option value="">Tous les statuts</option>
+            <option value="valide">Validé</option>
+            <option value="en_attente">En attente</option>
+            <option value="rejete">Rejeté</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Date</label>
+          <select class="filter-select" id="dateFilter" onchange="filterEvents()">
+            <option value="">Toutes les dates</option>
+            <option value="today">Aujourd'hui</option>
+            <option value="week">Cette semaine</option>
+            <option value="month">Ce mois</option>
+            <option value="upcoming">À venir</option>
+          </select>
+        </div>
+
+        <div class="filter-group">
+          <label class="filter-label">Capacité</label>
+          <select class="filter-select" id="capacityFilter" onchange="filterEvents()">
+            <option value="">Toutes capacités</option>
+            <option value="small">Petit (≤50)</option>
+            <option value="medium">Moyen (51-200)</option>
+            <option value="large">Grand (>200)</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Map Container -->
+  <div class="events-map-container">
+    <div id="eventsMap" class="events-map"></div>
+
+    <!-- Loading Overlay -->
+    <div id="mapLoading" class="map-loading" style="display: none;">
+      <div class="loading-spinner"></div>
+      <span>Chargement de la carte...</span>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="map-legend">
+    <div class="legend-title">Légende</div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: var(--success);"></div>
+      <span>Événement validé</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: var(--warn);"></div>
+      <span>En attente</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-color" style="background: var(--danger);"></div>
+      <span>Rejeté</span>
+    </div>
+  </div>
+</div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+<script>
+let eventsMap = null;
+let eventMarkers = [];
+let allEvents = [];
+
+// Initialize map
+function initEventsMap() {
+  if (eventsMap) {
+    eventsMap.remove();
+  }
+
+  // Default to Tunisia center
+  const defaultLat = 36.8065;
+  const defaultLng = 10.1815;
+
+  eventsMap = L.map('eventsMap').setView([defaultLat, defaultLng], 7);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(eventsMap);
+
+  loadEventsForMap();
+}
+
+// Load events data
+async function loadEventsForMap() {
+  const loading = document.getElementById('mapLoading');
+  loading.style.display = 'flex';
+
+  try {
+    const response = await fetch('/api/admin/events', {
+      credentials: 'include',
+      headers: { 'Accept': 'application/json' }
+    });
+
+    const data = await response.json();
+    if (data.success && data.events) {
+      allEvents = data.events;
+      displayEventsOnMap(allEvents);
+    } else {
+      showAlert('Erreur lors du chargement des événements', 'error');
+    }
+  } catch (error) {
+    console.error('Erreur:', error);
+    showAlert('Erreur de connexion', 'error');
+  } finally {
+    loading.style.display = 'none';
+  }
+}
+
+// Display events on map
+function displayEventsOnMap(events) {
+  // Clear existing markers
+  eventMarkers.forEach(marker => eventsMap.removeLayer(marker));
+  eventMarkers = [];
+
+  // Group events by location to avoid overlapping markers
+  const locationGroups = {};
+
+  events.forEach(event => {
+    if (event.latitude && event.longitude) {
+      const key = `${event.latitude},${event.longitude}`;
+      if (!locationGroups[key]) {
+        locationGroups[key] = [];
+      }
+      locationGroups[key].push(event);
+    }
+  });
+
+  // Create markers for each location
+  Object.keys(locationGroups).forEach(key => {
+    const [lat, lng] = key.split(',').map(Number);
+    const eventsAtLocation = locationGroups[key];
+
+    // Use first event for marker position
+    const representativeEvent = eventsAtLocation[0];
+
+    // Create marker
+    const marker = L.marker([lat, lng], {
+      icon: createEventIcon(representativeEvent.statut)
+    });
+
+    // Create popup content
+    const popupContent = createEventPopup(eventsAtLocation);
+    marker.bindPopup(popupContent, {
+      maxWidth: 320,
+      className: 'event-popup'
+    });
+
+    // Add hover effects
+    marker.on('mouseover', function() {
+      this.openPopup();
+    });
+
+    marker.on('mouseout', function() {
+      this.closePopup();
+    });
+
+    marker.addTo(eventsMap);
+    eventMarkers.push(marker);
+  });
+
+  // Fit map to show all markers
+  if (eventMarkers.length > 0) {
+    const group = new L.featureGroup(eventMarkers);
+    eventsMap.fitBounds(group.getBounds().pad(0.1));
+  }
+}
+
+// Create custom marker icon
+function createEventIcon(status) {
+  let color;
+  switch (status) {
+    case 'valide':
+    case 'approuve':
+      color = '#10B981'; // success
+      break;
+    case 'rejete':
+      color = '#DC3545'; // danger
+      break;
+    default:
+      color = '#F59E0B'; // warning
+  }
+
+  return L.divIcon({
+    className: 'event-marker',
+    html: `<div class="event-marker ${status === 'valide' || status === 'approuve' ? 'valide' : status === 'rejete' ? 'rejete' : 'en_attente'}" style="background: ${color}; width: 20px; height: 20px;"></div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10]
+  });
+}
+
+// Create popup content for events
+function createEventPopup(events) {
+  if (events.length === 1) {
+    const event = events[0];
+    return `
+      <div class="popup-header">
+        ${event.image_evenement ? `<img src="/uploads/events/${event.image_evenement}" alt="${event.titre}" class="popup-image">` : '<div class="popup-image" style="background: var(--muted); display: flex; align-items: center; justify-content: center; color: white;">📅</div>'}
+        <div style="flex: 1;">
+          <h3>${escapeHtml(event.titre)}</h3>
+          <div class="popup-meta">
+            📍 ${escapeHtml(event.lieu || 'Lieu non spécifié')}<br>
+            👤 ${escapeHtml(event.organisateur || 'Organisateur inconnu')}<br>
+            📅 ${formatDate(event.date_evenement)}<br>
+            👥 ${event.participants_count || 0}/${event.capacite_max} participants
+          </div>
+        </div>
+      </div>
+      <div class="popup-description">
+        ${escapeHtml(event.description).substring(0, 150)}${event.description.length > 150 ? '...' : ''}
+      </div>
+      <div class="popup-actions">
+        <button class="popup-btn popup-btn-primary" onclick="viewEventDetails(${event.id_evenement})">Voir détails</button>
+        <button class="popup-btn popup-btn-secondary" onclick="editEvent(${event.id_evenement})">Modifier</button>
+      </div>
+    `;
+  } else {
+    // Multiple events at same location
+    const eventList = events.map(event => `
+      <div style="border-bottom: 1px solid var(--border); padding: 8px 0;">
+        <strong>${escapeHtml(event.titre)}</strong><br>
+        <small>📅 ${formatDate(event.date_evenement)} • 👥 ${event.participants_count || 0}/${event.capacite_max}</small>
+      </div>
+    `).join('');
+
+    return `
+      <div style="max-height: 300px; overflow-y: auto;">
+        <h3 style="margin: 0 0 12px 0; color: var(--forest);">📍 ${events.length} événements à cet endroit</h3>
+        ${eventList}
+        <div style="margin-top: 12px; text-align: center;">
+          <button class="popup-btn popup-btn-primary" onclick="zoomToLocation(${events[0].latitude}, ${events[0].longitude})">Zoomer</button>
+        </div>
+      </div>
+    `;
+  }
+}
+
+// Filter events based on search and filters
+function filterEvents() {
+  const searchTerm = document.getElementById('mapSearch').value.toLowerCase();
+  const statusFilter = document.getElementById('statusFilter').value;
+  const dateFilter = document.getElementById('dateFilter').value;
+  const capacityFilter = document.getElementById('capacityFilter').value;
+
+  let filteredEvents = allEvents.filter(event => {
+    // Search filter
+    if (searchTerm) {
+      const searchableText = `${event.titre} ${event.lieu} ${event.organisateur} ${event.description}`.toLowerCase();
+      if (!searchableText.includes(searchTerm)) {
+        return false;
+      }
+    }
+
+    // Status filter
+    if (statusFilter && event.statut !== statusFilter) {
+      return false;
+    }
+
+    // Date filter
+    if (dateFilter) {
+      const eventDate = new Date(event.date_evenement);
+      const now = new Date();
+
+      switch (dateFilter) {
+        case 'today':
+          if (eventDate.toDateString() !== now.toDateString()) return false;
+          break;
+        case 'week':
+          const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+          if (eventDate < now || eventDate > weekFromNow) return false;
+          break;
+        case 'month':
+          const monthFromNow = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
+          if (eventDate < now || eventDate > monthFromNow) return false;
+          break;
+        case 'upcoming':
+          if (eventDate < now) return false;
+          break;
+      }
+    }
+
+    // Capacity filter
+    if (capacityFilter) {
+      const capacity = event.capacite_max;
+      switch (capacityFilter) {
+        case 'small':
+          if (capacity > 50) return false;
+          break;
+        case 'medium':
+          if (capacity <= 50 || capacity > 200) return false;
+          break;
+        case 'large':
+          if (capacity <= 200) return false;
+          break;
+      }
+    }
+
+    return true;
+  });
+
+  displayEventsOnMap(filteredEvents);
+}
+
+// Zoom to specific location
+function zoomToLocation(lat, lng) {
+  if (eventsMap) {
+    eventsMap.setView([lat, lng], 15);
+  }
+}
+
+// Utility functions
+function formatDate(dateString) {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text || '';
+  return div.innerHTML;
+}
+
+// Initialize when page becomes active
+function initEventsMapPage() {
+  setTimeout(() => {
+    initEventsMap();
+  }, 100);
+}
+
+// Clean up when leaving page
+function cleanupEventsMapPage() {
+  if (eventsMap) {
+    eventsMap.remove();
+    eventsMap = null;
+  }
+  eventMarkers = [];
+}
+</script>

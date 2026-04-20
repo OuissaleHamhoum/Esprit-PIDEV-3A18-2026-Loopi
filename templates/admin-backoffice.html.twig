@@ -272,6 +272,7 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
     {% include 'admin/dashboard.html.twig' %}
     {% include 'admin/users.html.twig' %}
     {% include 'admin/events.html.twig' %}
+    {% include 'admin/events-map.html.twig' %}
     {% include 'admin/products.html.twig' %}
     {% include 'admin/collections.html.twig' %}
     {% include 'admin/donations.html.twig' %}
@@ -518,7 +519,7 @@ button:focus-visible {
 <script>
 const breadcrumbs = {
   dashboard:'Vue d\'ensemble', analytics:'Analytique', users:'Utilisateurs', events:'Événements',
-  products:'Produits', collections:'Collections', donations:'Donations', coupons:'Coupons',
+  'events-map':'Carte Événements', products:'Produits', collections:'Collections', donations:'Donations', coupons:'Coupons',
   feedbacks:'Avis & Feedbacks', settings:'Paramètres', notifs:'Notifications'
 };
 let adminUsers = [];
@@ -567,6 +568,10 @@ function goPage(name, navEl) {
   if (navEl) navEl.classList.add('active');
   document.getElementById('breadcrumb-text').textContent = breadcrumbs[name] || name;
 
+  if (typeof cleanupEventsMapPage === 'function' && name !== 'events-map') {
+    cleanupEventsMapPage();
+  }
+
   // Load data based on page
   switch (name) {
     case 'users':
@@ -586,6 +591,11 @@ function goPage(name, navEl) {
           setTimeout(() => window.location.href = '/login', 3000);
         }
       });
+      break;
+    case 'events-map':
+      if (typeof initEventsMapPage === 'function') {
+        initEventsMapPage();
+      }
       break;
     case 'products':
       refreshProductTable();

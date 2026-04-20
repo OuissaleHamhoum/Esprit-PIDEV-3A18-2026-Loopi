@@ -557,6 +557,8 @@ class ApiController extends AbstractController
                 'capacite_max' => $event->getCapaciteMax(),
                 'image_evenement' => $event->getImageEvenement(),
                 'statut' => $event->getStatut() ?: 'en_attente',
+                'latitude' => $event->getLatitude(),
+                'longitude' => $event->getLongitude(),
                 'participants_count' => $participantsCount,
                 'created_at' => $event->getCreatedAt() ? $event->getCreatedAt()->format('Y-m-d H:i:s') : null,
                 'updated_at' => $event->getUpdatedAt() ? $event->getUpdatedAt()->format('Y-m-d H:i:s') : null,
@@ -654,6 +656,12 @@ class ApiController extends AbstractController
         $event->setLieu($lieu);
         $event->setIdOrganisateur($idOrganisateur);
         $event->setCapaciteMax($capaciteMax);
+        $latitude = isset($data['latitude']) ? trim((string)$data['latitude']) : null;
+        $longitude = isset($data['longitude']) ? trim((string)$data['longitude']) : null;
+        if ($latitude !== null && $longitude !== null && is_numeric($latitude) && is_numeric($longitude)) {
+            $event->setLatitude($latitude);
+            $event->setLongitude($longitude);
+        }
 
         $uploadedImage = $request->files->get('image_evenement');
         if ($uploadedImage instanceof UploadedFile && $uploadedImage->isValid()) {
@@ -1336,6 +1344,12 @@ SVG;
         $event->setLieu($lieu);
         $event->setIdOrganisateur($idOrganisateur);
         $event->setCapaciteMax($capaciteMax);
+        $latitude = isset($data['latitude']) ? trim((string)$data['latitude']) : null;
+        $longitude = isset($data['longitude']) ? trim((string)$data['longitude']) : null;
+        if ($latitude !== null && $longitude !== null && is_numeric($latitude) && is_numeric($longitude)) {
+            $event->setLatitude($latitude);
+            $event->setLongitude($longitude);
+        }
         $event->setUpdatedAt(new \DateTime());
 
         $entityManager = $doctrine->getManager();
