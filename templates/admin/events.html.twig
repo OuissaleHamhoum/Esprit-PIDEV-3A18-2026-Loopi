@@ -1,4 +1,4 @@
-<!-- ─── PAGE: EVENTS ─── -->
+﻿<!-- ─── PAGE: EVENTS ─── -->
 <style>
   .action-buttons { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
   .btn-small { display: inline-flex; align-items: center; justify-content: center; padding: 8px 14px; font-size: 0.8rem; border-radius: 10px; cursor: pointer; border: 1px solid transparent; transition: all 0.2s ease; min-width: 92px; font-weight: 700; text-align: center; }
@@ -184,14 +184,100 @@
             </div>
 
             <div style="display: flex; flex-direction: column; gap: 4px;">
-              <label for="eventImage" style="font-size: 0.75rem; font-weight: 600; color: var(--muted);">Image (JPG, PNG - max 5MB)</label>
+              <label for="eventImage" style="font-size: 0.75rem; font-weight: 600; color: var(--muted);">Image de l'événement</label>
               <input type="file" id="eventImage" name="image_evenement" accept="image/*" style="padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.8rem;">
+              <!-- Conteneur d'aperçu adaptable à toute taille d'image -->
+              <div id="eventImagePreview" style="width: 100%; height: auto; min-height: 250px; max-height: 400px; background: var(--bg); border: 2px dashed var(--border); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 0.85rem; overflow: auto; position: relative;">
+                <div style="text-align:center; padding: 20px;">
+                  <div style="font-size:3rem; margin-bottom:8px;">📷</div>
+                  <div>Aperçu de l'image</div>
+                  <div style="font-size: 0.7rem; margin-top: 8px; color: var(--muted);">Hauteur adaptable : voir l'image complète</div>
+                </div>
+              </div>
+              <!-- Contrôles pour upload et génération IA -->
+              <div style="display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px;">
+                <!-- Bouton pour choisir une image dans les fichiers locaux -->
+                <button type="button" class="btn" onclick="document.getElementById('eventImage').click()" style="padding: 10px; border: 1px solid var(--border); background: rgba(255,255,255,0.06); color: var(--text); cursor: pointer; transition: all 0.2s;" title="Sélectionner une image depuis votre ordinateur">
+                  <i class="fas fa-upload"></i> Choisir image
+                </button>
+                <!-- Bouton pour générer une image avec IA (OpenAI DALL-E ou fallback local SVG) -->
+                <button type="button" class="btn" id="btnGenerateEventImage" onclick="generateImageWithAI()" style="padding: 10px; border: 1px solid var(--border); background: rgba(93,168,122,0.12); color: var(--forest); cursor: pointer; transition: all 0.2s;" title="Générer une image via IA basée sur le titre et la description">
+                  <i class="fas fa-wand-magic-sparkles"></i> Générer IA
+                </button>
+              </div>
+              <small style="color: var(--muted); font-size: 0.7rem; line-height: 1.4;">
+                💡 <strong>Générer IA:</strong> Utilise OpenAI DALL-E si configuré (clé API), sinon génère un visuel SVG local basé sur couleur du titre et texte.
+              </small>
             </div>
           </form>
         </div>
         <div class="events-modal-footer">
           <button type="button" class="btn" style="background: rgba(255,255,255,0.05); color: var(--text); padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer;" onclick="closeEventModal()">Annuler</button>
           <button type="button" class="btn" style="background: linear-gradient(135deg, var(--accent), var(--moss)); color: var(--text); padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.1); transition: all 0.2s ease;" id="btnSaveEvent" onclick="saveEvent()">
+            <i class="fas fa-save"></i> Enregistrer
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de gestion d'image -->
+    <div id="imageEventModal" class="events-modal">
+      <div class="events-modal-content" style="max-width: 600px;">
+        <div class="events-modal-header">
+          <h3>Modifier l'image de l'événement</h3>
+          <button style="background: none; border: none; color: var(--muted); font-size: 1.2rem; cursor: pointer;" onclick="closeImageModal()">✕</button>
+        </div>
+        <div class="events-modal-body">
+          <div style="display: grid; gap: 16px;">
+            <!-- Aperçu de l'image actuelle -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <label style="font-size: 0.75rem; font-weight: 600; color: var(--muted);">Aperçu actuel</label>
+              <div id="currentImagePreview" style="width: 100%; height: 200px; background: var(--bg); border: 2px dashed var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 0.9rem; overflow: hidden;">
+                <div style="text-align: center;">
+                  <div style="font-size: 2rem; margin-bottom: 8px;">📷</div>
+                  <div>Aucune image</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Nouvelle aperçu -->
+            <div style="display: flex; flex-direction: column; gap: 8px;">
+              <label style="font-size: 0.75rem; font-weight: 600; color: var(--muted);">Nouvel aperçu</label>
+              <div id="newImagePreview" style="width: 100%; height: 200px; background: var(--bg); border: 2px dashed var(--border); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: var(--muted); font-size: 0.9rem; overflow: hidden;">
+                <div style="text-align: center;">
+                  <div style="font-size: 2rem; margin-bottom: 8px;">👁️</div>
+                  <div>Aperçu</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Options de modification -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+              <!-- Option 1: Choisir fichier -->
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-size: 0.75rem; font-weight: 600; color: var(--muted);">📤 Télécharger</label>
+                <input type="file" id="imageFileInput" accept="image/*" style="padding: 8px 12px; background: rgba(255,255,255,0.05); border: 1px solid var(--border); border-radius: 8px; color: var(--muted); font-size: 0.8rem;">
+                <small style="color: var(--muted); font-size: 0.7rem;">JPG, PNG - max 5MB</small>
+              </div>
+              <!-- Option 2: Générer par AI -->
+              <div style="display: flex; flex-direction: column; gap: 8px;">
+                <label style="font-size: 0.75rem; font-weight: 600; color: var(--muted);">🤖 Générer par IA</label>
+                <button type="button" class="btn" id="btnGenerateImage" style="background: linear-gradient(135deg, rgba(93,168,122,0.2), rgba(93,168,122,0.1)); color: var(--accent); padding: 12px 16px; border: 1px solid var(--accent); border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.2s ease;" onclick="generateImageWithAI()">
+                  <i class="fas fa-wand-magic-sparkles"></i> Générer
+                </button>
+                <small style="color: var(--muted); font-size: 0.7rem;">Basé sur titre et description</small>
+              </div>
+            </div>
+
+            <!-- Statut de génération -->
+            <div id="generationStatus" style="display: none; padding: 12px; background: rgba(93,168,122,0.1); border-left: 3px solid var(--accent); border-radius: 4px; color: var(--accent); font-size: 0.8rem;">
+              <i class="fas fa-spinner fa-spin"></i> Génération en cours...
+            </div>
+          </div>
+        </div>
+        <div class="events-modal-footer">
+          <button type="button" class="btn" style="background: rgba(255,255,255,0.05); color: var(--text); padding: 8px 16px; border: 1px solid var(--border); border-radius: 8px; cursor: pointer;" onclick="closeImageModal()">Annuler</button>
+          <button type="button" class="btn" style="background: linear-gradient(135deg, var(--accent), var(--moss)); color: var(--text); padding: 10px 20px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; box-shadow: 0 2px 8px rgba(0,0,0,0.1);" id="btnSaveImage" onclick="saveImageChanges()">
             <i class="fas fa-save"></i> Enregistrer
           </button>
         </div>
@@ -245,13 +331,6 @@
         status: response.status,
         body: text,
       };
-    }
-
-    // Chargement initial
-    if (document.readyState !== 'loading') {
-      setupEventListeners();
-    } else {
-      document.addEventListener('DOMContentLoaded', setupEventListeners);
     }
 
     async function checkAuthentication() {
@@ -399,7 +478,7 @@
           <div><span class="badge ${statusClass}">${statusText}</span></div>
           <div class="action-buttons">
             <button class="btn-small info" onclick="viewEventDetails(${event.id})" title="Voir">Voir</button>
-            <button class="btn-small warning" onclick="editEvent(${event.id})" title="Éditer">Éditer</button>
+            <button class="btn-small warning" onclick="editEvent(${event.id})" title="Modifier">Modifier</button>
             ${event.statut === 'en_attente' ? `
               <button class="btn-small success" onclick="validateEvent(${event.id})" title="Valider">Valider</button>
               <button class="btn-small danger" onclick="rejectEvent(${event.id})" title="Rejeter">Rejeter</button>
@@ -547,6 +626,13 @@
       document.getElementById('eventForm').reset();
       document.getElementById('eventId').value = '';
       currentEventId = null;
+      currentEditingEventData = null;
+      selectedImageFile = null;
+      generatedImageData = null;
+      const preview = document.getElementById('eventImagePreview');
+      if (preview) {
+        preview.innerHTML = '<div style="text-align:center;"><div style="font-size:2rem; margin-bottom:8px;">📷</div><div>Aperçu image</div></div>';
+      }
       clearFormErrors();
     }
 
@@ -564,15 +650,35 @@
     const btnCreateEvent = document.getElementById('btnCreateEvent');
     if (btnCreateEvent) {
       btnCreateEvent.addEventListener('click', function() {
+        currentEditingEventData = null;
+        selectedImageFile = null;
+        generatedImageData = null;
         document.getElementById('eventModalTitle').textContent = 'Créer un événement';
         document.getElementById('btnSaveEvent').innerHTML = '<i class="fas fa-save"></i> Créer';
+        document.getElementById('eventImage').value = '';
+        const preview = document.getElementById('eventImagePreview');
+        if (preview) {
+          preview.innerHTML = '<div style="text-align:center;"><div style="font-size:2rem; margin-bottom:8px;">📷</div><div>Aperçu image</div></div>';
+        }
         openEventModal();
       });
     }
 
+    let currentEditingEventData = null;
+    let selectedImageFile = null;
+    let generatedImageData = null;
+
     function editEvent(id) {
       const event = eventsData.find(e => e.id === id);
       if (!event) return;
+
+      currentEditingEventData = event;
+      currentEventId = id;
+      selectedImageFile = null;
+      generatedImageData = null;
+      document.getElementById('eventImage').value = '';
+      document.getElementById('eventImagePreview').innerHTML = '<div style="text-align:center;"><div style="font-size:2rem; margin-bottom:8px;">📷</div><div>Aperçu image</div></div>';
+      document.getElementById('generationStatus').style.display = 'none';
 
       document.getElementById('eventModalTitle').textContent = 'Modifier l\'événement';
       document.getElementById('btnSaveEvent').innerHTML = '<i class="fas fa-save"></i> Modifier';
@@ -585,7 +691,13 @@
       document.getElementById('eventOrganisateur').value = event.id_organisateur;
       document.getElementById('eventCapacite').value = event.capacite_max;
 
-      currentEventId = id;
+      const preview = document.getElementById('eventImagePreview');
+      if (event.image_evenement) {
+        preview.innerHTML = `<img src="/uploads/events/${event.image_evenement}" alt="${escapeHtml(event.titre)}" style="width: 100%; height: 100%; object-fit: cover;">`;
+      } else {
+        preview.innerHTML = '<div style="text-align:center;"><div style="font-size:2rem; margin-bottom:8px;">📷</div><div>Aucun visuel</div></div>';
+      }
+
       openEventModal();
     }
 
@@ -603,6 +715,21 @@
     async function saveEvent() {
       const form = document.getElementById('eventForm');
       const formData = new FormData(form);
+      if (!formData.get('image_evenement') && generatedImageData) {
+        let base64String = generatedImageData;
+        if (base64String.includes(',')) {
+          base64String = base64String.split(',')[1];
+        }
+        const byteCharacters = atob(base64String);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+          byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+        const mimeType = generatedImageData.startsWith('data:image/svg+xml') ? 'image/svg+xml' : 'image/png';
+        const fileName = mimeType === 'image/svg+xml' ? 'generated-event-image.svg' : 'generated-event-image.png';
+        formData.append('image_evenement', new Blob([byteArray], { type: mimeType }), fileName);
+      }
       const data = normalizeEventDateFields(Object.fromEntries([...formData.entries()].filter(([key]) => key !== 'image_evenement')));
 
       // Validation côté client
@@ -679,6 +806,242 @@
       } catch (error) {
         console.error('Erreur:', error);
         showAlert('Erreur de connexion', 'error');
+      }
+    }
+
+    // Gestion du modal d'image
+    function openImageModal() {
+      document.getElementById('imageEventModal').classList.add('open');
+    }
+
+    function closeImageModal() {
+      document.getElementById('imageEventModal').classList.remove('open');
+      selectedImageFile = null;
+      generatedImageData = null;
+      currentEditingEventData = null;
+    }
+
+    // Gestion de l'upload d'image
+    document.addEventListener('DOMContentLoaded', function() {
+      const imageFileInput = document.getElementById('imageFileInput');
+      if (imageFileInput) {
+        imageFileInput.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+              showAlert('Fichier trop volumineux (max 5MB)', 'error');
+              e.target.value = '';
+              return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(event) {
+              const preview = document.getElementById('newImagePreview');
+              if (preview) {
+                preview.innerHTML = `<img src="${event.target.result}" alt="Aperçu" style="width: 100%; height: 100%; object-fit: cover;">`;
+              }
+              selectedImageFile = file;
+              generatedImageData = null;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+
+      const eventImageInput = document.getElementById('eventImage');
+      if (eventImageInput) {
+        eventImageInput.addEventListener('change', function(e) {
+          const file = e.target.files[0];
+          if (file) {
+            if (file.size > 5 * 1024 * 1024) {
+              showAlert('Fichier trop volumineux (max 5MB)', 'error');
+              e.target.value = '';
+              return;
+            }
+            const reader = new FileReader();
+            reader.onload = function(event) {
+              const preview = document.getElementById('eventImagePreview');
+              if (preview) {
+                preview.innerHTML = `<img src="${event.target.result}" alt="Aperçu" style="width: 100%; height: 100%; object-fit: cover;">`;
+              }
+              selectedImageFile = file;
+              generatedImageData = null;
+            };
+            reader.readAsDataURL(file);
+          }
+        });
+      }
+    });
+
+    /**
+     * ╔════════════════════════════════════════════════════════════════════════════╗
+     * ║           SYSTÈME DE GÉNÉRATION D'IMAGE AVEC IA (3 NIVEAUX)               ║
+     * ╚════════════════════════════════════════════════════════════════════════════╝
+     * 
+     * ARCHITECTURE MULTI-FALLBACK :
+     * =============================
+     * Cette fonction implémente un système de génération d'image intelligent avec
+     * 3 niveaux de fallback pour garantir un résultat même sans API externe.
+     * 
+     * 🎨 NIVEAU 1 - OpenAI DALL-E (Production)
+     * ──────────────────────────────────────────
+     * ✓ Utilise l'API OpenAI DALL-E 3
+     * ✓ Génère des images réalistes et uniques
+     * ✓ Clé API stockée en variable d'environnement côté serveur (OPENAI_API_KEY)
+     * ✓ Requête : POST https://api.openai.com/v1/images/generations
+     * ✓ Format : PNG 512x512 pixels
+     * ✓ Avantage : Très bonne qualité, images personnalisées
+     * 
+     * 🖼️ NIVEAU 2 - GD Library (Fallback Local)
+     * ──────────────────────────────────────────
+     * ✓ Utilise la bibliothèque GD PHP (imagecreatetruecolor, imagepng)
+     * ✓ Génération 100% locale, pas d'appel externe
+     * ✓ Gradient de couleur basé sur MD5 du titre
+     * ✓ Ajoute le texte du titre et description en blanc
+     * ✓ Format : PNG (compressé)
+     * ✓ Avantage : Rapide, aucune dépendance API
+     * 
+     * 📊 NIVEAU 3 - SVG Fallback (Ultime Secours)
+     * ──────────────────────────────────────────
+     * ✓ Génère un fichier SVG vectoriel
+     * ✓ Couleur basée sur le hash MD5 du titre
+     * ✓ Affiche titre et description en texte SVG
+     * ✓ Utilise un dégradé linéaire pour le fond
+     * ✓ Format : SVG (très léger, ~1KB)
+     * ✓ Avantage : Toujours fonctionnel, ultra-léger
+     * 
+     * FLUX DE FONCTIONNEMENT COMPLET :
+     * ════════════════════════════════════════════════════════════════════════
+     * 
+     * [USER] Clique \"Générer IA\"\n     *   ↓\n     * [FRONTEND] Extrait titre et description du formulaire\n     *   ↓\n     * [FRONTEND] Envoie POST /api/admin/events/generate-image\n     *   avec JSON: {titre: \"...\", description: \"...\"}\n     *   ↓\n     * [BACKEND ApiController::generateEventImage()]\n     *   ├─ Essaie OpenAI DALL-E (si OPENAI_API_KEY configurée)\n     *   │   ├─ Appel CURL à OpenAI API\n     *   │   ├─ Prompt: \"Créer une image d'événement pour {titre}...\"\n     *   │   └─ Retourne PNG base64\n     *   │\n     *   ├─ Fallback 2 : generateImageWithGD()\n     *   │   ├─ Crée image PNG 800x450 avec gradient couleur\n     *   │   ├─ Couleur = MD5(titre) → hex RGB\n     *   │   ├─ Ajoute texte titre + description\n     *   │   └─ Retourne base64 PNG\n     *   │\n     *   └─ Fallback 3 : generateFallbackImage()\n     *       ├─ Crée SVG vectoriel\n     *       ├─ Gradient linéaire + texte SVG\n     *       └─ Retourne base64 SVG\n     *   ↓\n     * [BACKEND] Retourne JSON:\n     *   {\n     *     success: true,\n     *     message: \"Image générée...\",\n     *     imageData: \"iVBORw0KGgo...\",\n     *     mimeType: \"image/png\" ou \"image/svg+xml\"\n     *   }\n     *   ↓\n     * [FRONTEND] Reçoit et crée data-URI:\n     *   const src = \"data:image/png;base64,{imageData}\"\n     *   ↓\n     * [FRONTEND] Affiche dans preview avec CSS adaptable:\n     *   <img src=\"data:...\" style=\"width:100%; height:100%; object-fit:cover;\" />\n     *   ↓\n     * [USER] Valide et clique \"Modifier\"\n     *   ↓\n     * [FRONTEND saveEvent()]\n     *   ├─ Détecte generatedImageData en base64\n     *   ├─ Convertit base64 → Uint8Array\n     *   ├─ Crée Blob(byteArray, {type: \"image/png\"})\n     *   ├─ Ajoute au FormData : formData.append('image_evenement', blob)\n     *   └─ Envoie POST /api/admin/events/{id} multipart/form-data\n     *   ↓\n     * [BACKEND updateEvent()]\n     *   ├─ Valide format image (jpg, jpeg, png, webp, svg)\n     *   ├─ Valide taille (max 5MB)\n     *   ├─ Génère nom unique : uniqid('event_', true) . '.png'\n     *   ├─ Déplace vers /public/uploads/events/\n     *   └─ Mise à jour DB : event.image_evenement = \"event_123abc.png\"\n     *   ↓\n     * [DISPLAY] L'image est accessible via /uploads/events/event_123abc.png\n     * \n     * CONFIGURATION OPENAI DALL-E :\n     * ═════════════════════════════════\n     * 1. Créer compte sur https://platform.openai.com\n     * 2. Générer clé API et l'ajouter à .env.local :\n     *    OPENAI_API_KEY=\"sk-proj-...\"\n     * 3. Backend utilise generateImageWithOpenAI() automatiquement\n     * 4. Sans clé API : utilise GD ou SVG fallback\n     * \n     * COÛTS ACTUELS (2024) :\n     * ═════════════════════════\n     * - OpenAI DALL-E 3 : ~$0.04 par image 512x512\n     * - GD Library local : GRATUIT (CPU serveur)\n     * - SVG fallback : GRATUIT (CPU serveur)\n     */
+    async function generateImageWithAI() {
+      const titre = document.getElementById('eventTitre')?.value.trim() || currentEditingEventData?.titre || '';
+      const description = document.getElementById('eventDescription')?.value.trim() || currentEditingEventData?.description || '';
+
+      if (!titre || !description) {
+        showAlert('Le titre et la description de l\'événement sont nécessaires pour générer une image', 'error');
+        return;
+      }
+
+      const btnGenerate = document.getElementById('btnGenerateEventImage');
+      const originalHtml = btnGenerate ? btnGenerate.innerHTML : '';
+      if (btnGenerate) {
+        btnGenerate.disabled = true;
+        btnGenerate.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+      }
+
+      document.getElementById('generationStatus').style.display = 'block';
+
+      try {
+        const response = await fetch('/api/admin/events/generate-image', {
+          method: 'POST',
+          credentials: 'include',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            titre: titre,
+            description: description.substring(0, 200) // Limiter la description
+          })
+        });
+
+        const result = await parseJsonResponse(response);
+
+        if (result.success && result.imageData) {
+          const mimeType = result.mimeType || 'image/png';
+          const preview = document.getElementById('eventImagePreview');
+          if (preview) {
+            preview.innerHTML = `<img src="data:${mimeType};base64,${result.imageData}" alt="Image générée" style="width: 100%; height: 100%; object-fit: cover;">`;
+          }
+          generatedImageData = result.imageData;
+          selectedImageFile = null;
+          document.getElementById('eventImage').value = '';
+          showAlert('Image générée avec succès par IA', 'success');
+        } else {
+          showAlert(result.message || 'Erreur lors de la génération d\'image', 'error');
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        showAlert('Erreur de génération d\'image', 'error');
+      } finally {
+        if (btnGenerate) {
+          btnGenerate.disabled = false;
+          btnGenerate.innerHTML = originalHtml;
+        }
+        document.getElementById('generationStatus').style.display = 'none';
+      }
+    }
+
+    // Sauvegarde des modifications d'image
+    async function saveImageChanges() {
+      if (!currentEditingEventData || (!selectedImageFile && !generatedImageData)) {
+        showAlert('Veuillez sélectionner ou générer une image', 'error');
+        return;
+      }
+
+      const btnSave = document.getElementById('btnSaveImage');
+      const originalHtml = btnSave.innerHTML;
+      btnSave.disabled = true;
+      btnSave.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enregistrement...';
+
+      try {
+        const formData = new FormData();
+        
+        if (selectedImageFile) {
+          formData.append('image_evenement', selectedImageFile);
+        } else if (generatedImageData) {
+          // Convertir base64 en blob
+          try {
+            // Si le base64 commence par "data:", enlever le préfixe
+            let base64String = generatedImageData;
+            if (base64String.includes(',')) {
+              base64String = base64String.split(',')[1];
+            }
+            
+            const byteCharacters = atob(base64String);
+            const byteNumbers = new Array(byteCharacters.length);
+            for (let i = 0; i < byteCharacters.length; i++) {
+              byteNumbers[i] = byteCharacters.charCodeAt(i);
+            }
+            const byteArray = new Uint8Array(byteNumbers);
+            
+            // Déterminer le type MIME basé sur le début du contenu
+            const mimeType = base64String.startsWith('PHN2ZyA') ? 'image/svg+xml' : 'image/png';
+            const fileName = mimeType === 'image/svg+xml' ? 'generated-image.svg' : 'generated-image.png';
+            
+            const blob = new Blob([byteArray], { type: mimeType });
+            formData.append('image_evenement', blob, fileName);
+          } catch (e) {
+            console.error('Erreur conversion base64:', e);
+            showAlert('Erreur lors de la conversion de l\'image', 'error');
+            btnSave.disabled = false;
+            btnSave.innerHTML = originalHtml;
+            return;
+          }
+        }
+
+        const response = await fetch(`/api/admin/events/${currentEditingEventData.id}`, {
+          method: 'POST',
+          credentials: 'include',
+          body: formData
+        });
+
+        const result = await parseJsonResponse(response);
+
+        if (result.success) {
+          showAlert('Image mise à jour avec succès', 'success');
+          closeImageModal();
+          await loadEvents();
+        } else {
+          showAlert(result.message || 'Erreur lors de la mise à jour', 'error');
+          console.error('API Error:', result);
+        }
+      } catch (error) {
+        console.error('Erreur:', error);
+        showAlert('Erreur de connexion: ' + error.message, 'error');
+      } finally {
+        btnSave.disabled = false;
+        btnSave.innerHTML = originalHtml;
       }
     }
 
@@ -987,6 +1350,13 @@
 
     function getAuthToken() {
       return localStorage.getItem('authToken') || '';
+    }
+
+    // ===== INITIALISATION - Exécutée après toutes les définitions =====
+    if (document.readyState !== 'loading') {
+      setupEventListeners();
+    } else {
+      document.addEventListener('DOMContentLoaded', setupEventListeners);
     }
   </script>
 

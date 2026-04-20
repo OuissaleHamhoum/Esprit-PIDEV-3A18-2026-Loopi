@@ -1814,6 +1814,12 @@ document.getElementById('userForm').addEventListener('input', function(e) {
     }
   }
 });
+
+function formatDate(dateString) {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+}
 </script>
 </body>
 </html>

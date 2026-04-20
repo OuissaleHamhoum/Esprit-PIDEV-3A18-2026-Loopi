@@ -556,7 +556,7 @@ class ApiController extends AbstractController
                 'id_organisateur' => $event->getIdOrganisateur(),
                 'capacite_max' => $event->getCapaciteMax(),
                 'image_evenement' => $event->getImageEvenement(),
-                'statut' => $event->getStatutValidation() ?: 'en_attente',
+                'statut' => $event->getStatut() ?: 'en_attente',
                 'participants_count' => $participantsCount,
                 'created_at' => $event->getCreatedAt() ? $event->getCreatedAt()->format('Y-m-d H:i:s') : null,
                 'updated_at' => $event->getUpdatedAt() ? $event->getUpdatedAt()->format('Y-m-d H:i:s') : null,
@@ -1021,6 +1021,207 @@ class ApiController extends AbstractController
         }
     }
 
+    #[Route('/admin/events/generate-image', name: 'api_admin_events_generate_image', methods: ['POST'])]
+    public function generateEventImage(Request $request): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+        
+        $titre = trim($data['titre'] ?? '');
+        $description = trim($data['description'] ?? '');
+
+        if (empty($titre)) {
+            return new JsonResponse([
+                'success' => false, 
+                'message' => 'Le titre est requis pour générer une image'
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
+        $openAiApiKey = $this->getParameter('env(OPENAI_API_KEY)') ?: getenv('OPENAI_API_KEY');
+        if (!empty($openAiApiKey)) {
+            $openAiResult = $this->generateImageWithOpenAI($openAiApiKey, $titre, $description);
+            if ($openAiResult['success']) {
+                return new JsonResponse([
+                    'success' => true,
+                    'message' => 'Image générée avec succès',
+                    'imageData' => $openAiResult['imageData'],
+                    'mimeType' => $openAiResult['mimeType']
+                ]);
+            }
+            error_log('OpenAI image generation failed: ' . $openAiResult['message']);
+        }
+
+        try {
+            $imageData = $this->generateImageWithGD($titre, $description);
+            if ($imageData) {
+                return new JsonResponse([
+                    'success' => true,
+                    'message' => 'Image générée localement',
+                    'imageData' => $imageData,
+                    'mimeType' => 'image/png'
+                ]);
+            }
+        } catch (\Exception $e) {
+            \error_log('Image generation error: ' . $e->getMessage());
+        }
+
+        $imageData = $this->generateFallbackImage($titre, $description);
+        
+        return new JsonResponse([
+            'success' => true,
+            'message' => 'Image générée par fallback',
+            'imageData' => $imageData,
+            'mimeType' => 'image/svg+xml'
+        ]);
+    }
+
+    private function generateImageWithOpenAI(string $apiKey, string $titre, string $description): array
+    {
+        $prompt = sprintf('Créer une image d\'événement pour "%s". Description : %s', $titre, $description);
+        $payload = json_encode([
+            'prompt' => $prompt,
+            'n' => 1,
+            'size' => '512x512'
+        ]);
+
+        $ch = curl_init('https://api.openai.com/v1/images/generations');
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true,
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_HTTPHEADER => [
+                'Content-Type: application/json',
+                'Authorization: Bearer ' . $apiKey,
+            ],
+            CURLOPT_POSTFIELDS => $payload,
+            CURLOPT_TIMEOUT => 30,
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+
+        if ($curlError) {
+            return ['success' => false, 'message' => $curlError];
+        }
+
+        $decoded = json_decode($response, true);
+        if (!$decoded || $httpCode !== 200) {
+            return ['success' => false, 'message' => 'OpenAI API error: ' . ($decoded['error']['message'] ?? $response)];
+        }
+
+        if (empty($decoded['data'][0]['b64_json'])) {
+            return ['success' => false, 'message' => 'Aucune image retournée par OpenAI'];
+        }
+
+        return [
+            'success' => true,
+            'imageData' => $decoded['data'][0]['b64_json'],
+            'mimeType' => 'image/png'
+        ];
+    }
+
+    private function generateImageWithGD(string $titre, string $description): ?string
+    {
+        if (!extension_loaded('gd')) {
+            return null;
+        }
+
+        try {
+            // Créer une image
+            $width = 800;
+            $height = 450;
+            $image = imagecreatetruecolor($width, $height);
+
+            // Générer une couleur de base basée sur le titre
+            $hash = md5($titre);
+            $r = hexdec(substr($hash, 0, 2));
+            $g = hexdec(substr($hash, 2, 2));
+            $b = hexdec(substr($hash, 4, 2));
+            
+            // Créer un gradient
+            $bgColor = imagecolorallocate($image, $r, $g, $b);
+            $lightColor = imagecolorallocate($image, min($r + 40, 255), min($g + 40, 255), min($b + 40, 255));
+            imagefill($image, 0, 0, $bgColor);
+
+            // Ajouter un dégradé simple
+            for ($i = 0; $i < $height; $i++) {
+                $lineColor = imagecolorallocate(
+                    $image,
+                    min($r + ($i / $height) * 40, 255),
+                    min($g + ($i / $height) * 40, 255),
+                    min($b + ($i / $height) * 40, 255)
+                );
+                imageline($image, 0, $i, $width, $i, $lineColor);
+            }
+
+            // Ajouter du texte
+            $textColor = imagecolorallocate($image, 255, 255, 255);
+            $font = 5; // Police système
+
+            // Titre
+            $titleLength = strlen($titre);
+            $titleX = max(20, ($width - $titleLength * imagefontwidth($font)) / 2);
+            imagestring($image, $font, $titleX, 180, $titre, $textColor);
+
+            // Description (première ligne)
+            if (!empty($description)) {
+                $descShort = substr($description, 0, 60);
+                $descLength = strlen($descShort);
+                $descX = max(20, ($width - $descLength * imagefontwidth($font)) / 2);
+                imagestring($image, $font, $descX, 220, $descShort, $textColor);
+            }
+
+            // Convertir en base64
+            ob_start();
+            imagepng($image);
+            $imageContent = ob_get_clean();
+            imagedestroy($image);
+
+            return base64_encode($imageContent);
+        } catch (\Exception $e) {
+            \error_log('GD image generation error: ' . $e->getMessage());
+            return null;
+        }
+    }
+
+    private function generateFallbackImage(string $titre, string $description): string
+    {
+        // Fallback SVG base64 encoded
+        $hash = md5($titre);
+        $r = hexdec(substr($hash, 0, 2));
+        $g = hexdec(substr($hash, 2, 2));
+        $b = hexdec(substr($hash, 4, 2));
+
+        $color = sprintf('#%02x%02x%02x', $r, $g, $b);
+        $textColor = ($r + $g + $b > 382) ? '#000000' : '#FFFFFF';
+
+        $titleEscaped = htmlspecialchars($titre, ENT_QUOTES, 'UTF-8');
+        $descEscaped = htmlspecialchars(substr($description, 0, 80), ENT_QUOTES, 'UTF-8');
+
+        $svg = <<<SVG
+<svg width="800" height="450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:$color;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(100, 100, 100);stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#grad)"/>
+  <text x="400" y="180" font-size="48" font-weight="bold" text-anchor="middle" fill="$textColor">
+    $titleEscaped
+  </text>
+  <text x="400" y="280" font-size="20" text-anchor="middle" fill="$textColor" opacity="0.8">
+    $descEscaped
+  </text>
+  <text x="400" y="400" font-size="16" text-anchor="middle" fill="$textColor" opacity="0.6">
+    📅 Événement Loopi
+  </text>
+</svg>
+SVG;
+
+        return base64_encode($svg);
+    }
+
     #[Route('/admin/events/{id}', name: 'api_admin_events_update', methods: ['PUT','POST'])]
     public function updateEvent(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
     {
@@ -1111,7 +1312,7 @@ class ApiController extends AbstractController
 
         $uploadedImage = $request->files->get('image_evenement');
         if ($uploadedImage instanceof UploadedFile && $uploadedImage->isValid()) {
-            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
             $extension = strtolower($uploadedImage->guessExtension() ?: '');
             if (!in_array($extension, $allowedExtensions, true)) {
                 return new JsonResponse(['success' => false, 'errors' => ['image_evenement' => 'Format d\'image non pris en charge.']], Response::HTTP_BAD_REQUEST);
