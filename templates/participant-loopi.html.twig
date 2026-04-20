@@ -561,7 +561,7 @@ footer span { color: var(--sage); font-weight: 600; }
     <li><a href="#" onclick="showSection('evenements',this)">📅 Événements</a></li>
     <li><a href="#" onclick="showSection('collections',this)">♻️ Collections</a></li>
     <li><a href="#" onclick="showSection('dons',this)">🤝 Mes dons</a></li>
-    <li><a href="#" onclick="showSection('coupons',this)">🎟️ Coupons</a></li>
+    <li><a href="#" onclick="showSection('leaderboard',this)">🏆 Classement</a></li>
     <li><a href="#" onclick="showSection('profil',this)">👤 Profil</a></li>
   </ul>
 
@@ -592,9 +592,9 @@ footer span { color: var(--sage); font-weight: 600; }
         <div class="hero-stat-val">2</div>
         <div class="hero-stat-lbl">Événements</div>
       </div>
-      <div class="hero-stat">
-        <div class="hero-stat-val">2</div>
-        <div class="hero-stat-lbl">Coupons</div>
+      <div class="hero-stat" style="cursor:pointer" onclick="showSection('leaderboard',null)">
+        <div class="hero-stat-val" id="heroMyRank">--</div>
+        <div class="hero-stat-lbl">Rang Global</div>
       </div>
     </div>
   </div>
@@ -607,7 +607,7 @@ footer span { color: var(--sage); font-weight: 600; }
   <button class="stab" onclick="showSection('evenements',this)">📅 Événements</button>
   <button class="stab" onclick="showSection('collections',this)">♻️ Collections</button>
   <button class="stab" onclick="showSection('dons',this)">🤝 Dons</button>
-  <button class="stab" onclick="showSection('coupons',this)">🎟️ Coupons</button>
+  <button class="stab" onclick="showSection('leaderboard',this)">🏆 Classement</button>
   <button class="stab" onclick="showSection('profil',this)">👤 Profil</button>
 </div>
 
@@ -910,6 +910,11 @@ footer span { color: var(--sage); font-weight: 600; }
   <div class="section-heading">Collections de matériaux</div>
   <div class="section-sub">Contribuez à des collections en cours et soutenez la création artistique recyclée</div>
 
+  <!-- WEATHER API INJECTION -->
+  <div id="weatherDisplay" style="margin-bottom: 20px; padding: 12px 20px; background: rgba(30,58,47,0.06); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; color: var(--forest); display: none;">
+    Chargement de la météo...
+  </div>
+
   <!-- Search + filter bar -->
   <div class="card" style="margin-bottom:24px;padding:14px 18px">
     <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
@@ -952,54 +957,46 @@ footer span { color: var(--sage); font-weight: 600; }
 </section>
 
 <!-- ══════════════════════════════ -->
-<!-- COUPONS -->
+<!-- LEADERBOARD -->
 <!-- ══════════════════════════════ -->
-<section id="sec-coupons" class="page-section">
-  <div class="section-heading">Mes Coupons</div>
-  <div class="section-sub">Réductions gagnées grâce à vos donations de matériaux recyclés</div>
+<section id="sec-leaderboard" class="page-section">
+  <div class="section-heading">Classement Global (Algorithme d'Urgence)</div>
+  <div class="section-sub">Aidez les collections prioritaires pour maximiser vos points d'expérience (XP) !</div>
 
   <div class="grid-2">
     <div>
-      <div class="card" style="margin-bottom:20px">
-        <div class="card-title">Coupons disponibles</div>
-        <div class="coupon-card">
-          <div>
-            <div class="coupon-code">ECO10</div>
-            <div class="coupon-disc" style="margin-top:4px">Don du 8 Fév · Expire le 10 Mars 2026</div>
-            <div style="font-size:.7rem;color:rgba(255,255,255,.45);margin-top:6px">Minimum d'achat: 0 TND</div>
-          </div>
-          <div style="text-align:right">
-            <div class="coupon-pct">10%</div>
-            <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white;border:none;margin-top:8px;font-size:.72rem" onclick="showToast('Code ECO10 copié!')">📋 Copier</button>
-          </div>
+      <div class="card" style="margin-bottom:20px;background:linear-gradient(135deg,rgba(15,28,21,0.8),rgba(30,58,47,0.6));border:1px solid rgba(255,255,255,0.1)">
+        <div class="card-title" style="color:var(--sand)">🔥 Comment fonctionne l'XP ?</div>
+        <div style="font-size:0.85rem;color:rgba(255,255,255,0.85);line-height:1.6">
+          Tous les matériaux ne se valent pas ! Notre algorithme scanne la base de données <strong style="color:var(--sand)">en temps réel</strong> pour déterminer les pénuries des différentes collections.<br><br>
+          Si la plateforme manque cruellement de <strong style="color:var(--sand)">Verre</strong> (ex: les organisateurs en demandent beaucoup mais peu de dons sont effectués), les dons en Verre voient leur récompense multipliée par <strong style="color:var(--sand)">3x</strong> ! En aidant intelligemment, vous montez plus vite en grade :
         </div>
-        <div class="coupon-card" style="background:linear-gradient(135deg,#8B6914,#c9a030)">
-          <div>
-            <div class="coupon-code">GREEN15</div>
-            <div class="coupon-disc" style="margin-top:4px">Don du 8 Fév · Expire le 9 Avr 2026</div>
-            <div style="font-size:.7rem;color:rgba(255,255,255,.45);margin-top:6px">Minimum d'achat: 0 TND</div>
-          </div>
-          <div style="text-align:right">
-            <div class="coupon-pct">15%</div>
-            <button class="btn btn-sm" style="background:rgba(255,255,255,.15);color:white;border:none;margin-top:8px;font-size:.72rem" onclick="showToast('Code GREEN15 copié!')">📋 Copier</button>
-          </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px">
+          <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;text-align:center"><div style="font-weight:bold;color:white">0 - 499</div><div style="font-size:0.75rem;color:var(--muted)">🌱 Eco-Novice</div></div>
+          <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;text-align:center"><div style="font-weight:bold;color:white">500 - 1999</div><div style="font-size:0.75rem;color:var(--muted)">🌿 Recycleur Actif</div></div>
+          <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;text-align:center"><div style="font-weight:bold;color:white">2000 - 4999</div><div style="font-size:0.75rem;color:var(--muted)">🌳 Héros de la Planète</div></div>
+          <div style="background:linear-gradient(135deg,#c9a030,#8B6914);padding:10px;border-radius:8px;text-align:center"><div style="font-weight:bold;color:white;text-shadow:0 1px 2px rgba(0,0,0,0.5)">5000+</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.8)">🌎 Gardien de la Terre</div></div>
         </div>
       </div>
-      <div class="card">
-        <div class="card-title">Comment gagner des coupons ?</div>
-        <div style="display:flex;flex-direction:column;gap:12px">
-          <div style="font-size:.85rem;color:var(--muted);line-height:1.6;display:flex;align-items:flex-start;gap:10px"><span style="font-size:1.1rem">🎁</span><span>Chaque donation confirmée génère automatiquement un coupon de réduction.</span></div>
-          <div style="font-size:.85rem;color:var(--muted);line-height:1.6;display:flex;align-items:flex-start;gap:10px"><span style="font-size:1.1rem">♻️</span><span>Plus vous donnez de matériaux, plus le pourcentage augmente.</span></div>
-          <div style="font-size:.85rem;color:var(--muted);line-height:1.6;display:flex;align-items:flex-start;gap:10px"><span style="font-size:1.1rem">📅</span><span>Participez aux événements de collecte pour accumuler des réductions.</span></div>
-        </div>
+      
+      <div class="card" style="text-align:center">
+        <div style="font-size:0.85rem;color:var(--muted);margin-bottom:5px">Mon Niveau Actuel</div>
+        <div id="myCurrentRankTitle" style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:bold;color:var(--forest)">--</div>
+        <div style="font-size:1.2rem;color:var(--sand);font-weight:bold;margin-top:5px;margin-bottom:15px;" id="myCurrentXp">-- XP</div>
+        
+        <a href="/participant/certificate/pdf" target="_blank" class="btn btn-primary" style="display:inline-block; text-decoration:none; width: 100%;">🏅 Voir mon Certificat Web</a>
+        <div style="font-size:0.7rem; color:var(--muted); margin-top:8px;">*Généré avec EndroidQrCodeBundle</div>
       </div>
     </div>
 
     <div class="card">
-      <div class="card-title">Historique d'utilisation</div>
-      <div class="empty-state">
-        <div class="e-icon">🎟️</div>
-        <p>Aucun coupon utilisé pour l'instant.<br>Utilisez <strong>ECO10</strong> ou <strong>GREEN15</strong> lors de votre prochain achat.</p>
+      <div class="card-title" style="display:flex;justify-content:space-between">
+        <span>🏆 Top Recycleurs</span>
+        <button class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer" onclick="loadLeaderboard()">🔄 Actualiser</button>
+      </div>
+      
+      <div id="leaderboardContainer" style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+        <div style="text-align:center;padding:30px;color:var(--muted)">Chargement du classement...</div>
       </div>
     </div>
   </div>
@@ -1142,6 +1139,40 @@ footer span { color: var(--sage); font-weight: 600; }
   </div>
 </div>
 
+<!-- ═══ BADGE CELEBRATION MODAL ═══ -->
+<style>
+  @keyframes popIn { 
+    0% { transform: scale(0.6) translateY(40px); opacity: 0; }
+    60% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  @keyframes floatBadge {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+</style>
+<div id="badgeModal" style="display:none;position:fixed;inset:0;background:rgba(15,28,21,0.85);backdrop-filter:blur(10px);z-index:4000;align-items:center;justify-content:center" onclick="if(event.target===this)closeBadgeModal()">
+  <div style="background:var(--forest);border-radius:30px;width:480px;max-width:92vw;padding:40px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.4);animation:popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);position:relative;overflow:hidden">
+    <!-- Confetti / Deco -->
+    <div style="position:absolute;top:-50px;left:-50px;width:150px;height:150px;background:radial-gradient(circle,rgba(255,255,255,0.2) 0%,transparent 70%)"></div>
+    <div style="position:absolute;bottom:-50px;right:-50px;width:150px;height:150px;background:radial-gradient(circle,rgba(93,168,122,0.4) 0%,transparent 70%)"></div>
+
+    <div style="font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:white;margin-bottom:10px;text-shadow:0 4px 10px rgba(0,0,0,0.3)">Félicitations !</div>
+    <div style="font-size:1.05rem;color:rgba(255,255,255,0.85);margin-bottom:30px">
+      Vous avez débloqué <span id="badgeCountText" style="font-weight:700;color:var(--sand)">un nouveau badge</span> !
+    </div>
+    
+    <div id="badgesContainer" style="display:flex;justify-content:center;gap:25px;margin-bottom:35px;flex-wrap:wrap">
+      <!-- Badges will be injected here -->
+      <!-- AI MESSAGE INJECTION -->
+  <div id="celebrationAiContainer" style="margin-top:15px; padding:12px; background:rgba(30,58,47,0.05); border-radius:10px; font-style:italic; color:var(--forest); font-size:0.9rem; display:none;"></div>
+  
+</div>
+
+    <button class="btn btn-g" style="padding:14px 35px;font-size:1.1rem;border-radius:50px;box-shadow:0 10px 20px rgba(93,168,122,0.3)" onclick="closeBadgeModal()">Génial ! 🎉</button>
+  </div>
+</div>
+
 <script>
 // ── Section switching ──
 function showSection(name, triggerEl) {
@@ -1156,6 +1187,7 @@ function showSection(name, triggerEl) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   if (name === 'collections') loadParticipantCollections();
   if (name === 'dons') loadDonationHistory();
+  if (name === 'leaderboard') loadLeaderboard();
 }
 
 // ── Toast ──
@@ -1166,6 +1198,38 @@ function showToast(msg, isError) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 2800);
 }
+
+// ── Badge Celebration ──
+function triggerBadgeCelebration(badgesArray) {
+  const cont = document.getElementById('badgesContainer');
+  cont.innerHTML = '';
+  document.getElementById('badgeCountText').textContent = badgesArray.length > 1 ? badgesArray.length + ' nouveaux badges' : 'un nouveau badge';
+
+  badgesArray.forEach((b, i) => {
+    // Add delay for each badge animation
+    const delay = i * 0.15;
+    const badgeNameSafe = b.replace(/\s+/g,'_').toLowerCase();
+    cont.innerHTML += `
+      <div style="display:flex;flex-direction:column;align-items:center;animation:floatBadge 3s ease-in-out infinite;animation-delay:${delay}s">
+        <div style="width:110px;height:110px;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 10px 25px rgba(0,0,0,0.2)">
+          <img src="/images/${badgeNameSafe}.png" alt="${b}" style="max-width:70%;max-height:70%" onerror="this.outerHTML='<span style=\\'font-size:3.5rem\\'>🎖️</span>'">
+        </div>
+        <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.1rem;color:white;text-shadow:0 2px 4px rgba(0,0,0,0.3)">${b}</div>
+      </div>
+    `;
+  });
+  
+  document.getElementById('badgeModal').style.display = 'flex';
+}
+
+function closeBadgeModal() {
+  document.getElementById('badgeModal').style.display = 'none';
+  // If we want to automatically refresh history when badge closes
+  if (document.getElementById('sec-dons').classList.contains('active')) {
+    loadDonationHistory();
+  }
+}
+
 
 // ── Heart toggle ──
 function toggleHeart(btn) {
@@ -1198,6 +1262,15 @@ async function loadParticipantCollections() {
     const res  = await fetch('/api/participant/collections?status=active');
     const json = await res.json();
     _partAllColl = json.data || [];
+    
+    if (json.weather) {
+        const wDiv = document.getElementById('weatherDisplay');
+        if (wDiv) {
+            wDiv.style.display = 'block';
+            wDiv.innerHTML = '⛅ <strong>' + json.weather + '</strong> — Sortez recycler en toute sérénité !';
+        }
+    }
+    
     renderPartCollections(_partAllColl);
   } catch {
     loader.innerHTML = '<div style="font-size:1.5rem">⚠️</div><div>Erreur de chargement.</div>';
@@ -1327,7 +1400,28 @@ async function submitDonate() {
 
     if (json.success) {
       closeDonateModal();
-      showToast('✅ Don de ' + amountVal + ' enregistré avec succès!');
+      
+      if (json.ai_message) {
+          // Show AI message ABOVE the other toasts (bottom:100px to not overlap)
+          setTimeout(() => {
+              const toast = document.createElement('div');
+              toast.style.cssText = 'position:fixed;bottom:90px;right:24px;background:#1E3A2F;color:white;padding:14px 18px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:9999;font-size:0.85rem;max-width:300px;text-align:left;line-height:1.5;';
+              toast.innerHTML = '<div style="font-size:0.7rem;color:rgba(255,255,255,0.55);margin-bottom:5px;">🤖 IA Gemini</div>' + json.ai_message;
+              document.body.appendChild(toast);
+              setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.5s'; setTimeout(() => toast.remove(), 500); }, 6000);
+          }, 1500);
+      }
+
+      if (json.badges && json.badges.length > 0) {
+          setTimeout(() => { triggerBadgeCelebration(json.badges); }, 300);
+      } else {
+          showToast('✅ Don de ' + amountVal + ' enregistré avec succès!');
+      }
+      if (json.xp_awarded && json.multiplier) {
+          let multiplierHtml = json.multiplier > 1 ? ` (+ Bonus x${json.multiplier})` : '';
+          setTimeout(() => showToast(`⚡ ${json.xp_awarded} XP gagnés${multiplierHtml} !`), 3000);
+      }
+      
       // Update the card in-place
       const updated = json.collection;
       const idx = _partAllColl.findIndex(c => c.id === updated.id);
@@ -1344,9 +1438,10 @@ async function submitDonate() {
       errEl.textContent = msg;
       errEl.style.display = 'block';
     }
-  } catch {
-    errEl.textContent = 'Erreur réseau. Réessayez.';
+  } catch(err) {
+    errEl.textContent = 'Erreur réseau: ' + err.message;
     errEl.style.display = 'block';
+    console.error('Donation error:', err);
   } finally {
     btn.disabled = false;
     btn.textContent = 'Confirmer le don';
@@ -1356,6 +1451,71 @@ async function submitDonate() {
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') closeDonateModal();
 });
+
+// ─────────────────────────────────────────────────────────────────
+// ── LEADERBOARD ──
+// ─────────────────────────────────────────────────────────────────
+async function loadLeaderboard() {
+  const cont = document.getElementById('leaderboardContainer');
+  cont.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Chargement...</div>';
+
+  try {
+    const res = await fetch('/api/participant/leaderboard');
+    const json = await res.json();
+    if (!json.success) {
+      cont.innerHTML = `<div style="color:var(--rust)">⚠️ ${json.message}</div>`;
+      return;
+    }
+
+    // Update global stat
+    document.getElementById('heroMyRank').textContent = json.myRank ? `#${json.myRank}` : '--';
+    
+    // Update Personal Section
+    document.getElementById('myCurrentXp').textContent = `${json.myXp} XP`;
+    let myTitle = 'Eco-Novice';
+    if (json.myXp >= 5000) myTitle = 'Gardien de la Terre';
+    else if (json.myXp >= 2000) myTitle = 'Héros de la Planète';
+    else if (json.myXp >= 500) myTitle = 'Recycleur Actif';
+    document.getElementById('myCurrentRankTitle').textContent = myTitle;
+
+    // Render list
+    cont.innerHTML = '';
+    if (json.data.length === 0) {
+      cont.innerHTML = '<div style="text-align:center;color:var(--muted)">Aucun participant classé.</div>';
+    }
+    
+    json.data.forEach(u => {
+      let medal = `<div style="width:30px;font-weight:bold;color:var(--muted)">#${u.rank}</div>`;
+      if (u.rank === 1) medal = `<div style="width:30px;font-size:1.3rem">🥇</div>`;
+      if (u.rank === 2) medal = `<div style="width:30px;font-size:1.3rem">🥈</div>`;
+      if (u.rank === 3) medal = `<div style="width:30px;font-size:1.3rem">🥉</div>`;
+
+      let bgColor = u.isMe ? 'rgba(93,168,122,0.15)' : 'var(--card)';
+      let border = u.isMe ? '1px solid var(--moss)' : '1px solid var(--border)';
+      
+      let titleBadge = '';
+      if (u.title === 'Gardien de la Terre') titleBadge = 'background:linear-gradient(135deg,#c9a030,#8B6914);color:white;';
+      else if (u.title === 'Héros de la Planète') titleBadge = 'background:rgba(93,168,122,0.2);color:var(--forest);';
+      else if (u.title === 'Recycleur Actif') titleBadge = 'background:var(--bg);color:var(--moss);font-weight:600;';
+      else titleBadge = 'background:var(--bg);color:var(--muted);';
+
+      cont.innerHTML += `
+        <div style="display:flex;align-items:center;padding:12px 18px;background:${bgColor};border:${border};border-radius:12px">
+          ${medal}
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(30,58,47,0.1);color:var(--forest);display:flex;align-items:center;justify-content:center;font-weight:bold;margin:0 15px 0 5px">${u.name.charAt(0).toUpperCase()}</div>
+          <div style="flex:1">
+            <div style="font-weight:bold;color:${u.isMe ? 'var(--forest)' : 'var(--dark)'}">${u.name} ${u.isMe ? '(Moi)' : ''}</div>
+            <div style="font-size:0.75rem;padding:2px 8px;border-radius:4px;display:inline-block;margin-top:4px;${titleBadge}">${u.title}</div>
+          </div>
+          <div style="font-family:'Playfair Display',serif;font-weight:bold;font-size:1.2rem;color:var(--forest)">${u.xp} XP</div>
+        </div>
+      `;
+    });
+
+  } catch(e) {
+    cont.innerHTML = '<div style="color:var(--rust)">Erreur de chargement.</div>';
+  }
+}
 
 // ─────────────────────────────────────────────────────────────────
 // ── DONATION HISTORY ──
@@ -1397,7 +1557,21 @@ async function loadDonationHistory() {
     const statusLabels = { 'confirmé': '✓ Confirmé', 'en_attente': '⏳ En attente', 'annulé': '✗ Annulé' };
     const colours = ['linear-gradient(135deg,var(--moss),var(--forest))','linear-gradient(135deg,var(--sand),#a08040)','linear-gradient(135deg,#7a6a5a,#5a4a3d)','linear-gradient(135deg,var(--sage),var(--moss))'];
 
-    cont.innerHTML = `
+    let badgesHtml = '';
+    if (json.badges && json.badges.length > 0) {
+      badgesHtml = '<div class="card" style="margin-bottom:20px"><div class="card-title">🏆 Mes Badges Débloqués</div><div style="display:flex;gap:15px;flex-wrap:wrap;padding:10px 0">';
+      json.badges.forEach(b => {
+        // Use lowercase filenames matching those uploaded by user
+        let safeBadgeName = b.replace(/\s+/g,'_').toLowerCase();
+        badgesHtml += `<div style="text-align:center;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;width:120px;transition:transform .2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+          <div style="font-size:2.5rem;margin-bottom:10px;height:50px;display:flex;align-items:center;justify-content:center"><img src="/images/${safeBadgeName}.png" alt="${b}" style="max-height:100%;max-width:100%" onerror="this.outerHTML='🎖️'"></div>
+          <div style="font-size:0.75rem;font-weight:bold;color:var(--forest)">${escH(b)}</div>
+        </div>`;
+      });
+      badgesHtml += '</div></div>';
+    }
+
+    cont.innerHTML = badgesHtml + `
       <div class="grid-2">
         <div class="card">
           <div class="card-title">Historique complet</div>

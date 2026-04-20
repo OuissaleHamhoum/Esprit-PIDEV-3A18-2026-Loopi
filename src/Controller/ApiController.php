@@ -1396,7 +1396,14 @@ class ApiController extends AbstractController
         $collections = $qb->getQuery()->getResult();
         $data = array_map(fn($c) => $this->serializeCollection($c, $doctrine), $collections);
 
-        return new JsonResponse(['success' => true, 'data' => $data]);
+        // -- Plant Gamification: Calculate total collected amount across ALL collections
+        $totalCollected = 0.0;
+        $allUserCols = $doctrine->getRepository(Collection::class)->findBy(['user' => $user]);
+        foreach ($allUserCols as $col) {
+            $totalCollected += (float)$col->getCurrentAmount();
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $data, 'totalCollected' => $totalCollected]);
     }
 
     #[Route('/organisateur/collections', name: 'api_org_collections_create', methods: ['POST'])]
@@ -1527,7 +1534,7 @@ class ApiController extends AbstractController
     // ──── PARTICIPANT → BROWSE & DONATE ───────────────────────────────────
 
     #[Route('/participant/collections', name: 'api_participant_collections', methods: ['GET'])]
-    public function participantCollections(Request $request, ManagerRegistry $doctrine): JsonResponse
+    public function participantCollections(Request $request, ManagerRegistry $doctrine, \App\Service\OpenMeteoService $meteoService): JsonResponse
     {
         $this->denyAccessUnlessGranted('ROLE_PARTICIPANT');
 
@@ -1554,11 +1561,11 @@ class ApiController extends AbstractController
         $collections = $qb->getQuery()->getResult();
         $data = array_map(fn($c) => $this->serializeCollection($c, $doctrine), $collections);
 
-        return new JsonResponse(['success' => true, 'data' => $data]);
+        return new JsonResponse(['success' => true, 'data' => $data, 'weather' => $meteoService->getCurrentWeatherLive()]);
     }
 
     #[Route('/participant/donate/{collectionId}', name: 'api_participant_donate', methods: ['POST'])]
-    public function participantDonate(int $collectionId, Request $request, ManagerRegistry $doctrine): JsonResponse
+    public function participantDonate(int $collectionId, Request $request, ManagerRegistry $doctrine, \App\Service\AiEcoService $aiEcoService): JsonResponse
     {
         try {
             $this->denyAccessUnlessGranted('ROLE_PARTICIPANT');
@@ -1593,21 +1600,88 @@ class ApiController extends AbstractController
             $collection->setCurrentAmount((string)$newAmount);
             $collection->setUpdatedAt(new \DateTime());
 
+            // --- BADGE LOGIC ---
+            $material = $collection->getMaterialType();
+            $amtFloat = (float)$amount;
+            $newlyUnlocked = null;
+
+            $firstTimeBadge = !$user->isHasDonatedFirstTime();
+            if ($firstTimeBadge) {
+                $user->setHasDonatedFirstTime(true);
+            }
+
+            switch ($material) {
+                case 'Plastique':
+                    $old = (float)$user->getTotalPlastic();
+                    if ($old < 50.0 && ($old + $amtFloat) >= 50.0) $newlyUnlocked = "Plastic Pioneer";
+                    $user->setTotalPlastic((string)($old + $amtFloat));
+                    break;
+                case 'Papier':
+                    $old = (float)$user->getTotalPaper();
+                    if ($old < 30.0 && ($old + $amtFloat) >= 30.0) $newlyUnlocked = "Paper Warrior";
+                    $user->setTotalPaper((string)($old + $amtFloat));
+                    break;
+                case 'Verre':
+                    $old = (float)$user->getTotalGlass();
+                    if ($old < 20.0 && ($old + $amtFloat) >= 20.0) $newlyUnlocked = "Glass Master";
+                    $user->setTotalGlass((string)($old + $amtFloat));
+                    break;
+                case 'Métal':
+                    $old = (float)$user->getTotalMetal();
+                    if ($old < 15.0 && ($old + $amtFloat) >= 15.0) $newlyUnlocked = "Metal Titan";
+                    $user->setTotalMetal((string)($old + $amtFloat));
+                    break;
+                case 'Carton':
+                case 'Bois':
+                    $old = (float)$user->getTotalCardboard();
+                    if ($old < 25.0 && ($old + $amtFloat) >= 25.0) $newlyUnlocked = "Cardboard King";
+                    $user->setTotalCardboard((string)($old + $amtFloat));
+                    break;
+            }
+
+            $unlockedBadges = [];
+            if ($firstTimeBadge) $unlockedBadges[] = "First Timer";
+            if ($newlyUnlocked) $unlockedBadges[] = $newlyUnlocked;
+
+            // --- XP MULTIPLIER ALGORITHM (SUPPLY & DEMAND) ---
+            $allActive = $doctrine->getRepository(Collection::class)->findBy(['status' => 'active']);
+            $materialGoalGlobal = 0.0;
+            $materialCurrentGlobal = 0.0;
+            
+            foreach ($allActive as $c) {
+                if ($c->getMaterialType() === $material) {
+                    $materialGoalGlobal += (float)$c->getGoalAmount();
+                    $materialCurrentGlobal += (float)$c->getCurrentAmount();
+                }
+            }
+
+            $multiplier = 1;
+            if ($materialGoalGlobal > 0) {
+                $missingPct = ($materialGoalGlobal - $materialCurrentGlobal) / $materialGoalGlobal;
+                if ($missingPct > 0.8) $multiplier = 3;      // Critical shortage: 3x XP
+                elseif ($missingPct > 0.5) $multiplier = 2;  // High demand: 2x XP
+            }
+            
+            // Base XP is 10 per kg
+            $awardedXp = (int)($amtFloat * 10 * $multiplier);
+            if (method_exists($user, 'setXp')) {
+                $user->setXp($user->getXp() + $awardedXp);
+            }
+
             $em = $doctrine->getManager();
             $em->persist($donation);
             $em->flush();
 
+            $aiMessage = $aiEcoService->generateImpactMessage($amtFloat, $material);
+
             return new JsonResponse([
-                'success'    => true,
-                'message'    => 'Don enregistré avec succès!',
-                'donation'   => [
-                    'id'     => $donation->getId(),
-                    'amount' => $donation->getAmount(),
-                    'status' => $donation->getStatus(),
-                    'date'   => $donation->getDonationDate()->format('Y-m-d H:i'),
-                ],
-                'collection' => $this->serializeCollection($collection, $doctrine)
-            ], Response::HTTP_CREATED);
+                'success' => true,
+                'collection' => $this->serializeCollection($collection, $doctrine),
+                'badges' => $unlockedBadges,
+                'xp_awarded' => $awardedXp,
+                'multiplier' => $multiplier,
+                'ai_message' => $aiMessage
+            ]);
         } catch (\Exception $e) {
             return new JsonResponse(['success' => false, 'message' => 'Erreur serveur: ' . $e->getMessage() . ' ligne: ' . $e->getLine()], 500);
         }
@@ -1618,7 +1692,16 @@ class ApiController extends AbstractController
     {
         try {
             $this->denyAccessUnlessGranted('ROLE_PARTICIPANT');
+            /** @var User $user */
             $user = $this->getUser();
+
+            $earnedBadges = [];
+            if ($user->isHasDonatedFirstTime()) $earnedBadges[] = "First Timer";
+            if ((float)$user->getTotalPlastic() >= 50.0) $earnedBadges[] = "Plastic Pioneer";
+            if ((float)$user->getTotalPaper() >= 30.0) $earnedBadges[] = "Paper Warrior";
+            if ((float)$user->getTotalGlass() >= 20.0) $earnedBadges[] = "Glass Master";
+            if ((float)$user->getTotalMetal() >= 15.0) $earnedBadges[] = "Metal Titan";
+            if ((float)$user->getTotalCardboard() >= 25.0) $earnedBadges[] = "Cardboard King";
 
             $donations = $doctrine->getRepository(Donation::class)->findBy(
                 ['user' => $user],
@@ -1657,9 +1740,51 @@ class ApiController extends AbstractController
                 ];
             }
 
-            return new JsonResponse(['success' => true, 'data' => $data]);
+            return new JsonResponse(['success' => true, 'data' => $data, 'badges' => $earnedBadges]);
         } catch (\Exception $e) {
             return new JsonResponse(['success' => false, 'message' => 'Erreur serveur: ' . $e->getMessage() . ' ligne: ' . $e->getLine()], 500);
+        }
+    }
+
+    #[Route('/participant/leaderboard', name: 'api_participant_leaderboard', methods: ['GET'])]
+    public function leaderboard(ManagerRegistry $doctrine): JsonResponse
+    {
+        try {
+            $this->denyAccessUnlessGranted('ROLE_PARTICIPANT');
+            /** @var User $me */
+            $me = $this->getUser();
+            
+            $users = $doctrine->getRepository(User::class)->findBy([], ['xp' => 'DESC'], 50);
+            $data = [];
+            $rank = 1;
+            $myRank = null;
+            
+            foreach ($users as $u) {
+                $xp = method_exists($u, 'getXp') ? $u->getXp() : 0;
+                $title = 'Eco-Novice';
+                if ($xp >= 5000) $title = 'Gardien de la Terre';
+                elseif ($xp >= 2000) $title = 'Héros de la Planète';
+                elseif ($xp >= 500) $title = 'Recycleur Actif';
+
+                $data[] = [
+                    'rank' => $rank,
+                    'name' => $u->getNom() . ' ' . $u->getPrenom(),
+                    'xp' => $xp,
+                    'title' => $title,
+                    'isMe' => $u->getId() === $me->getId()
+                ];
+                if ($u->getId() === $me->getId()) $myRank = $rank;
+                $rank++;
+            }
+
+            return new JsonResponse([
+                'success' => true, 
+                'data' => $data, 
+                'myRank' => $myRank, 
+                'myXp' => method_exists($me, 'getXp') ? $me->getXp() : 0
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse(['success' => false, 'message' => 'Erreur serveur: ' . $e->getMessage()], 500);
         }
     }
 
@@ -1684,7 +1809,7 @@ class ApiController extends AbstractController
         ];
 
         $imageFile = $request->files->get('image');
-        $errors = $this->validateCollectionData($data, false, $imageFile);
+        $errors = $this->validateCollectionData($data, false, $imageFile, $doctrine, $id);
         if (!empty($errors)) {
             return new JsonResponse(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
         }

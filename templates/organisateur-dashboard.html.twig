@@ -501,6 +501,27 @@ select option { background: var(--surface); color: white; }
       <button class="btn btn-g" id="btnNewColl" onclick="openCollModal()">+ Nouvelle collection</button>
     </div>
 
+    <!-- Gamification Botanique -->
+    <div class="blk" style="margin-bottom:18px;display:flex;align-items:center;padding:24px;gap:25px;background:linear-gradient(145deg,rgba(15,28,21,0.6),rgba(30,58,47,0.3));border:1px solid rgba(93,168,122,0.15)">
+      <div style="width:110px;height:110px;border-radius:20px;background:var(--bg);border:2px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 4px 10px rgba(0,0,0,0.3)">
+        <img id="plantImage" src="/images/tree_stage1_sapling.png" style="height:80%;max-width:90%;object-fit:contain;transition:all 0.5s" onerror="this.outerHTML='<span style=\\'font-size:3rem\\'>🌱</span>'" alt="Gamification Plant">
+      </div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:white;text-shadow:0 2px 4px rgba(0,0,0,0.3)">La Plante Loopi</div>
+          <div style="background:rgba(93,168,122,0.15);color:var(--forest);padding:4px 10px;border-radius:8px;font-size:0.75rem;font-weight:bold" id="plantTotalBadge">Total : 0 kg</div>
+        </div>
+        <div style="font-size:0.85rem;color:var(--muted);margin-bottom:14px">Impact cumulé des contributions de vos participants à travers <span style="font-weight:600;color:var(--sand)">toutes vos collections</span>.</div>
+        
+        <div style="background:rgba(0,0,0,0.3);height:8px;border-radius:10px;width:100%;overflow:hidden;margin-bottom:8px;box-shadow:inset 0 1px 3px rgba(0,0,0,0.5)">
+          <div id="plantProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--moss),var(--accent));border-radius:10px;transition:width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);position:relative">
+            <div style="position:absolute;top:0;right:0;bottom:0;width:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3));border-radius:10px"></div>
+          </div>
+        </div>
+        <div id="plantNextGoal" style="font-size:0.75rem;color:var(--sand);font-weight:600">Calcul du niveau en cours...</div>
+      </div>
+    </div>
+
     <!-- Search + Filter -->
     <div class="blk" style="padding:14px 18px;margin-bottom:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
       <input id="collSearch" type="text" placeholder="🔍 Rechercher par titre…" oninput="filterCollections()" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none;width:220px;transition:border-color .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
@@ -531,7 +552,7 @@ select option { background: var(--surface); color: white; }
       <span id="collModalTitle">Nouvelle collection</span>
       <button class="modal-close" onclick="closeCollModal()">✕</button>
     </div>
-    <form id="collForm" onsubmit="submitCollForm(event)" enctype="multipart/form-data">
+    <form id="collForm" onsubmit="submitCollForm(event)" enctype="multipart/form-data" novalidate>
       <input type="hidden" id="collEditId" value="">
 
       <div class="form-row2">
@@ -803,9 +824,98 @@ async function loadCollections() {
     const json = await res.json();
     _allCollections = json.data || [];
     renderCollections(_allCollections);
+    
+    // Gamification Plant
+    if (json.totalCollected !== undefined) {
+        updatePlantGamification(json.totalCollected);
+    }
   } catch(e) {
     document.getElementById('collLoading').textContent = '⚠️ Erreur de chargement.';
   }
+}
+
+function updatePlantGamification(total) {
+  // 1. Safety check for the input value
+  let totFinal = parseFloat(total) || 0;
+  if (totFinal < 0) totFinal = 0; // Prevent negative kg
+
+  const progressBar = document.getElementById('plantProgressBar');
+  const totalBadge = document.getElementById('plantTotalBadge');
+  const imgEl = document.getElementById('plantImage');
+  const goalMsg = document.getElementById('plantNextGoal');
+
+  if (!progressBar || !totalBadge || !imgEl || !goalMsg) return;
+
+  // 2. Define the milestones/stages
+  const stages = [
+    { limit: 0, img: 'tree_stage1_sapling.png', icon: '🌱', label: 'Niveau 1' },
+    { limit: 100, img: 'tree_stage2_small.png', icon: '🌿', label: 'Niveau 2' },
+    { limit: 1000, img: 'tree_stage3_large.png', icon: '🌳', label: 'Niveau 3' },
+    { limit: 5000, img: 'tree_stage4_glowing.png', icon: '🌎', label: 'Niveau MAX' }
+  ];
+
+  // Which stage are we actually reaching?
+  let targetIdx = 0;
+  for (let i = 0; i < stages.length; i++) {
+    if (totFinal >= stages[i].limit) targetIdx = i;
+  }
+
+  // 3. Animation Loop
+  const duration = 2500; 
+  const startTime = performance.now();
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Smooth progress curve (Linear for stable numbers)
+    const currentKg = totFinal * progress;
+    totalBadge.textContent = 'Total : ' + currentKg.toFixed(1) + ' kg';
+
+    // Figure out which stage to show right now (Equal time for each)
+    let currentStageIdx = 0;
+    if (targetIdx > 0) {
+        currentStageIdx = Math.floor(progress * (targetIdx + 1));
+        if (currentStageIdx > targetIdx) currentStageIdx = targetIdx;
+    }
+    const activeStage = stages[currentStageIdx];
+
+    // Update Image if changed
+    const newSrc = '/images/' + activeStage.img;
+    if (!imgEl.src.endsWith(activeStage.img)) {
+       imgEl.src = newSrc;
+       imgEl.style.transform = 'scale(1.15)';
+       setTimeout(() => imgEl.style.transform = 'scale(1)', 300);
+    }
+
+    // Calculate Progress Bar logic
+    let progPct = 0;
+    let msg = '';
+    
+    if (currentKg < 100) {
+      progPct = (currentKg / 100) * 100;
+      msg = `Niveau 1 🌱 ➔ Encore ${(100 - currentKg).toFixed(1)} kg pour éclore !`;
+    } else if (currentKg < 1000) {
+      progPct = ((currentKg - 100) / 900) * 100;
+      msg = `Niveau 2 🌿 ➔ Super ! ${(1000 - currentKg).toFixed(1)} kg restants !`;
+    } else if (currentKg < 5000) {
+      progPct = ((currentKg - 1000) / 4000) * 100;
+      msg = `Niveau 3 🌳 ➔ ${(5000 - currentKg).toFixed(1)} kg avant la forêt dense !`;
+    } else {
+      progPct = 100;
+      msg = `Niveau MAX 🌎 ➔ Impact Exceptionnel !`;
+      progressBar.style.background = 'linear-gradient(90deg, #d4af37, #f3e5ab)';
+    }
+
+    progressBar.style.width = Math.max(0, Math.min(progPct, 100)) + '%';
+    goalMsg.textContent = msg;
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    }
+  }
+
+  requestAnimationFrame(animate);
 }
 
 function filterCollections() {
@@ -857,6 +967,10 @@ function renderCollections(list) {
     card.className = 'coll-dyn-card blk';
     card.style.padding = '0';
     card.style.overflow = 'hidden';
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(10px)';
+    card.style.transition = 'all 0.4s ease';
+
     if (isFinished) {
       card.style.filter = 'grayscale(80%) opacity(0.85)';
     }
@@ -870,8 +984,8 @@ function renderCollections(list) {
             ${statusBadge}
           </div>
         </div>
-        <div class="prog-bar" style="height:8px;margin:10px 0 4px">
-          <div class="prog-fill" style="width:${pct}%"></div>
+        <div class="prog-bar" style="height:8px;margin:10px 0 4px;background:rgba(255,255,255,0.05)">
+          <div class="prog-fill" id="pb-${c.id}" style="width:0%; transition: width 2s cubic-bezier(0.2, 0.8, 0.2, 1)"></div>
         </div>
         <div class="prog-nums">
           <span style="color:var(--accent);font-weight:600">${c.currentAmount.toFixed(1)} ${escHtml(c.unit)}</span>
@@ -883,7 +997,16 @@ function renderCollections(list) {
           <button class="btn btn-danger" style="flex:1;font-size:.75rem" onclick="askDeleteColl(${c.id})">🗑️ Supprimer</button>
         </div>
       </div>`;
+    
     grid.appendChild(card);
+
+    // Trigger animations after a tiny delay
+    setTimeout(() => {
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+      const fill = document.getElementById(`pb-${c.id}`);
+      if (fill) fill.style.width = pct + '%';
+    }, 100);
   });
 }
 
