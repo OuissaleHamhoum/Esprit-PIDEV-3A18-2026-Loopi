@@ -11,6 +11,7 @@ use App\Entity\Donation;
 use App\Entity\Coupon;
 use App\Entity\Feedback;
 use App\Entity\Favoris;
+use App\Entity\Genre;
 use App\Repository\GenreRepository;
 use Doctrine\Persistence\ManagerRegistry;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -41,7 +42,7 @@ class ApiController extends AbstractController
 
         // Input validation
         $errors = [];
-        
+
         $email = trim($data['email'] ?? '');
         $nom = trim($data['nom'] ?? '');
         $prenom = trim($data['prenom'] ?? '');
@@ -104,7 +105,9 @@ class ApiController extends AbstractController
             $user->setNom($nom);
             $user->setPrenom($prenom);
             $user->setRole(in_array($role, ['admin', 'organisateur'], true) ? $role : 'participant');
+
             $user->setPassword($password);
+
             $user->setCreatedAt(new \DateTime());
             $user->setUpdatedAt(new \DateTime());
 
@@ -149,8 +152,18 @@ class ApiController extends AbstractController
         }
 
         $user = $doctrine->getRepository(User::class)->findOneBy(['email' => $email]);
-        
-        if (!$user || $user->getPassword() !== $password) {
+
+        $isValidPassword = false;
+        if ($user) {
+            $storedPassword = (string) $user->getPassword();
+            if (str_starts_with($storedPassword, '$2y$') || str_starts_with($storedPassword, '$2a$') || str_starts_with($storedPassword, '$2b$')) {
+                $isValidPassword = password_verify($password, $storedPassword);
+            } else {
+                $isValidPassword = hash_equals($storedPassword, $password);
+            }
+        }
+
+        if (!$user || !$isValidPassword) {
             return new JsonResponse([
                 'success' => false,
                 'message' => 'Email ou mot de passe incorrect.'
@@ -275,7 +288,9 @@ class ApiController extends AbstractController
         $user->setNom($nom);
         $user->setPrenom($prenom);
         $user->setRole($role);
+
         $user->setPassword($password);
+
         $user->setCreatedAt(new \DateTime());
         $user->setUpdatedAt(new \DateTime());
 
@@ -467,6 +482,7 @@ class ApiController extends AbstractController
             $user->setNom($data['nom'] ?: 'Inconnu');
             $user->setPrenom($data['prenom'] ?: 'Utilisateur');
             $user->setRole($this->normalizeRole($data['role']));
+
             if ($data['password']) {
                 $user->setPassword($data['password']);
             } elseif ($isNew) {
@@ -557,6 +573,10 @@ class ApiController extends AbstractController
                 'capacite_max' => $event->getCapaciteMax(),
                 'image_evenement' => $event->getImageEvenement(),
                 'statut' => $event->getStatut() ?: 'en_attente',
+                'statut_validation' => $event->getStatutValidation() ?: 'en_attente',
+                'date_soumission' => $event->getDateSoumission() ? $event->getDateSoumission()->format('Y-m-d H:i:s') : null,
+                'date_validation' => $event->getDateValidation() ? $event->getDateValidation()->format('Y-m-d H:i:s') : null,
+                'commentaire_validation' => $event->getCommentaireValidation(),
                 'latitude' => $event->getLatitude(),
                 'longitude' => $event->getLongitude(),
                 'participants_count' => $participantsCount,

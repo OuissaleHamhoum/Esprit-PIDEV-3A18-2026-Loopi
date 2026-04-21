@@ -4,152 +4,623 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
 
 <style>
-  .events-map-container { position: relative; height: calc(100vh - 120px); border-radius: 12px; overflow: hidden; border: 1px solid var(--border); }
+  .events-map-container { 
+    position: relative; 
+    height: calc(100vh - 120px); 
+    border-radius: 12px; 
+    overflow: hidden; 
+    border: 1px solid var(--border); 
+  }
   .events-map { height: 100%; width: 100%; }
 
-  /* Map Controls */
-  .map-controls { position: absolute; top: 20px; left: 20px; z-index: 1000; display: flex; flex-direction: column; gap: 10px; }
-  .map-control-panel { background: white; border-radius: 12px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid var(--border); min-width: 280px; }
-  .map-control-title { font-size: 0.9rem; font-weight: 700; color: var(--forest); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-  .map-control-title .icon { font-size: 1rem; }
-
-  /* Filters */
-  .map-filters { display: flex; flex-direction: column; gap: 12px; }
-  .filter-group { display: flex; flex-direction: column; gap: 6px; }
-  .filter-label { font-size: 0.75rem; font-weight: 600; color: var(--muted); }
-  .filter-input, .filter-select { padding: 8px 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 0.8rem; background: white; }
-  .filter-input:focus, .filter-select:focus { outline: none; border-color: var(--accent); }
-
-  /* Search */
-  .map-search { position: relative; }
-  .search-input { padding-left: 36px; }
-  .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: var(--muted); font-size: 0.9rem; }
+  /* Map Controls - Style comme la capture */
+  .map-controls { 
+    position: absolute; 
+    top: 20px; 
+    left: 20px; 
+    right: 20px;
+    z-index: 1000; 
+    display: flex; 
+    gap: 15px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
+  
+  .map-search-card {
+    background: white;
+    border-radius: 50px;
+    padding: 6px 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 250px;
+    max-width: 400px;
+  }
+  
+  .map-search-card .search-icon {
+    color: var(--muted);
+    font-size: 1rem;
+  }
+  
+  .map-search-card input {
+    border: none;
+    padding: 12px 0;
+    font-size: 0.85rem;
+    width: 100%;
+    outline: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+  }
+  
+  .map-filters-card {
+    background: white;
+    border-radius: 50px;
+    padding: 6px 20px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+  
+  .map-filters-card select {
+    border: none;
+    padding: 12px 0;
+    font-size: 0.85rem;
+    background: transparent;
+    outline: none;
+    font-family: 'DM Sans', sans-serif;
+    color: var(--forest);
+    font-weight: 500;
+    cursor: pointer;
+  }
+  
+  .filter-divider {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+  }
 
   /* Legend */
-  .map-legend { position: absolute; bottom: 20px; right: 20px; z-index: 1000; background: white; border-radius: 12px; padding: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); border: 1px solid var(--border); }
-  .legend-title { font-size: 0.85rem; font-weight: 700; color: var(--forest); margin-bottom: 10px; }
-  .legend-item { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: 0.75rem; }
-  .legend-item:last-child { margin-bottom: 0; }
-  .legend-color { width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0; }
+  .map-legend { 
+    position: absolute; 
+    bottom: 20px; 
+    right: 20px; 
+    z-index: 1000; 
+    background: white; 
+    border-radius: 12px; 
+    padding: 12px 16px; 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15); 
+    border: 1px solid var(--border);
+    font-size: 0.7rem;
+  }
+  .legend-title { 
+    font-size: 0.7rem; 
+    font-weight: 700; 
+    color: var(--forest); 
+    margin-bottom: 8px; 
+  }
+  .legend-item { 
+    display: flex; 
+    align-items: center; 
+    gap: 8px; 
+    margin-bottom: 5px; 
+  }
+  .legend-color { 
+    width: 10px; 
+    height: 10px; 
+    border-radius: 50%; 
+    flex-shrink: 0; 
+  }
+  .legend-color.valide { background: #10B981; }
+  .legend-color.en_attente { background: #F59E0B; }
+  .legend-color.rejete { background: #DC3545; }
 
   /* Event Markers */
-  .event-marker { border-radius: 50%; border: 2px solid white; box-shadow: 0 2px 8px rgba(0,0,0,0.3); }
-  .event-marker.valide { background: var(--success); }
-  .event-marker.en_attente { background: var(--warn); }
-  .event-marker.rejete { background: var(--danger); }
+  .custom-marker {
+    background: white;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    border: 2px solid white;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: transform 0.2s;
+  }
+  .custom-marker:hover {
+    transform: scale(1.1);
+  }
+  .custom-marker.valide { background: #10B981; color: white; }
+  .custom-marker.en_attente { background: #F59E0B; color: white; }
+  .custom-marker.rejete { background: #DC3545; color: white; }
 
-  /* Popup */
-  .event-popup { min-width: 280px; }
-  .popup-header { display: flex; align-items: flex-start; gap: 12px; margin-bottom: 12px; }
-  .popup-image { width: 60px; height: 60px; border-radius: 8px; object-fit: cover; flex-shrink: 0; }
-  .popup-content h3 { margin: 0 0 4px 0; font-size: 1rem; font-weight: 700; color: var(--forest); }
-  .popup-meta { font-size: 0.75rem; color: var(--muted); margin-bottom: 8px; }
-  .popup-description { font-size: 0.8rem; color: var(--text); margin-bottom: 12px; line-height: 1.4; }
-  .popup-actions { display: flex; gap: 8px; }
-  .popup-btn { padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border: none; transition: all 0.2s; }
-  .popup-btn-primary { background: var(--forest); color: white; }
-  .popup-btn-primary:hover { background: var(--moss); }
-  .popup-btn-secondary { background: rgba(255,255,255,0.9); color: var(--muted); border: 1px solid var(--border); }
-  .popup-btn-secondary:hover { background: white; }
+  /* Info Window / Popup comme la capture */
+  .event-info-window {
+    min-width: 280px;
+    max-width: 320px;
+    background: white;
+    border-radius: 16px;
+    overflow: hidden;
+  }
+  
+  .event-info-header {
+    position: relative;
+    height: 140px;
+    background-size: cover;
+    background-position: center;
+    background-color: var(--moss);
+  }
+  
+  .event-info-header .event-badge {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: white;
+    padding: 4px 12px;
+    border-radius: 50px;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+  
+  .event-info-content {
+    padding: 16px;
+  }
+  
+  .event-info-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--forest);
+    margin-bottom: 8px;
+  }
+  
+  .event-info-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.7rem;
+    color: var(--muted);
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  
+  .event-info-meta span {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+  
+  .event-info-desc {
+    font-size: 0.75rem;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 16px;
+  }
+  
+  .event-info-stats {
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 0;
+    border-top: 1px solid var(--border);
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 16px;
+  }
+  
+  .event-stat-item {
+    text-align: center;
+  }
+  
+  .event-stat-value {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--forest);
+  }
+  
+  .event-stat-label {
+    font-size: 0.6rem;
+    color: var(--muted);
+  }
+  
+  .event-info-actions {
+    display: flex;
+    gap: 10px;
+  }
+  
+  .event-info-actions button {
+    flex: 1;
+    padding: 8px;
+    border-radius: 8px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+  }
+  
+  .btn-view-details {
+    background: var(--forest);
+    color: white;
+  }
+  
+  .btn-view-details:hover {
+    background: var(--moss);
+  }
+  
+  .btn-edit {
+    background: var(--bg);
+    color: var(--forest);
+    border: 1px solid var(--border);
+  }
+  
+  .btn-edit:hover {
+    background: var(--border);
+  }
+
+  /* Modal Détails Événement */
+  .event-detail-modal {
+    display: none !important;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 3000;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+  }
+  
+  .event-detail-modal.open {
+    display: flex !important;
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .event-detail-modal-content {
+    background: white;
+    border-radius: 24px;
+    width: 90%;
+    max-width: 550px;
+    max-height: 85vh;
+    overflow-y: auto;
+    animation: modalSlideIn 0.3s ease;
+  }
+  
+  @keyframes modalSlideIn {
+    from {
+      transform: translateY(30px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
+  .event-detail-header {
+    position: relative;
+    height: 200px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 24px 24px 0 0;
+  }
+  
+  .event-detail-header .event-status-badge {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: white;
+    padding: 6px 16px;
+    border-radius: 50px;
+    font-size: 0.75rem;
+    font-weight: 700;
+  }
+  
+  .event-detail-body {
+    padding: 24px;
+  }
+  
+  .event-detail-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    font-weight: 900;
+    color: var(--forest);
+    margin-bottom: 8px;
+  }
+  
+  .event-detail-organizer {
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 20px;
+  }
+  
+  .event-detail-section {
+    margin-bottom: 20px;
+  }
+  
+  .event-detail-section-title {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+  
+  .event-detail-description {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: var(--text);
+  }
+  
+  .event-detail-info-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    background: var(--bg);
+    padding: 16px;
+    border-radius: 12px;
+  }
+  
+  .event-detail-info-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+  }
+  
+  .event-detail-info-item .icon {
+    font-size: 1rem;
+  }
+  
+  .event-detail-info-item .label {
+    color: var(--muted);
+  }
+  
+  .event-detail-info-item .value {
+    font-weight: 600;
+    color: var(--forest);
+  }
+  
+  .event-detail-participants {
+    background: var(--bg);
+    border-radius: 12px;
+    padding: 16px;
+  }
+  
+  .participant-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.75rem;
+  }
+  
+  .participant-item:last-child {
+    border-bottom: none;
+  }
+  
+  .event-detail-footer {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+  }
+  
+  .event-detail-footer button {
+    flex: 1;
+    padding: 12px;
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  
+  .btn-close-modal {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+  }
+  
+  .btn-close-modal:hover {
+    background: var(--border);
+  }
+  
+  .btn-edit-modal {
+    background: var(--forest);
+    border: none;
+    color: white;
+  }
+  
+  .btn-edit-modal:hover {
+    background: var(--moss);
+  }
 
   /* Loading */
-  .map-loading { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 12px; z-index: 1001; }
-  .loading-spinner { width: 20px; height: 20px; border: 2px solid var(--border); border-top: 2px solid var(--accent); border-radius: 50%; animation: spin 1s linear infinite; }
+  .map-loading { 
+    position: absolute; 
+    top: 50%; 
+    left: 50%; 
+    transform: translate(-50%, -50%); 
+    background: white; 
+    padding: 20px; 
+    border-radius: 12px; 
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15); 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+    z-index: 1001; 
+  }
+  .loading-spinner { 
+    width: 20px; 
+    height: 20px; 
+    border: 2px solid var(--border); 
+    border-top: 2px solid var(--accent); 
+    border-radius: 50%; 
+    animation: spin 1s linear infinite; 
+  }
 
-  @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+  @keyframes spin { 
+    0% { transform: rotate(0deg); } 
+    100% { transform: rotate(360deg); } 
+  }
+
+  /* Leaflet popup customization */
+  .leaflet-popup-content-wrapper {
+    padding: 0 !important;
+    border-radius: 16px !important;
+    overflow: hidden !important;
+  }
+  
+  .leaflet-popup-content {
+    margin: 0 !important;
+    width: auto !important;
+  }
+  
+  .leaflet-popup-tip {
+    display: none;
+  }
+
+  /* Image placeholder */
+  .event-image-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, var(--forest), var(--moss));
+    color: white;
+    font-size: 2rem;
+  }
 
   /* Responsive */
   @media (max-width: 768px) {
-    .map-controls { top: 10px; left: 10px; }
-    .map-control-panel { min-width: 250px; }
+    .map-controls { flex-direction: column; }
+    .map-search-card, .map-filters-card { max-width: none; border-radius: 30px; }
+    .map-filters-card { flex-wrap: wrap; justify-content: center; }
     .map-legend { bottom: 10px; right: 10px; }
     .events-map-container { height: calc(100vh - 100px); }
   }
 </style>
 
 <div id="page-events-map" style="display:none">
-  <div class="blk" style="margin-bottom:16px">
-    <div class="blk-title">
-      <span>🗺️ Carte des Événements</span>
-      <span class="sub">Visualisation géographique de tous les événements</span>
-    </div>
-  </div>
-
-  <!-- Map Controls -->
-  <div class="map-controls">
-    <div class="map-control-panel">
-      <div class="map-control-title">
-        <span class="icon">🔍</span>
-        Filtres & Recherche
-      </div>
-      <div class="map-filters">
-        <div class="filter-group">
-          <label class="filter-label">Rechercher un événement</label>
-          <div class="map-search">
-            <span class="search-icon">🔍</span>
-            <input type="text" class="filter-input search-input" id="mapSearch" placeholder="Nom, lieu, organisateur..." onkeyup="filterEvents()">
-          </div>
-        </div>
-
-        <div class="filter-group">
-          <label class="filter-label">Statut</label>
-          <select class="filter-select" id="statusFilter" onchange="filterEvents()">
-            <option value="">Tous les statuts</option>
-            <option value="valide">Validé</option>
-            <option value="en_attente">En attente</option>
-            <option value="rejete">Rejeté</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label class="filter-label">Date</label>
-          <select class="filter-select" id="dateFilter" onchange="filterEvents()">
-            <option value="">Toutes les dates</option>
-            <option value="today">Aujourd'hui</option>
-            <option value="week">Cette semaine</option>
-            <option value="month">Ce mois</option>
-            <option value="upcoming">À venir</option>
-          </select>
-        </div>
-
-        <div class="filter-group">
-          <label class="filter-label">Capacité</label>
-          <select class="filter-select" id="capacityFilter" onchange="filterEvents()">
-            <option value="">Toutes capacités</option>
-            <option value="small">Petit (≤50)</option>
-            <option value="medium">Moyen (51-200)</option>
-            <option value="large">Grand (>200)</option>
-          </select>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Map Container -->
   <div class="events-map-container">
     <div id="eventsMap" class="events-map"></div>
+
+    <!-- Map Controls - Style comme la capture -->
+    <div class="map-controls">
+      <div class="map-search-card">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="mapSearch" placeholder="Rechercher un événement..." onkeyup="filterEvents()">
+      </div>
+      
+      <div class="map-filters-card">
+        <select id="statusFilter" onchange="filterEvents()">
+          <option value="">Tous les événements</option>
+          <option value="valide">Validés</option>
+          <option value="en_attente">En attente</option>
+          <option value="rejete">Rejetés</option>
+        </select>
+        <span class="filter-divider"></span>
+        <select id="dateFilter" onchange="filterEvents()">
+          <option value="">Toutes les dates</option>
+          <option value="today">Aujourd'hui</option>
+          <option value="week">Cette semaine</option>
+          <option value="month">Ce mois</option>
+          <option value="upcoming">À venir</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div class="map-legend">
+      <div class="legend-title">Légende</div>
+      <div class="legend-item">
+        <div class="legend-color valide"></div>
+        <span>Validé</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color en_attente"></div>
+        <span>En attente</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color rejete"></div>
+        <span>Rejeté</span>
+      </div>
+    </div>
 
     <!-- Loading Overlay -->
     <div id="mapLoading" class="map-loading" style="display: none;">
       <div class="loading-spinner"></div>
-      <span>Chargement de la carte...</span>
+      <span>Chargement des événements...</span>
     </div>
   </div>
+</div>
 
-  <!-- Legend -->
-  <div class="map-legend">
-    <div class="legend-title">Légende</div>
-    <div class="legend-item">
-      <div class="legend-color" style="background: var(--success);"></div>
-      <span>Événement validé</span>
+<!-- Modal Détails Événement -->
+<div id="eventDetailModal" class="event-detail-modal">
+  <div class="event-detail-modal-content">
+    <div id="eventDetailHeader" class="event-detail-header">
+      <span id="eventDetailStatus" class="event-status-badge"></span>
     </div>
-    <div class="legend-item">
-      <div class="legend-color" style="background: var(--warn);"></div>
-      <span>En attente</span>
-    </div>
-    <div class="legend-item">
-      <div class="legend-color" style="background: var(--danger);"></div>
-      <span>Rejeté</span>
+    <div class="event-detail-body">
+      <h2 id="eventDetailTitle" class="event-detail-title"></h2>
+      <div id="eventDetailOrganizer" class="event-detail-organizer"></div>
+      
+      <div class="event-detail-section">
+        <div class="event-detail-section-title">Description</div>
+        <div id="eventDetailDescription" class="event-detail-description"></div>
+      </div>
+      
+      <div class="event-detail-section">
+        <div class="event-detail-section-title">Informations pratiques</div>
+        <div class="event-detail-info-grid">
+          <div class="event-detail-info-item">
+            <span class="icon">📅</span>
+            <span class="label">Date:</span>
+            <span id="eventDetailDate" class="value"></span>
+          </div>
+          <div class="event-detail-info-item">
+            <span class="icon">⏰</span>
+            <span class="label">Heure:</span>
+            <span id="eventDetailTime" class="value"></span>
+          </div>
+          <div class="event-detail-info-item">
+            <span class="icon">📍</span>
+            <span class="label">Lieu:</span>
+            <span id="eventDetailLocation" class="value"></span>
+          </div>
+          <div class="event-detail-info-item">
+            <span class="icon">👥</span>
+            <span class="label">Capacité:</span>
+            <span id="eventDetailCapacity" class="value"></span>
+          </div>
+        </div>
+      </div>
+      
+      <div class="event-detail-section">
+        <div class="event-detail-section-title">Participants</div>
+        <div id="eventDetailParticipants" class="event-detail-participants">
+          <div style="text-align: center; color: var(--muted);">Chargement...</div>
+        </div>
+      </div>
+      
+      <div class="event-detail-footer">
+        <button class="btn-close-modal" onclick="closeEventDetailModal()">Fermer</button>
+        <button id="eventDetailEditBtn" class="btn-edit-modal" onclick="editCurrentEvent()">Modifier l'événement</button>
+      </div>
     </div>
   </div>
 </div>
@@ -161,6 +632,30 @@
 let eventsMap = null;
 let eventMarkers = [];
 let allEvents = [];
+let currentSelectedEvent = null;
+
+// Fonction pour obtenir l'URL complète de l'image
+function getEventImageUrl(imageName) {
+  if (!imageName) return null;
+  // Si l'URL commence déjà par http ou /uploads, la retourner telle quelle
+  if (imageName.startsWith('http') || imageName.startsWith('/uploads')) {
+    return imageName;
+  }
+  // Sinon, construire le chemin /uploads/events/
+  return '/uploads/events/' + imageName;
+}
+
+// Fonction pour créer l'en-tête avec image ou placeholder
+function createEventHeader(imageUrl, title) {
+  if (imageUrl) {
+    // Tester si l'image existe (optionnel, mais on l'affiche quand même)
+    return `<div class="event-info-header" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;"></div>`;
+  } else {
+    return `<div class="event-info-header" style="background: linear-gradient(135deg, var(--forest), var(--moss)); display: flex; align-items: center; justify-content: center;">
+      <div class="event-image-placeholder">📅</div>
+    </div>`;
+  }
+}
 
 // Initialize map
 function initEventsMap() {
@@ -198,14 +693,95 @@ async function loadEventsForMap() {
       allEvents = data.events;
       displayEventsOnMap(allEvents);
     } else {
-      showAlert('Erreur lors du chargement des événements', 'error');
+      console.error('Erreur lors du chargement des événements:', data);
+      showToast('Erreur lors du chargement des événements', 'error');
     }
   } catch (error) {
     console.error('Erreur:', error);
-    showAlert('Erreur de connexion', 'error');
+    showToast('Erreur de connexion', 'error');
   } finally {
     loading.style.display = 'none';
   }
+}
+
+// Create custom marker icon
+function createCustomMarker(event) {
+  let color;
+  let icon;
+  switch (event.statut) {
+    case 'valide':
+    case 'approuve':
+      color = '#10B981';
+      icon = '✓';
+      break;
+    case 'rejete':
+      color = '#DC3545';
+      icon = '✗';
+      break;
+    default:
+      color = '#F59E0B';
+      icon = '⏳';
+  }
+  
+  return L.divIcon({
+    className: 'custom-marker',
+    html: `<div class="custom-marker ${event.statut === 'valide' || event.statut === 'approuve' ? 'valide' : event.statut === 'rejete' ? 'rejete' : 'en_attente'}" style="background: ${color};">${icon}</div>`,
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
+    popupAnchor: [0, -36]
+  });
+}
+
+// Create info window content (popup)
+function createInfoWindowContent(event) {
+  const eventDate = new Date(event.date_evenement);
+  const formattedDate = eventDate.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+  const formattedTime = event.heure_evenement || eventDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  
+  const statusText = event.statut === 'valide' ? 'Validé' : event.statut === 'rejete' ? 'Rejeté' : 'En attente';
+  const statusClass = event.statut === 'valide' ? 'valide' : event.statut === 'rejete' ? 'rejete' : 'en_attente';
+  const statusColor = statusClass === 'valide' ? '#10B981' : statusClass === 'rejete' ? '#DC3545' : '#F59E0B';
+  
+  const imageUrl = getEventImageUrl(event.image_evenement);
+  
+  const headerHtml = imageUrl 
+    ? `<div class="event-info-header" style="background-image: url('${imageUrl}'); background-size: cover; background-position: center;"></div>`
+    : `<div class="event-info-header" style="background: linear-gradient(135deg, var(--forest), var(--moss)); display: flex; align-items: center; justify-content: center;"><div class="event-image-placeholder" style="font-size: 3rem;">📅</div></div>`;
+  
+  return `
+    <div class="event-info-window">
+      ${headerHtml}
+      <div class="event-info-content">
+        <div class="event-info-title">${escapeHtml(event.titre)}</div>
+        <div class="event-info-meta">
+          <span>📅 ${formattedDate}</span>
+          <span>⏰ ${formattedTime}</span>
+          <span>📍 ${escapeHtml(event.lieu || 'Non spécifié')}</span>
+        </div>
+        <div class="event-info-desc">
+          ${escapeHtml(event.description ? event.description.substring(0, 100) + (event.description.length > 100 ? '...' : '') : 'Aucune description')}
+        </div>
+        <div class="event-info-stats">
+          <div class="event-stat-item">
+            <div class="event-stat-value">${event.participants_count || 0}</div>
+            <div class="event-stat-label">Participants</div>
+          </div>
+          <div class="event-stat-item">
+            <div class="event-stat-value">${event.capacite_max || 0}</div>
+            <div class="event-stat-label">Places max</div>
+          </div>
+          <div class="event-stat-item">
+            <div class="event-stat-value">${(event.capacite_max || 0) - (event.participants_count || 0)}</div>
+            <div class="event-stat-label">Places rest.</div>
+          </div>
+        </div>
+        <div class="event-info-actions">
+          <button class="btn-view-details" onclick="viewEventDetails(${event.id})">👁️ Voir détails</button>
+          <button class="btn-edit" onclick="editEventFromMap(${event.id})">✏️ Modifier</button>
+        </div>
+      </div>
+    </div>
+  `;
 }
 
 // Display events on map
@@ -214,48 +790,33 @@ function displayEventsOnMap(events) {
   eventMarkers.forEach(marker => eventsMap.removeLayer(marker));
   eventMarkers = [];
 
-  // Group events by location to avoid overlapping markers
-  const locationGroups = {};
+  // Ensure all events are visible on the map.
+  // If coordinates are missing, place them around Tunis with a small offset.
+  const baseLat = 36.8065;
+  const baseLng = 10.1815;
 
-  events.forEach(event => {
-    if (event.latitude && event.longitude) {
-      const key = `${event.latitude},${event.longitude}`;
-      if (!locationGroups[key]) {
-        locationGroups[key] = [];
-      }
-      locationGroups[key].push(event);
-    }
-  });
-
-  // Create markers for each location
-  Object.keys(locationGroups).forEach(key => {
-    const [lat, lng] = key.split(',').map(Number);
-    const eventsAtLocation = locationGroups[key];
-
-    // Use first event for marker position
-    const representativeEvent = eventsAtLocation[0];
-
-    // Create marker
+  // Create markers for each event
+  events.forEach((event, index) => {
+    const lat = event.latitude && !Number.isNaN(parseFloat(event.latitude))
+      ? parseFloat(event.latitude)
+      : baseLat + ((index % 10) * 0.01);
+    const lng = event.longitude && !Number.isNaN(parseFloat(event.longitude))
+      ? parseFloat(event.longitude)
+      : baseLng + ((Math.floor(index / 10) % 10) * 0.01);
+    
+    if (isNaN(lat) || isNaN(lng)) return;
+    
     const marker = L.marker([lat, lng], {
-      icon: createEventIcon(representativeEvent.statut)
+      icon: createCustomMarker(event)
     });
-
-    // Create popup content
-    const popupContent = createEventPopup(eventsAtLocation);
+    
+    const popupContent = createInfoWindowContent(event);
     marker.bindPopup(popupContent, {
-      maxWidth: 320,
-      className: 'event-popup'
+      maxWidth: 340,
+      minWidth: 280,
+      className: 'custom-popup'
     });
-
-    // Add hover effects
-    marker.on('mouseover', function() {
-      this.openPopup();
-    });
-
-    marker.on('mouseout', function() {
-      this.closePopup();
-    });
-
+    
     marker.addTo(eventsMap);
     eventMarkers.push(marker);
   });
@@ -267,72 +828,168 @@ function displayEventsOnMap(events) {
   }
 }
 
-// Create custom marker icon
-function createEventIcon(status) {
-  let color;
-  switch (status) {
-    case 'valide':
-    case 'approuve':
-      color = '#10B981'; // success
-      break;
-    case 'rejete':
-      color = '#DC3545'; // danger
-      break;
-    default:
-      color = '#F59E0B'; // warning
+// View event details in modal (comme la capture)
+async function viewEventDetails(eventId) {
+  currentSelectedEvent = allEvents.find(e => e.id === eventId);
+  
+  if (!currentSelectedEvent) {
+    // Fetch event details if not in cache
+    try {
+      const response = await fetch(`/api/admin/events/${eventId}`, {
+        credentials: 'include',
+        headers: { 'Accept': 'application/json' }
+      });
+      const data = await response.json();
+      if (data.success) {
+        currentSelectedEvent = data.event;
+        currentSelectedEvent.participants = data.participants || [];
+      } else {
+        showToast('Erreur lors du chargement des détails', 'error');
+        return;
+      }
+    } catch (error) {
+      console.error('Erreur:', error);
+      showToast('Erreur de connexion', 'error');
+      return;
+    }
+  } else {
+    // Fetch participants separately if needed
+    try {
+      const response = await fetch(`/api/admin/events/${eventId}`, {
+        credentials: 'include',
+        headers: { 'Accept': 'application/json' }
+      });
+      const data = await response.json();
+      if (data.success) {
+        currentSelectedEvent.participants = data.participants || [];
+      }
+    } catch (error) {
+      console.error('Erreur chargement participants:', error);
+      currentSelectedEvent.participants = [];
+    }
   }
-
-  return L.divIcon({
-    className: 'event-marker',
-    html: `<div class="event-marker ${status === 'valide' || status === 'approuve' ? 'valide' : status === 'rejete' ? 'rejete' : 'en_attente'}" style="background: ${color}; width: 20px; height: 20px;"></div>`,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10]
-  });
+  
+  displayEventDetailsModal(currentSelectedEvent);
 }
 
-// Create popup content for events
-function createEventPopup(events) {
-  if (events.length === 1) {
-    const event = events[0];
-    return `
-      <div class="popup-header">
-        ${event.image_evenement ? `<img src="/uploads/events/${event.image_evenement}" alt="${event.titre}" class="popup-image">` : '<div class="popup-image" style="background: var(--muted); display: flex; align-items: center; justify-content: center; color: white;">📅</div>'}
-        <div style="flex: 1;">
-          <h3>${escapeHtml(event.titre)}</h3>
-          <div class="popup-meta">
-            📍 ${escapeHtml(event.lieu || 'Lieu non spécifié')}<br>
-            👤 ${escapeHtml(event.organisateur || 'Organisateur inconnu')}<br>
-            📅 ${formatDate(event.date_evenement)}<br>
-            👥 ${event.participants_count || 0}/${event.capacite_max} participants
-          </div>
-        </div>
-      </div>
-      <div class="popup-description">
-        ${escapeHtml(event.description).substring(0, 150)}${event.description.length > 150 ? '...' : ''}
-      </div>
-      <div class="popup-actions">
-        <button class="popup-btn popup-btn-primary" onclick="viewEventDetails(${event.id_evenement})">Voir détails</button>
-        <button class="popup-btn popup-btn-secondary" onclick="editEvent(${event.id_evenement})">Modifier</button>
-      </div>
-    `;
+// Display modal with event details
+function displayEventDetailsModal(event) {
+  const modal = document.getElementById('eventDetailModal');
+  const eventDate = new Date(event.date_evenement);
+  const formattedDate = eventDate.toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  const formattedTime = event.heure_evenement || eventDate.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  
+  const statusText = event.statut === 'valide' ? 'Validé' : event.statut === 'rejete' ? 'Rejeté' : 'En attente';
+  const statusClass = event.statut === 'valide' ? '#10B981' : event.statut === 'rejete' ? '#DC3545' : '#F59E0B';
+  
+  const imageUrl = getEventImageUrl(event.image_evenement);
+  
+  // Set header background or placeholder
+  const header = document.getElementById('eventDetailHeader');
+  if (imageUrl) {
+    header.style.backgroundImage = `url('${imageUrl}')`;
+    header.style.backgroundSize = 'cover';
+    header.style.backgroundPosition = 'center';
+    header.style.backgroundColor = 'transparent';
+    header.innerHTML = '<span id="eventDetailStatus" class="event-status-badge"></span>';
   } else {
-    // Multiple events at same location
-    const eventList = events.map(event => `
-      <div style="border-bottom: 1px solid var(--border); padding: 8px 0;">
-        <strong>${escapeHtml(event.titre)}</strong><br>
-        <small>📅 ${formatDate(event.date_evenement)} • 👥 ${event.participants_count || 0}/${event.capacite_max}</small>
-      </div>
-    `).join('');
-
-    return `
-      <div style="max-height: 300px; overflow-y: auto;">
-        <h3 style="margin: 0 0 12px 0; color: var(--forest);">📍 ${events.length} événements à cet endroit</h3>
-        ${eventList}
-        <div style="margin-top: 12px; text-align: center;">
-          <button class="popup-btn popup-btn-primary" onclick="zoomToLocation(${events[0].latitude}, ${events[0].longitude})">Zoomer</button>
-        </div>
+    header.style.backgroundImage = 'none';
+    header.style.background = 'linear-gradient(135deg, var(--forest), var(--moss))';
+    header.innerHTML = `
+      <div class="event-image-placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; font-size: 3rem;">📅</div>
+      <span id="eventDetailStatus" class="event-status-badge"></span>
+    `;
+  }
+  
+  // Re-add status badge reference
+  const statusBadge = document.getElementById('eventDetailStatus');
+  if (statusBadge) {
+    statusBadge.textContent = statusText;
+    statusBadge.style.backgroundColor = statusClass;
+    statusBadge.style.color = 'white';
+  }
+  
+  // Set title
+  document.getElementById('eventDetailTitle').textContent = event.titre;
+  
+  // Set organizer
+  document.getElementById('eventDetailOrganizer').innerHTML = `👤 Organisé par <strong>${escapeHtml(event.organisateur || 'Administrateur')}</strong>`;
+  
+  // Set description
+  document.getElementById('eventDetailDescription').textContent = event.description || 'Aucune description disponible.';
+  
+  // Set info grid
+  document.getElementById('eventDetailDate').textContent = formattedDate;
+  document.getElementById('eventDetailTime').textContent = formattedTime;
+  document.getElementById('eventDetailLocation').textContent = event.lieu || 'Non spécifié';
+  document.getElementById('eventDetailCapacity').textContent = `${event.participants_count || 0}/${event.capacite_max || 0} participants`;
+  
+  // Set participants list
+  const participantsContainer = document.getElementById('eventDetailParticipants');
+  const participants = event.participants || [];
+  
+  if (participants.length === 0) {
+    participantsContainer.innerHTML = '<div style="text-align: center; color: var(--muted); padding: 20px;">Aucun participant inscrit pour le moment.</div>';
+  } else {
+    participantsContainer.innerHTML = `
+      <div style="max-height: 200px; overflow-y: auto;">
+        ${participants.map(p => `
+          <div class="participant-item">
+            <span><strong>${escapeHtml(p.prenom || '')} ${escapeHtml(p.nom || '')}</strong> - ${escapeHtml(p.email || '')}</span>
+            <span style="font-size: 0.65rem; padding: 2px 8px; border-radius: 50px; background: ${p.statut === 'present' ? '#10B98120' : '#F59E0B20'}; color: ${p.statut === 'present' ? '#10B981' : '#F59E0B'};">${p.statut === 'present' ? 'Présent' : p.statut === 'absent' ? 'Absent' : 'Inscrit'}</span>
+          </div>
+        `).join('')}
       </div>
     `;
+  }
+  
+  // Set edit button
+  const editBtn = document.getElementById('eventDetailEditBtn');
+  editBtn.onclick = () => editEventFromMap(event.id);
+  
+  // Open modal
+  modal.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+// Close modal
+function closeEventDetailModal() {
+  const modal = document.getElementById('eventDetailModal');
+  modal.classList.remove('open');
+  document.body.style.overflow = '';
+  currentSelectedEvent = null;
+}
+
+// Edit current event
+function editCurrentEvent() {
+  if (currentSelectedEvent) {
+    editEventFromMap(currentSelectedEvent.id);
+  }
+}
+
+// Edit event from map
+function editEventFromMap(eventId) {
+  closeEventDetailModal();
+  
+  // Switch to events page and edit event
+  if (typeof goPage === 'function') {
+    // Find the events nav element and switch page
+    const eventsNav = document.querySelector('.ni[onclick*="events"]');
+    if (eventsNav) {
+      goPage('events', eventsNav);
+      // Wait for page to load then edit
+      setTimeout(() => {
+        if (typeof editEvent === 'function') {
+          editEvent(eventId);
+        } else {
+          showToast('Fonction d\'édition non disponible', 'error');
+        }
+      }, 500);
+    } else {
+      window.location.href = '/admin?page=events&edit=' + eventId;
+    }
+  } else {
+    window.location.href = '/admin?page=events&edit=' + eventId;
   }
 }
 
@@ -341,7 +998,6 @@ function filterEvents() {
   const searchTerm = document.getElementById('mapSearch').value.toLowerCase();
   const statusFilter = document.getElementById('statusFilter').value;
   const dateFilter = document.getElementById('dateFilter').value;
-  const capacityFilter = document.getElementById('capacityFilter').value;
 
   let filteredEvents = allEvents.filter(event => {
     // Search filter
@@ -367,31 +1023,15 @@ function filterEvents() {
           if (eventDate.toDateString() !== now.toDateString()) return false;
           break;
         case 'week':
-          const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
-          if (eventDate < now || eventDate > weekFromNow) return false;
+          const weekEnd = new Date(now);
+          weekEnd.setDate(now.getDate() + 7);
+          if (eventDate < now || eventDate > weekEnd) return false;
           break;
         case 'month':
-          const monthFromNow = new Date(now.getFullYear(), now.getMonth() + 1, now.getDate());
-          if (eventDate < now || eventDate > monthFromNow) return false;
+          if (eventDate.getMonth() !== now.getMonth() || eventDate.getFullYear() !== now.getFullYear()) return false;
           break;
         case 'upcoming':
           if (eventDate < now) return false;
-          break;
-      }
-    }
-
-    // Capacity filter
-    if (capacityFilter) {
-      const capacity = event.capacite_max;
-      switch (capacityFilter) {
-        case 'small':
-          if (capacity > 50) return false;
-          break;
-        case 'medium':
-          if (capacity <= 50 || capacity > 200) return false;
-          break;
-        case 'large':
-          if (capacity <= 200) return false;
           break;
       }
     }
@@ -402,30 +1042,32 @@ function filterEvents() {
   displayEventsOnMap(filteredEvents);
 }
 
-// Zoom to specific location
-function zoomToLocation(lat, lng) {
-  if (eventsMap) {
-    eventsMap.setView([lat, lng], 15);
+// Show toast notification
+function showToast(message, type = 'info') {
+  const toast = document.getElementById('toast');
+  if (toast) {
+    toast.textContent = message;
+    toast.classList.add('show');
+    setTimeout(() => toast.classList.remove('show'), 3000);
+  } else {
+    console.log(message);
   }
 }
 
-// Utility functions
-function formatDate(dateString) {
-  if (!dateString) return '-';
-  const date = new Date(dateString);
-  return date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
-}
-
+// Escape HTML
 function escapeHtml(text) {
+  if (!text) return '';
   const div = document.createElement('div');
-  div.textContent = text || '';
+  div.textContent = text;
   return div.innerHTML;
 }
 
 // Initialize when page becomes active
 function initEventsMapPage() {
   setTimeout(() => {
-    initEventsMap();
+    if (document.getElementById('page-events-map').style.display !== 'none') {
+      initEventsMap();
+    }
   }, 100);
 }
 
@@ -437,4 +1079,18 @@ function cleanupEventsMapPage() {
   }
   eventMarkers = [];
 }
+
+// Close modal on escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeEventDetailModal();
+  }
+});
+
+// Close modal on click outside
+document.getElementById('eventDetailModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeEventDetailModal();
+  }
+});
 </script>
