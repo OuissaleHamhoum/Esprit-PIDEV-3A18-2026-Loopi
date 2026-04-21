@@ -19,12 +19,15 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 
 #[Route('/api')]
 class ApiController extends AbstractController
 {
+    private const QR_LOGIN_TTL_SECONDS = 300;
+
     #[Route('/health', name: 'api_health', methods: ['GET'])]
     public function health(): JsonResponse
     {
@@ -48,6 +51,7 @@ class ApiController extends AbstractController
         $prenom = trim($data['prenom'] ?? '');
         $password = $data['password'] ?? '';
         $role = trim($data['role'] ?? 'participant');
+        $photo = $data['photo'] ?? null;
 
         // Email validation
         if (!$email) {
@@ -111,6 +115,13 @@ class ApiController extends AbstractController
             $user->setCreatedAt(new \DateTime());
             $user->setUpdatedAt(new \DateTime());
 
+            if (is_string($photo) && $photo !== '') {
+                $photoFilename = $this->saveBase64Photo($photo, uniqid('reg_', true));
+                $user->setPhoto($photoFilename);
+            } else {
+                $user->setPhoto('default.jpg');
+            }
+
             $entityManager = $doctrine->getManager();
             $entityManager->persist($user);
             $entityManager->flush();
@@ -126,6 +137,323 @@ class ApiController extends AbstractController
                 'message' => 'Erreur lors de la création du compte.'
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
+    }
+
+    #[Route('/login-qr-token', name: 'api_login_qr_token', methods: ['POST'])]
+    public function createQrLoginToken(Request $request, ManagerRegistry $doctrine, CacheItemPoolInterface $cachePool): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+
+        $email = trim($data['email'] ?? '');
+        $password = (string) ($data['password'] ?? '');
+
+        if (!$email || !$password) {
+            return new JsonResponse(['success' => false, 'message' => 'Email et mot de passe sont requis.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user = $doctrine->getRepository(User::class)->findOneBy(['email' => $email]);
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Email ou mot de passe incorrect.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $storedPassword = (string) $user->getPassword();
+        $isValidPassword = false;
+        if (str_starts_with($storedPassword, '$2y$') || str_starts_with($storedPassword, '$2a$') || str_starts_with($storedPassword, '$2b$')) {
+            $isValidPassword = password_verify($password, $storedPassword);
+        } else {
+            $isValidPassword = hash_equals($storedPassword, $password);
+        }
+
+        if (!$isValidPassword) {
+            return new JsonResponse(['success' => false, 'message' => 'Email ou mot de passe incorrect.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $token = bin2hex(random_bytes(16));
+        $cacheKey = 'qr_login_' . $token;
+        $item = $cachePool->getItem($cacheKey);
+        $item->set((int) $user->getId());
+        $item->expiresAfter(300); // 5 minutes
+        $cachePool->save($item);
+
+        return new JsonResponse([
+            'success' => true,
+            'token' => $token,
+            'expiresIn' => self::QR_LOGIN_TTL_SECONDS,
+            'loginUrl' => '/qr-login/' . $token,
+        ]);
+    }
+
+    #[Route('/qr-login/start', name: 'api_qr_login_start', methods: ['POST'])]
+    public function startQrLogin(CacheItemPoolInterface $cachePool): JsonResponse
+    {
+        $token = bin2hex(random_bytes(16));
+        $cacheKey = 'qr_login_pending_' . $token;
+
+        $item = $cachePool->getItem($cacheKey);
+        $item->set(true);
+        $item->expiresAfter(self::QR_LOGIN_TTL_SECONDS);
+        $cachePool->save($item);
+
+        return new JsonResponse([
+            'success' => true,
+            'token' => $token,
+            'expiresIn' => self::QR_LOGIN_TTL_SECONDS,
+            'phoneUrl' => '/qr-phone-login/' . $token,
+        ]);
+    }
+
+    #[Route('/qr-login/status/{token}', name: 'api_qr_login_status', methods: ['GET'])]
+    public function qrLoginStatus(string $token, CacheItemPoolInterface $cachePool): JsonResponse
+    {
+        $approvedKey = 'qr_login_' . $token;
+        $approved = $cachePool->getItem($approvedKey);
+        if ($approved->isHit()) {
+            return new JsonResponse(['success' => true, 'status' => 'approved']);
+        }
+
+        $pendingKey = 'qr_login_pending_' . $token;
+        $pending = $cachePool->getItem($pendingKey);
+        if ($pending->isHit()) {
+            return new JsonResponse(['success' => true, 'status' => 'pending']);
+        }
+
+        return new JsonResponse(['success' => true, 'status' => 'expired']);
+    }
+
+    #[Route('/qr-login/approve/{token}', name: 'api_qr_login_approve', methods: ['POST'])]
+    public function approveQrLogin(string $token, Request $request, ManagerRegistry $doctrine, CacheItemPoolInterface $cachePool): JsonResponse
+    {
+        $pendingKey = 'qr_login_pending_' . $token;
+        $pending = $cachePool->getItem($pendingKey);
+        if (!$pending->isHit()) {
+            return new JsonResponse(['success' => false, 'message' => 'QR code expiré.'], Response::HTTP_GONE);
+        }
+
+        $data = json_decode($request->getContent(), true) ?? [];
+        $email = trim($data['email'] ?? '');
+        $password = (string) ($data['password'] ?? '');
+
+        if (!$email || !$password) {
+            return new JsonResponse(['success' => false, 'message' => 'Email et mot de passe requis.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user = $doctrine->getRepository(User::class)->findOneBy(['email' => $email]);
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Email ou mot de passe incorrect.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $storedPassword = (string) $user->getPassword();
+        $isValidPassword = false;
+        if (str_starts_with($storedPassword, '$2y$') || str_starts_with($storedPassword, '$2a$') || str_starts_with($storedPassword, '$2b$')) {
+            $isValidPassword = password_verify($password, $storedPassword);
+        } else {
+            $isValidPassword = hash_equals($storedPassword, $password);
+        }
+
+        if (!$isValidPassword) {
+            return new JsonResponse(['success' => false, 'message' => 'Email ou mot de passe incorrect.'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        // Mark approval: store user id for /qr-login/{token} to consume
+        $approvedKey = 'qr_login_' . $token;
+        $item = $cachePool->getItem($approvedKey);
+        $item->set((int) $user->getId());
+        $item->expiresAfter(self::QR_LOGIN_TTL_SECONDS);
+        $cachePool->save($item);
+
+        // Remove pending marker so the token can't be reused beyond approval TTL
+        $cachePool->deleteItem($pendingKey);
+
+        return new JsonResponse(['success' => true, 'message' => 'Connexion approuvée.']);
+    }
+
+    #[Route('/face-login/verify', name: 'api_face_login_verify', methods: ['POST'])]
+    public function faceLoginVerify(Request $request, ManagerRegistry $doctrine, CacheItemPoolInterface $cachePool): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+        $email = trim($data['email'] ?? '');
+        $snapshot = (string) ($data['snapshot'] ?? '');
+
+        if (!$email || !$snapshot) {
+            return new JsonResponse(['success' => false, 'message' => 'Email et snapshot requis.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $user = $doctrine->getRepository(User::class)->findOneBy(['email' => $email]);
+        if (!$user) {
+            return new JsonResponse(['success' => false, 'message' => 'Utilisateur introuvable.'], Response::HTTP_NOT_FOUND);
+        }
+
+        $photo = (string) ($user->getPhoto() ?: 'default.jpg');
+        if ($photo === 'default.jpg') {
+            return new JsonResponse(['success' => false, 'message' => 'Aucune photo de profil enregistrée pour ce compte.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $projectDir = $this->getParameter('kernel.project_dir');
+        $photoPath = $projectDir . '/public/uploads/users/' . $photo;
+        if (!is_file($photoPath)) {
+            return new JsonResponse(['success' => false, 'message' => 'Photo de profil introuvable sur le serveur.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        try {
+            $snapshotHash = $this->averageHashFromDataUrl($snapshot);
+            $profileHash = $this->averageHashFromFile($photoPath);
+            $distance = $this->hammingDistance($snapshotHash, $profileHash);
+
+            // Threshold tuned for a simple demo. Lower = stricter.
+            if ($distance > 18) {
+                return new JsonResponse(['success' => false, 'message' => 'Visage non reconnu (démo).'], Response::HTTP_UNAUTHORIZED);
+            }
+        } catch (\Throwable $e) {
+            return new JsonResponse(['success' => false, 'message' => 'Erreur de traitement image.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        // Issue a one-time login token consumed by /qr-login/{token}
+        $token = bin2hex(random_bytes(16));
+        $cacheKey = 'qr_login_' . $token;
+        $item = $cachePool->getItem($cacheKey);
+        $item->set((int) $user->getId());
+        $item->expiresAfter(120);
+        $cachePool->save($item);
+
+        return new JsonResponse(['success' => true, 'token' => $token]);
+    }
+
+    #[Route('/face-login/identify', name: 'api_face_login_identify', methods: ['POST'])]
+    public function faceLoginIdentify(Request $request, ManagerRegistry $doctrine, CacheItemPoolInterface $cachePool): JsonResponse
+    {
+        $data = json_decode($request->getContent(), true) ?? [];
+        $snapshot = (string) ($data['snapshot'] ?? '');
+        if (!$snapshot) {
+            return new JsonResponse(['success' => false, 'message' => 'Snapshot requis.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $projectDir = $this->getParameter('kernel.project_dir');
+
+        try {
+            $snapshotHash = $this->averageHashFromDataUrl($snapshot);
+        } catch (\Throwable $e) {
+            return new JsonResponse(['success' => false, 'message' => 'Snapshot invalide.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $users = $doctrine->getRepository(User::class)->createQueryBuilder('u')
+            ->where('u.photo IS NOT NULL')
+            ->andWhere('u.photo != :def')
+            ->setParameter('def', 'default.jpg')
+            ->getQuery()
+            ->getResult();
+
+        if (!$users) {
+            return new JsonResponse(['success' => false, 'message' => 'Aucune photo de profil disponible pour identification.'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $bestUser = null;
+        $bestDistance = PHP_INT_MAX;
+
+        foreach ($users as $user) {
+            $photo = (string) $user->getPhoto();
+            $path = $projectDir . '/public/uploads/users/' . $photo;
+            if (!is_file($path)) {
+                continue;
+            }
+            try {
+                $profileHash = $this->averageHashFromFile($path);
+                $d = $this->hammingDistance($snapshotHash, $profileHash);
+                if ($d < $bestDistance) {
+                    $bestDistance = $d;
+                    $bestUser = $user;
+                }
+            } catch (\Throwable $e) {
+                continue;
+            }
+        }
+
+        // threshold for demo
+        if (!$bestUser || $bestDistance > 16) {
+            return new JsonResponse(['success' => false, 'message' => 'Aucun visage correspondant (démo).'], Response::HTTP_UNAUTHORIZED);
+        }
+
+        $token = bin2hex(random_bytes(16));
+        $cacheKey = 'qr_login_' . $token;
+        $item = $cachePool->getItem($cacheKey);
+        $item->set((int) $bestUser->getId());
+        $item->expiresAfter(120);
+        $cachePool->save($item);
+
+        return new JsonResponse(['success' => true, 'token' => $token]);
+    }
+
+    private function averageHashFromFile(string $path): string
+    {
+        $bytes = file_get_contents($path);
+        if ($bytes === false) {
+            throw new \RuntimeException('Cannot read file');
+        }
+        return $this->averageHashFromBytes($bytes);
+    }
+
+    private function averageHashFromDataUrl(string $dataUrl): string
+    {
+        if (!str_contains($dataUrl, 'base64,')) {
+            throw new \InvalidArgumentException('Invalid data URL');
+        }
+        $base64 = explode('base64,', $dataUrl, 2)[1];
+        $bytes = base64_decode($base64, true);
+        if ($bytes === false) {
+            throw new \InvalidArgumentException('Invalid base64');
+        }
+        return $this->averageHashFromBytes($bytes);
+    }
+
+    private function averageHashFromBytes(string $bytes): string
+    {
+        if (!extension_loaded('gd')) {
+            throw new \RuntimeException('GD not available');
+        }
+        $img = @imagecreatefromstring($bytes);
+        if (!$img) {
+            throw new \RuntimeException('Invalid image bytes');
+        }
+
+        $w = 8;
+        $h = 8;
+        $resized = imagecreatetruecolor($w, $h);
+        imagecopyresampled($resized, $img, 0, 0, 0, 0, $w, $h, imagesx($img), imagesy($img));
+        imagedestroy($img);
+
+        $gray = [];
+        $sum = 0;
+        for ($y = 0; $y < $h; $y++) {
+            for ($x = 0; $x < $w; $x++) {
+                $rgb = imagecolorat($resized, $x, $y);
+                $r = ($rgb >> 16) & 0xFF;
+                $g = ($rgb >> 8) & 0xFF;
+                $b = $rgb & 0xFF;
+                $v = (int) round(($r + $g + $b) / 3);
+                $gray[] = $v;
+                $sum += $v;
+            }
+        }
+        imagedestroy($resized);
+
+        $avg = $sum / 64.0;
+        $bits = '';
+        foreach ($gray as $v) {
+            $bits .= ($v >= $avg) ? '1' : '0';
+        }
+        return $bits; // 64 chars
+    }
+
+    private function hammingDistance(string $a, string $b): int
+    {
+        $len = min(strlen($a), strlen($b));
+        $d = 0;
+        for ($i = 0; $i < $len; $i++) {
+            if ($a[$i] !== $b[$i]) {
+                $d++;
+            }
+        }
+        $d += abs(strlen($a) - strlen($b));
+        return $d;
     }
 
     #[Route('/login-validate', name: 'api_login_validate', methods: ['POST'])]

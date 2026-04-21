@@ -31,4 +31,10 @@ class MainController extends AbstractController
     {
         return $this->render('participant-loopi.html.twig');
     }
+
+    #[Route('/qr-desktop-login', name: 'app_qr_desktop_login')]
+    public function qrDesktopLogin(): Response
+    {
+        return $this->render('qr-desktop-login.html.twig');
+    }
 }

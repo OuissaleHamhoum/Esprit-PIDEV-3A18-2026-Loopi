@@ -250,7 +250,13 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
     </div>
   </div>
   <div class="s-user">
-    <div class="s-av">{{ app.user.nom|default('A')[:1]|upper }}</div>
+    <div
+      class="s-av"
+      id="sidebarUserAvatar"
+      {% if app.user and app.user.photo and app.user.photo != 'default.jpg' %}
+        style="background-image:url('/uploads/users/{{ app.user.photo }}?t={{ 'now'|date('U') }}');background-size:cover;background-position:center;color:transparent"
+      {% endif %}
+    >{{ app.user.nom|default('A')[:1]|upper }}</div>
     <div><div class="s-uname">{{ app.user.nom|default('Admin System') }}</div><div class="s-urole">{{ app.user.email|default('admin@loopi.tn') }}</div></div>
   </div>
   <nav class="snav">
@@ -346,6 +352,7 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
             <p style="font-size:0.85rem;color:var(--muted);margin:0 0 12px 0;font-weight:600">Photo de profil</p>
             <div class="photo-buttons" id="photoButtons" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
               <button type="button" class="btn btn-sm" style="padding:10px 20px;font-size:0.8rem;border-radius:9px;border:2px solid var(--forest);background:white;color:var(--forest);cursor:pointer;font-weight:700;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);user-select:none;overflow:hidden;position:relative" onclick="document.getElementById('photoFile').click()" onmouseover="this.style.background='var(--forest)';this.style.color='white';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 15px rgba(30,58,47,0.25)';this.style.borderColor='var(--moss)'" onmouseout="this.style.background='white';this.style.color='var(--forest)';this.style.transform='translateY(0)';this.style.boxShadow='none';this.style.borderColor='var(--forest)'" title="Charger une photo de profil">📁 Charger photo</button>
+              <button type="button" class="btn btn-sm" style="padding:10px 20px;font-size:0.8rem;border-radius:9px;border:2px solid #1d4ed8;background:white;color:#1d4ed8;cursor:pointer;font-weight:700;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);user-select:none;overflow:hidden;position:relative" onclick="startCamera()" onmouseover="this.style.background='#1d4ed8';this.style.color='white';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 15px rgba(29,78,216,0.25)';this.style.borderColor='#3b82f6'" onmouseout="this.style.background='white';this.style.color='#1d4ed8';this.style.transform='translateY(0)';this.style.boxShadow='none';this.style.borderColor='#1d4ed8'" title="Prendre une photo avec la caméra">📷 Prendre photo</button>
               <button type="button" class="btn btn-sm" style="padding:10px 20px;font-size:0.8rem;border-radius:9px;border:2px solid #dc3545;background:white;color:#dc3545;cursor:pointer;font-weight:700;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);user-select:none;overflow:hidden;position:relative" onclick="clearPhoto()" onmouseover="this.style.background='#dc3545';this.style.color='white';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 15px rgba(220,53,69,0.25)';this.style.borderColor='#ff6b7a'" onmouseout="this.style.background='white';this.style.color='#dc3545';this.style.transform='translateY(0)';this.style.boxShadow='none';this.style.borderColor='#dc3545'" title="Effacer la photo sélectionnée">🗑️ Supprimer</button>
             </div>
             <input type="file" id="photoFile" accept="image/*" onchange="handlePhotoUpload(event)" style="display:none">
@@ -525,6 +532,7 @@ const breadcrumbs = {
 let adminUsers = [];
 let adminEvents = [];
 let userModalMode = 'create';
+const currentUserId = {{ app.user ? app.user.id : 'null' }};
 
 async function checkAuthentication() {
   try {
@@ -618,6 +626,7 @@ function goPage(name, navEl) {
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function closeUserModal() {
+  closeCamera();
   resetUserForm();
   closeModal('userModal');
 }
@@ -671,7 +680,9 @@ function openUserModal(mode, id = null) {
       if (description) description.textContent = 'Mode lecture seule - aucune modification possible. Fermez pour retourner à la liste.';
       submitButton.style.display = 'none';
       if (passwordField) passwordField.style.display = 'none';
-      if (photoSection) photoSection.style.display = 'none';
+      if (photoSection) photoSection.style.display = 'block';
+      const photoButtons = document.getElementById('photoButtons');
+      if (photoButtons) photoButtons.style.display = 'none';
       setFormDisabled(true);
     }
   }
@@ -704,6 +715,22 @@ function fillUserForm(user) {
   } else {
     preview.innerHTML = '📸';
     preview.classList.add('empty');
+  }
+}
+
+function updateSidebarUserAvatar(user) {
+  const avatar = document.getElementById('sidebarUserAvatar');
+  if (!avatar || !user) return;
+
+  if (user.photoUrl && user.photoUrl !== '/uploads/users/default.jpg') {
+    avatar.style.backgroundImage = `url('${user.photoUrl}?t=${Date.now()}')`;
+    avatar.style.backgroundSize = 'cover';
+    avatar.style.backgroundPosition = 'center';
+    avatar.style.color = 'transparent';
+  } else {
+    avatar.style.backgroundImage = 'none';
+    avatar.style.color = 'white';
+    avatar.textContent = (user.nom || '?').charAt(0).toUpperCase();
   }
 }
 
@@ -852,6 +879,9 @@ async function submitUserForm(event) {
     console.log('[User Form] API Response:', result);
 
     if (result.success) {
+      if (userModalMode === 'edit' && Number(userId) === Number(currentUserId) && result.user) {
+        updateSidebarUserAvatar(result.user);
+      }
       submitButtonText.textContent = userModalMode === 'edit' ? '✅ Enregistré !' : '✅ Créé !';
       submitLoadingSpinner.style.display = 'none';
       showToast(userModalMode === 'edit' ? '✅ Utilisateur mis à jour avec succès.' : '✅ Utilisateur créé avec succès.');
