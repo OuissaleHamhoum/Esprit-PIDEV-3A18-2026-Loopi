@@ -1860,6 +1860,157 @@ function formatDate(dateString) {
   const date = new Date(dateString);
   return date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
 }
+
+
+
+
+// Ajoutez ces fonctions dans la section <script> du fichier
+
+// Stocker l'image générée globalement
+let generatedImageDataForEvent = null;
+
+// Fonction modifiée pour générer l'image IA
+async function generateImageWithAI() {
+    const titre = document.getElementById('eventTitre')?.value.trim() || currentEditingEventData?.titre || '';
+    const description = document.getElementById('eventDescription')?.value.trim() || currentEditingEventData?.description || '';
+
+    if (!titre || !description) {
+        showAlert('Le titre et la description de l\'événement sont nécessaires pour générer une image', 'error');
+        return;
+    }
+
+    const btnGenerate = document.getElementById('btnGenerateEventImage');
+    const originalHtml = btnGenerate ? btnGenerate.innerHTML : '';
+    if (btnGenerate) {
+        btnGenerate.disabled = true;
+        btnGenerate.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Génération...';
+    }
+
+    document.getElementById('generationStatus').style.display = 'block';
+
+    try {
+        const response = await fetch('/api/admin/events/generate-image', {
+            method: 'POST',
+            credentials: 'include',
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                titre: titre,
+                description: description.substring(0, 200)
+            })
+        });
+
+        const result = await response.json();
+
+        if (result.success && result.imageData) {
+            const preview = document.getElementById('eventImagePreview');
+            if (preview) {
+                preview.innerHTML = `<img src="${result.imageData}" alt="Image générée" style="width: 100%; height: 100%; object-fit: cover;">`;
+            }
+            // Stocker l'image générée pour l'envoi lors de la sauvegarde
+            generatedImageDataForEvent = result.imageData;
+            selectedImageFile = null;
+            document.getElementById('eventImage').value = '';
+            showAlert('Image générée avec succès', 'success');
+        } else {
+            showAlert(result.message || 'Erreur lors de la génération d\'image', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showAlert('Erreur de génération d\'image', 'error');
+    } finally {
+        if (btnGenerate) {
+            btnGenerate.disabled = false;
+            btnGenerate.innerHTML = originalHtml;
+        }
+        document.getElementById('generationStatus').style.display = 'none';
+    }
+}
+
+// Fonction modifiée pour sauvegarder l'événement avec l'image générée
+async function saveEvent() {
+    const form = document.getElementById('eventForm');
+    const formData = new FormData(form);
+    
+    // Récupérer les données du formulaire
+    const titre = document.getElementById('eventTitre').value;
+    const description = document.getElementById('eventDescription').value;
+    const dateEvenement = document.getElementById('eventDate').value;
+    const lieu = document.getElementById('eventLieu').value;
+    const idOrganisateur = document.getElementById('eventOrganisateur').value;
+    const capaciteMax = document.getElementById('eventCapacite').value;
+    
+    // Ajouter les données au FormData
+    formData.set('titre', titre);
+    formData.set('description', description);
+    formData.set('date_evenement', dateEvenement);
+    formData.set('lieu', lieu);
+    formData.set('id_organisateur', idOrganisateur);
+    formData.set('capacite_max', capaciteMax);
+    
+    // Ajouter l'image générée si elle existe
+    if (generatedImageDataForEvent) {
+        formData.append('generatedImage', generatedImageDataForEvent);
+    }
+    
+    // Ajouter les coordonnées si disponibles
+    if (currentLatitude && currentLongitude) {
+        formData.set('latitude', currentLatitude);
+        formData.set('longitude', currentLongitude);
+    }
+
+    const isUpdate = currentEventId !== null;
+    const url = isUpdate ? `/api/admin/events/${currentEventId}` : '/api/admin/events';
+    const method = 'POST';
+
+    try {
+        const response = await fetch(url, {
+            method: method,
+            credentials: 'include',
+            body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+            showAlert(result.message, 'success');
+            closeEventModal();
+            // Réinitialiser l'image générée
+            generatedImageDataForEvent = null;
+            await loadEvents();
+        } else if (result.errors) {
+            displayFormErrors(result.errors);
+        } else {
+            showAlert(result.message || 'Erreur lors de la sauvegarde', 'error');
+        }
+    } catch (error) {
+        console.error('Erreur:', error);
+        showAlert('Erreur de connexion', 'error');
+    }
+}
+
+// Réinitialiser l'image générée quand le modal se ferme
+function closeEventModal() {
+    document.getElementById('eventModal').classList.remove('open');
+    document.getElementById('eventForm').reset();
+    document.getElementById('eventId').value = '';
+    currentEventId = null;
+    currentEditingEventData = null;
+    selectedImageFile = null;
+    generatedImageDataForEvent = null;
+    const preview = document.getElementById('eventImagePreview');
+    if (preview) {
+        preview.innerHTML = '<div style="text-align:center;"><div style="font-size:2rem; margin-bottom:8px;">📷</div><div>Aperçu image</div></div>';
+    }
+    clearFormErrors();
+}
+
+
+
+
+
 </script>
 </body>
 </html>

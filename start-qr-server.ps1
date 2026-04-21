@@ -1,8 +1,7 @@
-$ErrorActionPreference = "Stop"
+# start-qr-server.ps1
+Write-Host "Starting QR Login Helper Server on port 8081..." -ForegroundColor Green
+Write-Host "Make sure your Symfony app is running on port 8080" -ForegroundColor Yellow
+Write-Host "Press Ctrl+C to stop the server" -ForegroundColor Yellow
+Write-Host ""
 
-Write-Host "Starting embedded QR login server on http://localhost:8081" -ForegroundColor Green
-Write-Host "This serves the same Symfony public/ directory (port 8081)." -ForegroundColor Gray
-Write-Host "Stop with Ctrl+C" -ForegroundColor Yellow
-
-php -S localhost:8081 -t public
-
+php -S 0.0.0.0:8081 -t public

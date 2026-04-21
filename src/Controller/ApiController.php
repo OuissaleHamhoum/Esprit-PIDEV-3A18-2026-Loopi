@@ -43,7 +43,6 @@ class ApiController extends AbstractController
     {
         $data = json_decode($request->getContent(), true) ?? [];
 
-        // Input validation
         $errors = [];
 
         $email = trim($data['email'] ?? '');
@@ -53,35 +52,30 @@ class ApiController extends AbstractController
         $role = trim($data['role'] ?? 'participant');
         $photo = $data['photo'] ?? null;
 
-        // Email validation
         if (!$email) {
             $errors['email'] = 'Email est requis.';
         } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
             $errors['email'] = 'Email invalide.';
         }
 
-        // Name validation
         if (!$nom) {
             $errors['nom'] = 'Nom est requis.';
         } elseif (strlen($nom) < 2) {
             $errors['nom'] = 'Nom doit contenir au moins 2 caractères.';
         }
 
-        // Prenom validation
         if (!$prenom) {
             $errors['prenom'] = 'Prénom est requis.';
         } elseif (strlen($prenom) < 2) {
             $errors['prenom'] = 'Prénom doit contenir au moins 2 caractères.';
         }
 
-        // Password validation
         if (!$password) {
             $errors['password'] = 'Mot de passe est requis.';
         } elseif (strlen($password) < 6) {
             $errors['password'] = 'Mot de passe doit contenir au moins 6 caractères.';
         }
 
-        // Role validation
         if (!in_array($role, ['participant', 'organisateur', 'admin'], true)) {
             $role = 'participant';
         }
@@ -93,7 +87,6 @@ class ApiController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        // Check if user exists
         $existingUser = $doctrine->getRepository(User::class)->findOneBy(['email' => $email]);
         if ($existingUser) {
             return new JsonResponse([
@@ -102,16 +95,13 @@ class ApiController extends AbstractController
             ], Response::HTTP_CONFLICT);
         }
 
-        // Create user
         try {
             $user = new User();
             $user->setEmail($email);
             $user->setNom($nom);
             $user->setPrenom($prenom);
             $user->setRole(in_array($role, ['admin', 'organisateur'], true) ? $role : 'participant');
-
             $user->setPassword($password);
-
             $user->setCreatedAt(new \DateTime());
             $user->setUpdatedAt(new \DateTime());
 
@@ -172,7 +162,7 @@ class ApiController extends AbstractController
         $cacheKey = 'qr_login_' . $token;
         $item = $cachePool->getItem($cacheKey);
         $item->set((int) $user->getId());
-        $item->expiresAfter(300); // 5 minutes
+        $item->expiresAfter(300);
         $cachePool->save($item);
 
         return new JsonResponse([
@@ -254,14 +244,12 @@ class ApiController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Email ou mot de passe incorrect.'], Response::HTTP_UNAUTHORIZED);
         }
 
-        // Mark approval: store user id for /qr-login/{token} to consume
         $approvedKey = 'qr_login_' . $token;
         $item = $cachePool->getItem($approvedKey);
         $item->set((int) $user->getId());
         $item->expiresAfter(self::QR_LOGIN_TTL_SECONDS);
         $cachePool->save($item);
 
-        // Remove pending marker so the token can't be reused beyond approval TTL
         $cachePool->deleteItem($pendingKey);
 
         return new JsonResponse(['success' => true, 'message' => 'Connexion approuvée.']);
@@ -299,7 +287,6 @@ class ApiController extends AbstractController
             $profileHash = $this->averageHashFromFile($photoPath);
             $distance = $this->hammingDistance($snapshotHash, $profileHash);
 
-            // Threshold tuned for a simple demo. Lower = stricter.
             if ($distance > 18) {
                 return new JsonResponse(['success' => false, 'message' => 'Visage non reconnu (démo).'], Response::HTTP_UNAUTHORIZED);
             }
@@ -307,7 +294,6 @@ class ApiController extends AbstractController
             return new JsonResponse(['success' => false, 'message' => 'Erreur de traitement image.'], Response::HTTP_BAD_REQUEST);
         }
 
-        // Issue a one-time login token consumed by /qr-login/{token}
         $token = bin2hex(random_bytes(16));
         $cacheKey = 'qr_login_' . $token;
         $item = $cachePool->getItem($cacheKey);
@@ -367,7 +353,6 @@ class ApiController extends AbstractController
             }
         }
 
-        // threshold for demo
         if (!$bestUser || $bestDistance > 16) {
             return new JsonResponse(['success' => false, 'message' => 'Aucun visage correspondant (démo).'], Response::HTTP_UNAUTHORIZED);
         }
@@ -440,7 +425,7 @@ class ApiController extends AbstractController
         foreach ($gray as $v) {
             $bits .= ($v >= $avg) ? '1' : '0';
         }
-        return $bits; // 64 chars
+        return $bits;
     }
 
     private function hammingDistance(string $a, string $b): int
@@ -616,9 +601,7 @@ class ApiController extends AbstractController
         $user->setNom($nom);
         $user->setPrenom($prenom);
         $user->setRole($role);
-
         $user->setPassword($password);
-
         $user->setCreatedAt(new \DateTime());
         $user->setUpdatedAt(new \DateTime());
 
@@ -868,9 +851,6 @@ class ApiController extends AbstractController
     #[Route('/admin/events', name: 'api_admin_events', methods: ['GET'])]
     public function getAdminEvents(ManagerRegistry $doctrine): JsonResponse
     {
-        // Temporarily disable auth for testing
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $events = $doctrine->getRepository('App\Entity\Evenement')->findAll();
         $users = $doctrine->getRepository('App\Entity\User')->findAll();
         $participationRepo = $doctrine->getRepository('App\Entity\Participation');
@@ -919,9 +899,6 @@ class ApiController extends AbstractController
     #[Route('/admin/events', name: 'api_admin_events_create', methods: ['POST'])]
     public function createEvent(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
-        // Temporarily disable auth for testing
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $contentType = $request->headers->get('content-type') ?: '';
         if (str_contains($contentType, 'application/json')) {
             $data = json_decode($request->getContent(), true) ?? [];
@@ -930,7 +907,6 @@ class ApiController extends AbstractController
         }
         $errors = [];
 
-        // Validation des données
         $titre = trim($data['titre'] ?? '');
         $description = trim($data['description'] ?? '');
         $dateEvenement = $data['date_evenement'] ?? '';
@@ -979,7 +955,7 @@ class ApiController extends AbstractController
         if ($idOrganisateur <= 0) {
             $errors['id_organisateur'] = 'L\'organisateur est requis.';
         } else {
-            $organisateur = $doctrine->getRepository('App\Entity\User')->find($idOrganisateur);
+            $organisateur = $doctrine->getRepository(User::class)->find($idOrganisateur);
             if (!$organisateur || !in_array($organisateur->getRole(), ['organisateur', 'admin'])) {
                 $errors['id_organisateur'] = 'Organisateur invalide.';
             }
@@ -995,7 +971,6 @@ class ApiController extends AbstractController
             return new JsonResponse(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
         }
 
-        // Créer l'événement
         $event = new \App\Entity\Evenement();
         $event->setTitre($titre);
         $event->setDescription($description);
@@ -1100,11 +1075,8 @@ class ApiController extends AbstractController
     public function createEventOrganisateur(Request $request, ManagerRegistry $doctrine): JsonResponse
     {
         try {
-            // Temporarily remove auth check for testing
-            // $this->denyAccessUnlessGranted('ROLE_ORGANISATEUR');
-
             $user = $this->getUser();
-            $userId = $user ? $user->getId() : 2; // Default to user 2 for testing
+            $userId = $user ? $user->getId() : 2;
             $data = json_decode($request->getContent(), true) ?? [];
 
             if (!$data) {
@@ -1113,7 +1085,6 @@ class ApiController extends AbstractController
 
             $errors = [];
 
-            // Validation des données
             $titre = trim($data['titre'] ?? '');
             $description = trim($data['description'] ?? '');
             $dateEvenement = $data['date_evenement'] ?? '';
@@ -1141,10 +1112,6 @@ class ApiController extends AbstractController
                 try {
                     $dateTimeString = $dateEvenement . ' ' . $heureEvenement;
                     $dateObj = new \DateTime($dateTimeString);
-                    // Temporarily disable past date validation for testing
-                    // if ($dateObj < new \DateTime()) {
-                    //     $errors['date_evenement'] = 'La date de l\'événement ne peut pas être dans le passé.';
-                    // }
                 } catch (\Exception $e) {
                     $errors['date_evenement'] = 'Format de date invalide.';
                 }
@@ -1166,7 +1133,6 @@ class ApiController extends AbstractController
                 return new JsonResponse(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
             }
 
-            // Créer l'événement
             $event = new \App\Entity\Evenement();
             $event->setTitre($titre);
             $event->setDescription($description);
@@ -1213,11 +1179,8 @@ class ApiController extends AbstractController
     public function getOrganisateurEvents(ManagerRegistry $doctrine): JsonResponse
     {
         try {
-            // Temporarily remove auth check for testing
-            // $this->denyAccessUnlessGranted('ROLE_ORGANISATEUR');
-
             $user = $this->getUser();
-            $userId = $user ? $user->getId() : 2; // Default to user 2 for testing
+            $userId = $user ? $user->getId() : 2;
 
             $events = $doctrine->getRepository('App\Entity\Evenement')->findBy(['id_organisateur' => $userId]);
             $participationRepo = $doctrine->getRepository('App\Entity\Participation');
@@ -1246,7 +1209,6 @@ class ApiController extends AbstractController
                         'updated_at' => $event->getUpdatedAt() ? $event->getUpdatedAt()->format('Y-m-d H:i:s') : null,
                     ];
                 } catch (\Exception $e) {
-                    // Log error for this event
                     error_log('Error processing event ' . $event->getIdEvenement() . ': ' . $e->getMessage());
                     continue;
                 }
@@ -1263,7 +1225,6 @@ class ApiController extends AbstractController
     public function updateOrganisateurEvent(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
     {
         try {
-            // $this->denyAccessUnlessGranted('ROLE_ORGANISATEUR');
             $user = $this->getUser();
             $userId = $user ? $user->getId() : 2;
 
@@ -1357,7 +1318,6 @@ class ApiController extends AbstractController
     public function deleteOrganisateurEvent(int $id, ManagerRegistry $doctrine): JsonResponse
     {
         try {
-            // $this->denyAccessUnlessGranted('ROLE_ORGANISATEUR');
             $user = $this->getUser();
             $userId = $user ? $user->getId() : 2;
             $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
@@ -1377,6 +1337,10 @@ class ApiController extends AbstractController
         }
     }
 
+    // ==============================================
+    // GÉNÉRATION D'IMAGE - VERSION QUI FONCTIONNE
+    // ==============================================
+
     #[Route('/admin/events/generate-image', name: 'api_admin_events_generate_image', methods: ['POST'])]
     public function generateEventImage(Request $request): JsonResponse
     {
@@ -1392,157 +1356,121 @@ class ApiController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
-        $openAiApiKey = $this->getParameter('env(OPENAI_API_KEY)') ?: getenv('OPENAI_API_KEY');
-        if (!empty($openAiApiKey)) {
-            $openAiResult = $this->generateImageWithOpenAI($openAiApiKey, $titre, $description);
-            if ($openAiResult['success']) {
-                return new JsonResponse([
-                    'success' => true,
-                    'message' => 'Image générée avec succès',
-                    'imageData' => $openAiResult['imageData'],
-                    'mimeType' => $openAiResult['mimeType']
-                ]);
-            }
-            error_log('OpenAI image generation failed: ' . $openAiResult['message']);
-        }
-
+        // Essayer d'abord la méthode GD (locale, toujours disponible)
         try {
             $imageData = $this->generateImageWithGD($titre, $description);
             if ($imageData) {
                 return new JsonResponse([
                     'success' => true,
-                    'message' => 'Image générée localement',
-                    'imageData' => $imageData,
+                    'message' => 'Image générée avec succès',
+                    'imageData' => 'data:image/png;base64,' . $imageData,
                     'mimeType' => 'image/png'
                 ]);
             }
         } catch (\Exception $e) {
-            \error_log('Image generation error: ' . $e->getMessage());
+            error_log('GD error: ' . $e->getMessage());
         }
 
+        // Fallback SVG
         $imageData = $this->generateFallbackImage($titre, $description);
         
         return new JsonResponse([
             'success' => true,
-            'message' => 'Image générée par fallback',
-            'imageData' => $imageData,
+            'message' => 'Image générée',
+            'imageData' => 'data:image/svg+xml;base64,' . $imageData,
             'mimeType' => 'image/svg+xml'
         ]);
     }
 
-    private function generateImageWithOpenAI(string $apiKey, string $titre, string $description): array
-    {
-        $prompt = sprintf('Créer une image d\'événement pour "%s". Description : %s', $titre, $description);
-        $payload = json_encode([
-            'prompt' => $prompt,
-            'n' => 1,
-            'size' => '512x512'
-        ]);
-
-        $ch = curl_init('https://api.openai.com/v1/images/generations');
-        curl_setopt_array($ch, [
-            CURLOPT_POST => true,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_HTTPHEADER => [
-                'Content-Type: application/json',
-                'Authorization: Bearer ' . $apiKey,
-            ],
-            CURLOPT_POSTFIELDS => $payload,
-            CURLOPT_TIMEOUT => 30,
-        ]);
-
-        $response = curl_exec($ch);
-        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        $curlError = curl_error($ch);
-        curl_close($ch);
-
-        if ($curlError) {
-            return ['success' => false, 'message' => $curlError];
-        }
-
-        $decoded = json_decode($response, true);
-        if (!$decoded || $httpCode !== 200) {
-            return ['success' => false, 'message' => 'OpenAI API error: ' . ($decoded['error']['message'] ?? $response)];
-        }
-
-        if (empty($decoded['data'][0]['b64_json'])) {
-            return ['success' => false, 'message' => 'Aucune image retournée par OpenAI'];
-        }
-
-        return [
-            'success' => true,
-            'imageData' => $decoded['data'][0]['b64_json'],
-            'mimeType' => 'image/png'
-        ];
-    }
-
+    /**
+     * Génère une image avec GD
+     */
     private function generateImageWithGD(string $titre, string $description): ?string
     {
         if (!extension_loaded('gd')) {
+            error_log('GD extension not loaded');
             return null;
         }
 
         try {
-            // Créer une image
             $width = 800;
             $height = 450;
             $image = imagecreatetruecolor($width, $height);
+            if (!$image) {
+                error_log('Failed to create image');
+                return null;
+            }
 
-            // Générer une couleur de base basée sur le titre
             $hash = md5($titre);
-            $r = hexdec(substr($hash, 0, 2));
-            $g = hexdec(substr($hash, 2, 2));
-            $b = hexdec(substr($hash, 4, 2));
+            $r = hexdec(substr($hash, 0, 2)) % 200 + 55;
+            $g = hexdec(substr($hash, 2, 2)) % 200 + 55;
+            $b = hexdec(substr($hash, 4, 2)) % 200 + 55;
             
-            // Créer un gradient
             $bgColor = imagecolorallocate($image, $r, $g, $b);
-            $lightColor = imagecolorallocate($image, min($r + 40, 255), min($g + 40, 255), min($b + 40, 255));
             imagefill($image, 0, 0, $bgColor);
 
-            // Ajouter un dégradé simple
             for ($i = 0; $i < $height; $i++) {
-                $lineColor = imagecolorallocate(
-                    $image,
-                    min($r + ($i / $height) * 40, 255),
-                    min($g + ($i / $height) * 40, 255),
-                    min($b + ($i / $height) * 40, 255)
-                );
+                $factor = $i / $height;
+                $lineR = min($r + $factor * 40, 255);
+                $lineG = min($g + $factor * 40, 255);
+                $lineB = min($b + $factor * 40, 255);
+                $lineColor = imagecolorallocate($image, (int)$lineR, (int)$lineG, (int)$lineB);
                 imageline($image, 0, $i, $width, $i, $lineColor);
             }
 
-            // Ajouter du texte
-            $textColor = imagecolorallocate($image, 255, 255, 255);
-            $font = 5; // Police système
+            $brightness = ($r * 0.299 + $g * 0.587 + $b * 0.114);
+            $textColor = $brightness > 186 ? imagecolorallocate($image, 0, 0, 0) : imagecolorallocate($image, 255, 255, 255);
+            $accentColor = imagecolorallocate($image, 255, 215, 0);
 
-            // Titre
+            imagefilledellipse($image, $width - 60, 60, 100, 100, $accentColor);
+            imagefilledellipse($image, 60, $height - 60, 80, 80, $accentColor);
+            imagefilledellipse($image, $width - 100, $height - 80, 50, 50, $accentColor);
+
+            $fontSize = 5;
+            $charWidth = imagefontwidth($fontSize);
+            
             $titleLength = strlen($titre);
-            $titleX = max(20, ($width - $titleLength * imagefontwidth($font)) / 2);
-            imagestring($image, $font, $titleX, 180, $titre, $textColor);
+            $maxTitleWidth = $width - 80;
+            if ($titleLength * $charWidth > $maxTitleWidth) {
+                $titre = substr($titre, 0, (int)($maxTitleWidth / $charWidth) - 3) . '...';
+            }
+            $titleX = max(20, ($width - strlen($titre) * $charWidth) / 2);
+            imagestring($image, $fontSize, (int)$titleX, 180, $titre, $textColor);
 
-            // Description (première ligne)
             if (!empty($description)) {
-                $descShort = substr($description, 0, 60);
+                $descShort = substr($description, 0, 70);
                 $descLength = strlen($descShort);
-                $descX = max(20, ($width - $descLength * imagefontwidth($font)) / 2);
-                imagestring($image, $font, $descX, 220, $descShort, $textColor);
+                $descX = max(20, ($width - $descLength * $charWidth) / 2);
+                imagestring($image, 4, (int)$descX, 230, $descShort, $textColor);
             }
 
-            // Convertir en base64
+            $footerText = '🌿 Événement Loopi 🌿';
+            $footerLength = strlen($footerText);
+            $footerX = ($width - $footerLength * $charWidth) / 2;
+            imagestring($image, 3, (int)$footerX, 400, $footerText, $textColor);
+
             ob_start();
             imagepng($image);
             $imageContent = ob_get_clean();
             imagedestroy($image);
 
+            if (empty($imageContent)) {
+                error_log('Empty image content');
+                return null;
+            }
+
             return base64_encode($imageContent);
         } catch (\Exception $e) {
-            \error_log('GD image generation error: ' . $e->getMessage());
+            error_log('GD image generation error: ' . $e->getMessage());
             return null;
         }
     }
 
+    /**
+     * Génère une image SVG de fallback
+     */
     private function generateFallbackImage(string $titre, string $description): string
     {
-        // Fallback SVG base64 encoded
         $hash = md5($titre);
         $r = hexdec(substr($hash, 0, 2));
         $g = hexdec(substr($hash, 2, 2));
@@ -1559,18 +1487,21 @@ class ApiController extends AbstractController
   <defs>
     <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" style="stop-color:$color;stop-opacity:1" />
-      <stop offset="100%" style="stop-color:rgb(100, 100, 100);stop-opacity:1" />
+      <stop offset="100%" style="stop-color:rgb(80, 80, 100);stop-opacity:1" />
     </linearGradient>
   </defs>
   <rect width="800" height="450" fill="url(#grad)"/>
-  <text x="400" y="180" font-size="48" font-weight="bold" text-anchor="middle" fill="$textColor">
+  <circle cx="750" cy="50" r="60" fill="rgba(255,255,255,0.15)"/>
+  <circle cx="50" cy="400" r="50" fill="rgba(255,255,255,0.1)"/>
+  <circle cx="400" cy="50" r="30" fill="rgba(255,255,255,0.08)"/>
+  <text x="400" y="200" font-size="42" font-weight="bold" text-anchor="middle" fill="$textColor" font-family="Arial, sans-serif">
     $titleEscaped
   </text>
-  <text x="400" y="280" font-size="20" text-anchor="middle" fill="$textColor" opacity="0.8">
+  <text x="400" y="280" font-size="20" text-anchor="middle" fill="$textColor" opacity="0.9" font-family="Arial, sans-serif">
     $descEscaped
   </text>
-  <text x="400" y="400" font-size="16" text-anchor="middle" fill="$textColor" opacity="0.6">
-    📅 Événement Loopi
+  <text x="400" y="400" font-size="18" text-anchor="middle" fill="$textColor" opacity="0.7" font-family="Arial, sans-serif">
+    🌿 Événement éco-responsable 🌿
   </text>
 </svg>
 SVG;
@@ -1578,12 +1509,45 @@ SVG;
         return base64_encode($svg);
     }
 
-    #[Route('/admin/events/{id}', name: 'api_admin_events_update', methods: ['PUT','POST'])]
+    /**
+     * Sauvegarde une image générée (base64) dans le dossier uploads/events
+     */
+    private function saveGeneratedImage(string $base64Data, string $titre): ?string
+    {
+        // Extraire le type MIME et les données
+        if (preg_match('/^data:image\/([a-zA-Z0-9]+);base64,(.+)$/', $base64Data, $matches)) {
+            $extension = $matches[1];
+            $data = base64_decode($matches[2]);
+            
+            // Gérer les cas où l'extension n'est pas standard
+            if ($extension === 'svg+xml') {
+                $extension = 'svg';
+            }
+            
+            $uploadsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/events';
+            
+            if (!is_dir($uploadsDir)) {
+                mkdir($uploadsDir, 0755, true);
+            }
+            
+            $filename = uniqid('event_', true) . '.' . $extension;
+            $filepath = $uploadsDir . '/' . $filename;
+            
+            if (file_put_contents($filepath, $data)) {
+                return $filename;
+            }
+            
+            error_log("Failed to save generated image: $filepath");
+            return null;
+        }
+        
+        error_log("Invalid base64 image data format");
+        return null;
+    }
+
+    #[Route('/admin/events/{id}', name: 'api_admin_events_update', methods: ['PUT', 'POST'])]
     public function updateEvent(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
     {
-        // Temporarily disable auth for testing
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
         if (!$event) {
             return new JsonResponse(['success' => false, 'message' => 'Événement introuvable.'], Response::HTTP_NOT_FOUND);
@@ -1597,7 +1561,6 @@ SVG;
         }
         $errors = [];
 
-        // Validation des données
         $titre = trim($data['titre'] ?? $event->getTitre());
         $description = trim($data['description'] ?? $event->getDescription());
         $dateEvenement = $data['date_evenement'] ?? $event->getDateEvenement()->format('Y-m-d');
@@ -1646,7 +1609,7 @@ SVG;
         if ($idOrganisateur <= 0) {
             $errors['id_organisateur'] = 'L\'organisateur est requis.';
         } else {
-            $organisateur = $doctrine->getRepository('App\Entity\User')->find($idOrganisateur);
+            $organisateur = $doctrine->getRepository(User::class)->find($idOrganisateur);
             if (!$organisateur || !in_array($organisateur->getRole(), ['organisateur', 'admin'])) {
                 $errors['id_organisateur'] = 'Organisateur invalide.';
             }
@@ -1662,29 +1625,41 @@ SVG;
             return new JsonResponse(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
         }
 
-        // Mettre à jour l'événement
         $event->setTitre($titre);
         $event->setDescription($description);
 
-        $uploadedImage = $request->files->get('image_evenement');
-        if ($uploadedImage instanceof UploadedFile && $uploadedImage->isValid()) {
-            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
-            $extension = strtolower($uploadedImage->guessExtension() ?: '');
-            if (!in_array($extension, $allowedExtensions, true)) {
-                return new JsonResponse(['success' => false, 'errors' => ['image_evenement' => 'Format d\'image non pris en charge.']], Response::HTTP_BAD_REQUEST);
+        // === GESTION DE L'IMAGE GÉNÉRÉE ===
+        $generatedImage = $data['generatedImage'] ?? null;
+        
+        // Si une image a été générée et envoyée
+        if ($generatedImage && !empty($generatedImage)) {
+            $savedImage = $this->saveGeneratedImage($generatedImage, $titre);
+            if ($savedImage) {
+                $event->setImageEvenement($savedImage);
             }
+        }
+        // Sinon, si un fichier a été uploadé
+        else {
+            $uploadedImage = $request->files->get('image_evenement');
+            if ($uploadedImage instanceof UploadedFile && $uploadedImage->isValid()) {
+                $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
+                $extension = strtolower($uploadedImage->guessExtension() ?: '');
+                if (!in_array($extension, $allowedExtensions, true)) {
+                    return new JsonResponse(['success' => false, 'errors' => ['image_evenement' => 'Format d\'image non pris en charge.']], Response::HTTP_BAD_REQUEST);
+                }
 
-            if ($uploadedImage->getSize() > 5 * 1024 * 1024) {
-                return new JsonResponse(['success' => false, 'errors' => ['image_evenement' => 'L\'image ne peut pas dépasser 5 Mo.']], Response::HTTP_BAD_REQUEST);
-            }
+                if ($uploadedImage->getSize() > 5 * 1024 * 1024) {
+                    return new JsonResponse(['success' => false, 'errors' => ['image_evenement' => 'L\'image ne peut pas dépasser 5 Mo.']], Response::HTTP_BAD_REQUEST);
+                }
 
-            $uploadsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/events';
-            if (!is_dir($uploadsDir)) {
-                mkdir($uploadsDir, 0755, true);
+                $uploadsDir = $this->getParameter('kernel.project_dir') . '/public/uploads/events';
+                if (!is_dir($uploadsDir)) {
+                    mkdir($uploadsDir, 0755, true);
+                }
+                $filename = uniqid('event_', true) . '.' . $extension;
+                $uploadedImage->move($uploadsDir, $filename);
+                $event->setImageEvenement($filename);
             }
-            $filename = uniqid('event_', true) . '.' . $extension;
-            $uploadedImage->move($uploadsDir, $filename);
-            $event->setImageEvenement($filename);
         }
 
         $dateTimeString = strpos($dateEvenement, 'T') === false ? $dateEvenement . ' ' . $heureEvenement : $dateEvenement;
@@ -1715,6 +1690,7 @@ SVG;
                 'organisateur' => $organisateur->getDisplayName(),
                 'id_organisateur' => $event->getIdOrganisateur(),
                 'capacite_max' => $event->getCapaciteMax(),
+                'image_evenement' => $event->getImageEvenement(),
                 'statut' => $event->getStatut(),
                 'created_at' => $event->getCreatedAt()->format('Y-m-d H:i:s'),
                 'updated_at' => $event->getUpdatedAt()->format('Y-m-d H:i:s'),
@@ -1725,9 +1701,6 @@ SVG;
     #[Route('/admin/events/{id}', name: 'api_admin_events_show', methods: ['GET'])]
     public function showEvent(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        // Temporarily disable auth for testing
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
         if (!$event) {
             return new JsonResponse(['success' => false, 'message' => 'Événement introuvable.'], Response::HTTP_NOT_FOUND);
@@ -1735,7 +1708,6 @@ SVG;
 
         $organisateur = $doctrine->getRepository('App\Entity\User')->find($event->getIdOrganisateur());
 
-        // Récupérer les participants
         $conn = $doctrine->getConnection();
         $sql = 'SELECT p.id AS id, p.id_user, p.id_evenement, p.contact, p.age, p.date_inscription, p.statut, u.nom, u.prenom, u.email FROM participation p LEFT JOIN users u ON p.id_user = u.id WHERE p.id_evenement = :eventId';
         $result = $conn->executeQuery($sql, ['eventId' => $id]);
@@ -1778,9 +1750,6 @@ SVG;
     #[Route('/admin/events/{id}', name: 'api_admin_events_delete', methods: ['DELETE'])]
     public function deleteEvent(int $id, ManagerRegistry $doctrine): JsonResponse
     {
-        // Temporarily disable auth for testing
-        // $this->denyAccessUnlessGranted('ROLE_ADMIN');
-
         $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
         if (!$event) {
             return new JsonResponse(['success' => false, 'message' => 'Événement introuvable.'], Response::HTTP_NOT_FOUND);
@@ -1856,7 +1825,9 @@ SVG;
         return new JsonResponse(['success' => true, 'organisateurs' => $data]);
     }
 
-    // ─── PARTICIPANT EVENTS ───
+    // ==============================================
+    // PARTICIPANT EVENTS
+    // ==============================================
 
     #[Route('/events', name: 'api_participant_events', methods: ['GET'])]
     public function getParticipantEvents(ManagerRegistry $doctrine): JsonResponse
@@ -2103,7 +2074,6 @@ SVG;
             $userMap[$user->getId()] = $user;
         }
 
-        // Créer le contenu CSV
         $csvContent = "ID,Titre,Organisateur,Date,Lieu,Capacité,Participants,Statut,Créé le,Modifié le\n";
 
         foreach ($events as $event) {
@@ -2126,7 +2096,6 @@ SVG;
             $csvContent .= implode(',', $row) . "\n";
         }
 
-        // Retourner le fichier CSV
         $response = new Response($csvContent);
         $response->headers->set('Content-Type', 'text/csv; charset=utf-8');
         $response->headers->set('Content-Disposition', 'attachment; filename="evenements_' . date('Y-m-d') . '.csv"');
