@@ -78,9 +78,7 @@ class SecurityController extends AbstractController
             $user->setNom($nom);
             $user->setPrenom($prenom);
             $user->setRole(in_array($role, ['admin', 'organisateur'], true) ? $role : 'participant');
-
             $user->setPassword($plainPassword);
-
             $user->setCreatedAt(new \DateTime());
             $user->setUpdatedAt(new \DateTime());
 

@@ -45,7 +45,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updated_at = null;
 
-    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+#[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
     private bool $has_donated_first_time = false;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => '0.00'])]
@@ -65,7 +65,6 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(type: 'integer', options: ['default' => 0])]
     private int $xp = 0;
-
     public function getId(): ?int
     {
         return $this->id;

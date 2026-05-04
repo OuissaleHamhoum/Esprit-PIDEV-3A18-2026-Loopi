@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loopi — {{ produit.nomProduit }}</title>
+{% set absoluteImageUrl = produit.imageProduit ? app.request.getSchemeAndHttpHost() ~ '/uploads/' ~ produit.imageProduit : app.request.uri %}
+<meta property="og:title" content="{{ produit.nomProduit }}">
+<meta property="og:description" content="{{ produit.description|default('Découvrez cette œuvre sur Loopi.') }}">
+<meta property="og:image" content="{{ absoluteImageUrl }}">
+<meta property="og:url" content="{{ app.request.uri }}">
+<meta name="twitter:card" content="summary_large_image">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F4F1EB;
+  --cream: #FAF8F3;
+  --forest: #1E3A2F;
+  --moss: #3D6B4F;
+  --sage: #7A9E7E;
+  --sand: #C9A96E;
+  --rust: #B05A2F;
+  --light: #FDFCF9;
+  --dark: #111510;
+  --muted: #6B7468;
+  --card: #FFFFFF;
+  --border: rgba(30,58,47,0.09);
+  --shadow: 0 4px 24px rgba(30,58,47,0.08);
+  --shadow-lg: 0 12px 48px rgba(30,58,47,0.14);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── NAVBAR ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: rgba(30,58,47,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.leaf {
+  width: 20px; height: 20px;
+  background: var(--sage);
+  border-radius: 60% 10% 60% 10%;
+  transform: rotate(-20deg);
+  flex-shrink: 0;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+}
+
+.nav-links a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  font-size: .83rem;
+  font-weight: 500;
+  transition: all .2s;
+}
+
+.nav-links a:hover { background: rgba(255,255,255,.08); color: white; }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.notif-btn {
+  position: relative;
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  font-size: .95rem;
+  transition: background .2s;
+}
+.notif-btn:hover { background: rgba(255,255,255,.15); }
+.notif-dot {
+  position: absolute; top: 6px; right: 6px;
+  width: 8px; height: 8px;
+  background: var(--rust);
+  border-radius: 50%;
+  border: 2px solid var(--forest);
+}
+
+.nav-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sage), var(--moss));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: .95rem;
+  font-weight: 700;
+  color: white;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,.2);
+}
+
+/* ── DETAILS SECTION ── */
+.details-wrapper {
+  max-width: 1100px;
+  margin: 40px auto;
+  padding: 0 20px;
+  flex: 1;
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  background: white;
+  border: 1px solid var(--border);
+  color: var(--forest);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  margin-bottom: 24px;
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+}
+
+.back-btn:hover {
+  transform: translateX(-4px);
+  box-shadow: var(--shadow);
+}
+
+.product-container {
+  display: flex;
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border);
+}
+
+.product-image-side {
+  flex: 1;
+  position: relative;
+  background: linear-gradient(135deg, #d4e8d4, #a8c8a8);
+  min-height: 500px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.product-image-side img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-image-placeholder {
+  font-size: 8rem;
+  opacity: 0.8;
+}
+
+.product-info-side {
+  flex: 1;
+  padding: 48px;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-category-badge {
+  display: inline-block;
+  padding: 6px 14px;
+  background: rgba(122, 158, 126, 0.15);
+  color: var(--moss);
+  border-radius: 50px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  align-self: flex-start;
+}
+
+.product-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: var(--forest);
+  line-height: 1.1;
+  margin-bottom: 24px;
+}
+
+.product-creator {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 32px;
+  padding-bottom: 32px;
+  border-bottom: 1px solid var(--border);
+}
+
+.creator-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sand), var(--rust));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: 'Playfair Display', serif;
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.creator-info .c-name {
+  font-weight: 700;
+  color: var(--forest);
+  font-size: 0.95rem;
+}
+
+.creator-info .c-role {
+  font-size: 0.8rem;
+  color: var(--muted);
+}
+
+.product-description-title {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.product-description {
+  font-size: 1rem;
+  line-height: 1.7;
+  color: var(--muted);
+  margin-bottom: auto;
+}
+
+.product-actions {
+  display: flex;
+  gap: 16px;
+  margin-top: 40px;
+}
+
+.btn {
+  padding: 14px 28px;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-primary {
+  background: var(--forest);
+  color: white;
+  flex: 1;
+}
+
+.btn-primary:hover {
+  background: var(--moss);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(30, 58, 47, 0.2);
+}
+
+.btn-fav {
+  background: white;
+  color: var(--forest);
+  border: 2px solid var(--border);
+  width: 56px;
+  padding: 0;
+}
+
+.btn-fav:hover {
+  border-color: var(--moss);
+  color: var(--rust);
+  transform: scale(1.05);
+}
+
+/* ── SHARE BUTTONS ── */
+.share-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  transition: transform 0.2s, box-shadow 0.2s;
+  text-decoration: none;
+}
+.share-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  color: white;
+}
+.share-fb { background: #1877F2; }
+.share-tw { background: #000000; }
+.share-wa { background: #25D366; }
+.share-qr { background: var(--forest); }
+.share-copy { background: var(--muted); }
+
+/* ── MODAL ── */
+.modal-overlay {
+  position: fixed; top:0; left:0; width:100%; height:100%;
+  background: rgba(17,21,16,0.6); backdrop-filter: blur(4px);
+  z-index: 10000; display: flex; align-items: center; justify-content: center;
+}
+.modal-content {
+  background: white; border-radius: 24px; padding: 32px;
+  width: 90%; max-width: 400px; box-shadow: var(--shadow-lg);
+  animation: modalIn 0.3s cubic-bezier(.34,1.56,.64,1);
+}
+.modal-close {
+  background: transparent; border: none; font-size: 1.5rem; color: var(--muted); cursor: pointer;
+  transition: color 0.2s; margin-top: -10px; margin-right: -10px;
+}
+.modal-close:hover { color: var(--forest); }
+
+@keyframes modalIn {
+  from { transform: scale(0.9); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+/* ── SIMILAR PRODUCTS ── */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+.similar-products-section {
+  margin-top: 64px;
+}
+.similar-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 24px;
+}
+.sp-card {
+  background: white;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  transition: transform .2s, box-shadow .2s;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.sp-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+.sp-img-container {
+  height: 220px;
+  background: linear-gradient(135deg, #d4e8d4, #a8c8a8);
+  display: flex; align-items: center; justify-content: center; font-size: 5rem;
+}
+.sp-img-container img {
+  width: 100%; height: 100%; object-fit: cover;
+}
+.sp-content {
+  padding: 20px; display: flex; flex-direction: column; flex: 1;
+}
+.sp-title { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; color: var(--forest); margin-bottom: 6px; }
+.sp-meta { font-size: 0.8rem; color: var(--muted); margin-bottom: 16px; }
+.sp-actions { display: flex; gap: 10px; margin-top: auto; }
+
+/* ── FEEDBACKS ── */
+.feedback-section {
+  margin-top: 48px;
+  padding-top: 48px;
+  border-top: 1px solid var(--border);
+}
+
+.feedback-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 32px;
+}
+
+.feedback-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--forest);
+}
+
+.feedback-stats {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.feedback-avg {
+  font-family: 'Playfair Display', serif;
+  font-size: 2.4rem;
+  font-weight: 900;
+  color: var(--sand);
+  line-height: 1;
+}
+
+.feedback-stars-display {
+  color: var(--sand);
+  font-size: 1.1rem;
+}
+
+.feedback-count {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 4px;
+}
+
+.feedback-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.feedback-card {
+  background: white;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 2px 12px rgba(30,58,47,0.03);
+}
+
+.feedback-card-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.feedback-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sage), var(--moss));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 700;
+  font-family: 'Playfair Display', serif;
+}
+
+.feedback-meta .f-name {
+  font-weight: 700;
+  color: var(--forest);
+  font-size: 0.95rem;
+}
+
+.feedback-meta .f-date {
+  font-size: 0.75rem;
+  color: var(--muted);
+}
+
+.feedback-text {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--dark);
+}
+
+/* ── FORM ── */
+.feedback-form-card {
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 32px;
+  margin-bottom: 32px;
+}
+
+.feedback-form-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 20px;
+}
+
+.star-rating-input {
+  display: flex;
+  flex-direction: row-reverse;
+  justify-content: flex-end;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.star-rating-input input {
+  display: none;
+}
+
+.star-rating-input label {
+  font-size: 2rem;
+  color: #ddd;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.star-rating-input input:checked ~ label,
+.star-rating-input label:hover,
+.star-rating-input label:hover ~ label {
+  color: var(--sand);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--forest);
+  margin-bottom: 8px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 14px;
+  border: 1.5px solid var(--border);
+  border-radius: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.95rem;
+  outline: none;
+  background: white;
+  transition: border-color 0.2s;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.form-control:focus {
+  border-color: var(--moss);
+}
+
+.btn-danger {
+  background: rgba(176,90,47,.1);
+  color: var(--rust);
+  border: 1.5px solid rgba(176,90,47,.2);
+}
+
+.btn-danger:hover {
+  background: rgba(176,90,47,.2);
+}
+
+.user-feedback-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+/* ── ALERTS ── */
+.flash-messages {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flash {
+  background: var(--forest);
+  color: white;
+  padding: 13px 22px;
+  border-radius: 13px;
+  font-size: .84rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.3s cubic-bezier(.34,1.56,.64,1);
+}
+
+@keyframes slideIn {
+  from { transform: translateY(80px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--forest);
+  color: rgba(255,255,255,.5);
+  text-align: center;
+  padding: 28px 40px;
+  font-size: .78rem;
+  margin-top: auto;
+}
+
+footer span { color: var(--sage); font-weight: 600; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
+  .product-container {
+    flex-direction: column;
+  }
+  .product-image-side {
+    min-height: 300px;
+  }
+  .product-info-side {
+    padding: 32px 24px;
+  }
+  .product-title {
+    font-size: 2.2rem;
+  }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ NAVBAR ══ -->
+<nav class="navbar">
+  <a href="{{ path('app_participant') }}" class="nav-logo"><span class="leaf"></span> Loopi</a>
+
+  <ul class="nav-links">
+    <li><a href="{{ path('app_participant') }}">🏠 Accueil</a></li>
+    <li><a href="{{ path('app_participant') }}" class="active">🎨 Galerie</a></li>
+  </ul>
+
+  <div class="nav-right">
+    <div class="notif-btn">🔔<span class="notif-dot"></span></div>
+    <div class="nav-avatar">T</div>
+  </div>
+</nav>
+
+<!-- ══ DETAILS SECTION ══ -->
+<div class="details-wrapper">
+  <a href="{{ path('app_participant') }}" class="back-btn">
+    ← Retour à la galerie
+  </a>
+
+  <div class="product-container">
+    <div class="product-image-side">
+      {% if produit.imageProduit %}
+        <img src="/uploads/{{ produit.imageProduit }}" alt="{{ produit.nomProduit }}">
+      {% else %}
+        <div class="product-image-placeholder">🎨</div>
+      {% endif %}
+    </div>
+    
+    <div class="product-info-side">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+        <div class="product-category-badge" style="margin-bottom:0;">{{ produit.category ? produit.category.nomCat : 'Sans catégorie' }}</div>
+        {% if app.user and produit.user and app.user.id == produit.user.id %}
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span style="padding:4px 12px; border-radius:50px; font-size:.7rem; font-weight:700; background:{{ produit.status == 'publié' ? 'rgba(61,107,79,0.1)' : 'rgba(0,0,0,0.05)' }}; color:{{ produit.status == 'publié' ? 'var(--moss)' : 'var(--muted)' }}; border:1px solid {{ produit.status == 'publié' ? 'rgba(61,107,79,0.2)' : 'rgba(0,0,0,0.1)' }};">
+              {{ produit.status|capitalize }}
+            </span>
+            <form method="POST" action="{{ path('app_produit_toggle_status', {'id': produit.id}) }}">
+              <button type="submit" style="background:none; border:none; color:var(--moss); font-size:.7rem; font-weight:600; cursor:pointer; text-decoration:underline;">
+                {% if produit.status == 'publié' %}📁 Archiver{% else %}🌍 Publier{% endif %}
+              </button>
+            </form>
+          </div>
+        {% endif %}
+      </div>
+      
+      <h1 class="product-title">{{ produit.nomProduit }}</h1>
+      
+      <div class="product-creator">
+        <div class="creator-avatar">
+          {{ produit.user ? produit.user.nom|slice(0, 1)|upper : 'A' }}
+        </div>
+        <div class="creator-info">
+          <div class="c-name">{{ produit.user ? produit.user.nom ~ ' ' ~ produit.user.prenom : 'Artiste Anonyme' }}</div>
+          <div class="c-role">Créateur partenaire</div>
+        </div>
+      </div>
+      
+      <div class="product-description-title">À propos de l'œuvre</div>
+      <p class="product-description">
+        {{ produit.description|default('Aucune description disponible pour cette œuvre.')|nl2br }}
+      </p>
+      
+      <div class="product-actions">
+        {% set isFavori = favorisIds is defined and produit.id in favorisIds %}
+        <a href="{{ path('app_favoris_toggle', {'id': produit.id}) }}" class="btn btn-fav" title="{% if isFavori %}Retirer des favoris{% else %}Ajouter aux favoris{% endif %}" style="{% if isFavori %}background:var(--rust);border-color:var(--rust);color:white;{% endif %}">
+          {% if isFavori %}❤️{% else %}🤍{% endif %}
+        </a>
+      </div>
+      
+      <!-- SHARE SECTION -->
+      <div class="share-section" style="margin-top: 24px; display: flex; align-items: center; gap: 12px;">
+        <span style="font-size: 0.85rem; font-weight: 700; color: var(--forest); text-transform: uppercase; letter-spacing: 0.05em;">Partager :</span>
+        <a href="https://www.facebook.com/sharer/sharer.php?u={{ app.request.uri|url_encode }}" target="_blank" class="share-btn share-fb" title="Partager le lien sur Facebook">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.04c-5.5 0-10 4.49-10 10.02 0 5 3.66 9.15 8.44 9.9v-7H7.9v-2.9h2.54V9.85c0-2.51 1.49-3.89 3.78-3.89 1.09 0 2.23.19 2.23.19v2.47h-1.26c-1.24 0-1.63.77-1.63 1.56v1.88h2.78l-.45 2.9h-2.33v7a10 10 0 0 0 8.44-9.9c0-5.53-4.5-10.02-10-10.02z"/></svg>
+        </a>
+        <a href="https://twitter.com/intent/tweet?url={{ app.request.uri|url_encode }}&text=Découvrez%20cette%20œuvre%20incroyable%20:%20{{ produit.nomProduit|url_encode }}" target="_blank" class="share-btn share-tw" title="Partager le lien sur Twitter">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M23.95 4.57a10 10 0 0 1-2.82.77 4.96 4.96 0 0 0 2.16-2.72c-.95.55-2 .95-3.12 1.17a4.92 4.92 0 0 0-8.38 4.48A13.98 13.98 0 0 1 1.67 3.15a4.93 4.93 0 0 0 1.52 6.57 4.9 4.9 0 0 1-2.23-.62v.06a4.92 4.92 0 0 0 3.95 4.83 4.86 4.86 0 0 1-2.22.08 4.93 4.93 0 0 0 4.6 3.42 9.87 9.87 0 0 1-6.1 2.1c-.4 0-.79-.02-1.18-.07a13.9 13.9 0 0 0 7.55 2.21c9.06 0 14-7.5 14-14v-.64a10.06 10.06 0 0 0 2.46-2.55z"/></svg>
+        </a>
+        <a href="https://api.whatsapp.com/send?text=Regarde%20cette%20œuvre%20incroyable%20!%20Voici%20le%20lien%20:%20{{ app.request.uri|url_encode }}" target="_blank" class="share-btn share-wa" title="Partager le lien sur WhatsApp">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M12.01 2a9.92 9.92 0 0 0-8.48 15.04L2 22l5.06-1.54A9.9 9.9 0 0 0 12.01 22a9.92 9.92 0 0 0 0-19.84zm0 18.22c-1.6 0-3.14-.4-4.5-1.15l-.32-.19-3.34 1.02.88-3.25-.21-.34A8.34 8.34 0 0 1 3.63 11.9a8.38 8.38 0 0 1 8.38-8.38 8.38 8.38 0 0 1 8.38 8.38 8.38 8.38 0 0 1-8.38 8.38zm4.6-6.3c-.25-.13-1.5-.74-1.74-.83-.24-.08-.41-.12-.58.13-.17.25-.66.83-.8 1-.14.17-.29.2-.54.07-.25-.13-1.07-.4-2.04-1.26-.75-.68-1.26-1.52-1.4-1.77-.14-.25-.01-.39.1-.51.13-.12.26-.3.38-.45.13-.15.17-.25.25-.42.08-.17.04-.32-.02-.45-.06-.13-.58-1.4-.8-1.92-.2-.5-.4-.43-.58-.44h-.5c-.17 0-.46.06-.7.32-.25.26-.96.94-.96 2.3 0 1.36.98 2.67 1.12 2.85.14.18 1.94 2.96 4.7 4.12 1.77.74 2.45.8 3.32.67.97-.15 1.5-.61 1.7-1.2.21-.59.21-1.1.15-1.2-.06-.1-.23-.17-.48-.3z"/></svg>
+        </a>
+        <a href="javascript:void(0)" onclick="showQrCode()" class="share-btn share-qr" title="Afficher le QR Code">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M3 3h8v8H3V3zm2 2v4h4V5H5zm8-2h8v8h-8V3zm2 2v4h4V5h-4zM3 13h8v8H3v-8zm2 2v4h4v-4H5zm13-2h3v2h-3v-2zm-3 0h2v2h-2v-2zm3 3h3v2h-3v-2zm-2 3h2v2h-2v-2zm-3-3h2v2h-2v-2zm3 3h-2v-2h2v2z"/></svg>
+        </a>
+        <a href="javascript:void(0)" onclick="copyShareLink()" class="share-btn share-copy" title="Copier le lien">
+          <svg width="18" height="18" fill="currentColor" viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        </a>
+      </div>
+      
+      <!-- FEEDBACK SECTION -->
+      <div class="feedback-section">
+        <div class="feedback-header">
+          <div class="feedback-title">Avis des participants</div>
+          {% if totalFeedbacks > 0 %}
+          <div class="feedback-stats">
+            <div class="feedback-avg">{{ averageNote }}</div>
+            <div>
+              <div class="feedback-stars-display">
+                {% for i in 1..5 %}
+                  {% if i <= averageNote|round(0, 'floor') %}★{% else %}☆{% endif %}
+                {% endfor %}
+              </div>
+              <div class="feedback-count">{{ totalFeedbacks }} avis</div>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        {% if userFeedback %}
+          <div class="feedback-form-card" id="edit-feedback-form" style="display: none;">
+            <div class="feedback-form-title">Modifier votre avis</div>
+            <form action="{{ path('app_feedback_edit', {'id': userFeedback.id}) }}" method="POST">
+              <div class="form-group">
+                <label>Votre note</label>
+                <div class="star-rating-input">
+                  {% for i in 5..1 %}
+                    <input type="radio" id="edit-star{{ i }}" name="note" value="{{ i }}" {% if userFeedback.note == i %}checked{% endif %} required>
+                    <label for="edit-star{{ i }}" title="{{ i }} étoiles">★</label>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="edit-commentaire">Votre expérience</label>
+                <textarea id="edit-commentaire" name="commentaire" class="form-control" placeholder="Partagez votre avis sur cette œuvre..." required>{{ userFeedback.commentaire }}</textarea>
+              </div>
+              <div style="display: flex; gap: 12px;">
+                <button type="submit" class="btn btn-primary">Enregistrer les modifications</button>
+                <button type="button" class="btn btn-outline" onclick="document.getElementById('edit-feedback-form').style.display='none'; document.getElementById('my-feedback-display').style.display='block';">Annuler</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="feedback-card" id="my-feedback-display" style="border-color: var(--moss); background: rgba(122, 158, 126, 0.03); margin-bottom: 32px;">
+            <div style="font-size: 0.8rem; color: var(--moss); font-weight: 700; margin-bottom: 12px; text-transform: uppercase;">Votre avis</div>
+            <div class="feedback-card-header">
+              <div class="feedback-avatar">{{ userFeedback.user.nom|slice(0, 1)|upper }}</div>
+              <div class="feedback-meta">
+                <div class="f-name">{{ userFeedback.user.nom }} {{ userFeedback.user.prenom }}</div>
+                <div class="f-date">{{ userFeedback.dateCommentaire|date('d/m/Y') }}</div>
+              </div>
+              <div class="feedback-stars-display" style="margin-left: auto;">
+                {% for i in 1..5 %}
+                  {% if i <= userFeedback.note %}★{% else %}☆{% endif %}
+                {% endfor %}
+              </div>
+            </div>
+            <div class="feedback-text">{{ userFeedback.commentaire|nl2br }}</div>
+            <div class="user-feedback-actions">
+              <button class="btn btn-outline" style="padding: 6px 12px; font-size: 0.8rem;" onclick="document.getElementById('my-feedback-display').style.display='none'; document.getElementById('edit-feedback-form').style.display='block';">✏️ Modifier</button>
+              <form action="{{ path('app_feedback_delete', {'id': userFeedback.id}) }}" method="POST" style="display: inline;" onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer votre avis ?');">
+                <button type="submit" class="btn btn-danger" style="padding: 6px 12px; font-size: 0.8rem;">🗑️ Supprimer</button>
+              </form>
+            </div>
+          </div>
+        {% else %}
+          <div class="feedback-form-card">
+            <div class="feedback-form-title">Donner votre avis</div>
+            <form action="{{ path('app_feedback_add', {'id': produit.id}) }}" method="POST">
+              <div class="form-group">
+                <label>Votre note</label>
+                <div class="star-rating-input">
+                  <input type="radio" id="star5" name="note" value="5" required><label for="star5" title="5 étoiles">★</label>
+                  <input type="radio" id="star4" name="note" value="4"><label for="star4" title="4 étoiles">★</label>
+                  <input type="radio" id="star3" name="note" value="3"><label for="star3" title="3 étoiles">★</label>
+                  <input type="radio" id="star2" name="note" value="2"><label for="star2" title="2 étoiles">★</label>
+                  <input type="radio" id="star1" name="note" value="1"><label for="star1" title="1 étoile">★</label>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="commentaire">Votre expérience</label>
+                <textarea id="commentaire" name="commentaire" class="form-control" placeholder="Partagez votre avis sur cette œuvre..." required></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary">Publier mon avis</button>
+            </form>
+          </div>
+        {% endif %}
+
+        <div class="feedback-list">
+          {% if feedbacks|length == 0 %}
+            <div style="text-align: center; padding: 32px 0; color: var(--muted); font-size: 0.95rem;">
+              Soyez le premier à partager votre expérience sur cette œuvre !
+            </div>
+          {% else %}
+            {% for feedback in feedbacks %}
+              {% if not userFeedback or feedback.id != userFeedback.id %}
+                <div class="feedback-card">
+                  <div class="feedback-card-header">
+                    <div class="feedback-avatar">{{ feedback.user.nom|slice(0, 1)|upper }}</div>
+                    <div class="feedback-meta">
+                      <div class="f-name">{{ feedback.user.nom }} {{ feedback.user.prenom }}</div>
+                      <div class="f-date">{{ feedback.dateCommentaire|date('d/m/Y') }}</div>
+                    </div>
+                    <div class="feedback-stars-display" style="margin-left: auto;">
+                      {% for i in 1..5 %}
+                        {% if i <= feedback.note %}★{% else %}☆{% endif %}
+                      {% endfor %}
+                    </div>
+                  </div>
+                  <div class="feedback-text">{{ feedback.commentaire|nl2br }}</div>
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIMILAR PRODUCTS SECTION -->
+  {% if similarProducts|length > 0 %}
+  <div class="similar-products-section">
+    <h2 class="similar-title">Vous aimerez aussi... (Même catégorie)</h2>
+    <div class="grid-3">
+      {% for sp in similarProducts %}
+        <div class="sp-card">
+          <div class="sp-img-container" onclick="window.location.href='{{ path('app_detaile_produit', {'id': sp.id}) }}'" style="cursor:pointer">
+            {% if sp.imageProduit %}
+              <img src="/uploads/{{ sp.imageProduit }}" alt="{{ sp.nomProduit }}">
+            {% else %}
+              🎨
+            {% endif %}
+          </div>
+          <div class="sp-content">
+            <div class="sp-title">{{ sp.nomProduit }}</div>
+            <div class="sp-meta">{{ sp.category ? sp.category.nomCat : 'Sans catégorie' }}</div>
+            <div class="sp-actions">
+              <a href="{{ path('app_detaile_produit', {'id': sp.id}) }}" class="btn btn-primary" style="flex:1;text-decoration:none;">Voir détails</a>
+              <a href="{{ path('app_favoris_toggle', {'id': sp.id}) }}" class="btn btn-fav" style="text-decoration:none;display:flex;align-items:center;justify-content:center;" title="Ajouter aux favoris">❤️</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<div class="flash-messages">
+  {% for label, messages in app.flashes %}
+    {% for message in messages %}
+      <div class="flash flash-{{ label }}">{{ message }}</div>
+    {% endfor %}
+  {% endfor %}
+</div>
+
+<!-- ══ FOOTER ══ -->
+<footer>
+  &copy; 2026 <span>Loopi</span>. Tous droits réservés. Espace Participant.
+</footer>
+
+<!-- QR CODE MODAL -->
+<div id="qr-modal" class="modal-overlay" style="display:none;" onclick="this.style.display='none'">
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div style="text-align: right;">
+      <button class="modal-close" onclick="document.getElementById('qr-modal').style.display='none'">×</button>
+    </div>
+    <div style="text-align: center;">
+      <h3 style="font-family:'Playfair Display',serif; color:var(--forest); font-size:1.5rem; margin-bottom:16px;">Scanner l'œuvre</h3>
+      <p style="color:var(--muted); font-size:0.9rem; margin-bottom:24px;">Scannez ce QR Code avec votre téléphone pour ouvrir facilement cette page.</p>
+      <div id="qrcode" style="display:flex; justify-content:center; align-items:center; background:white; padding:10px; border-radius:12px; border:1px solid var(--border);"></div>
+    </div>
+  </div>
+</div>
+
+<!-- QR CODE SCRIPT -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script>
+function showQrCode() {
+  document.getElementById('qr-modal').style.display = 'flex';
+  if (!window.qrGenerated) {
+    new QRCode(document.getElementById("qrcode"), {
+      text: "{{ app.request.uri }}",
+      width: 250,
+      height: 250,
+      colorDark : "#1E3A2F",
+      colorLight : "#ffffff",
+      correctLevel : QRCode.CorrectLevel.H
+    });
+    window.qrGenerated = true;
+  }
+}
+
+function copyShareLink() {
+  navigator.clipboard.writeText("{{ app.request.uri }}").then(function() {
+    const flashContainer = document.querySelector('.flash-messages');
+    if (flashContainer) {
+      const flash = document.createElement('div');
+      flash.className = 'flash flash-success';
+      flash.innerText = 'Lien copié dans le presse-papiers !';
+      flashContainer.appendChild(flash);
+      setTimeout(() => {
+        flash.style.opacity = '0';
+        flash.style.transform = 'translateY(80px)';
+        flash.style.transition = 'all 0.3s ease';
+        setTimeout(() => flash.remove(), 300);
+      }, 3000);
+    } else {
+      alert('Lien copié dans le presse-papiers !');
+    }
+  });
+}
+</script>
+
+</body>
+</html>

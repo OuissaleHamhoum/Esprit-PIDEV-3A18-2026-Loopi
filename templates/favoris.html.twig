@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loopi — Mes Favoris</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #F4F1EB;
+  --cream: #FAF8F3;
+  --forest: #1E3A2F;
+  --moss: #3D6B4F;
+  --sage: #7A9E7E;
+  --sand: #C9A96E;
+  --rust: #B05A2F;
+  --light: #FDFCF9;
+  --dark: #111510;
+  --muted: #6B7468;
+  --card: #FFFFFF;
+  --border: rgba(30,58,47,0.09);
+  --shadow: 0 4px 24px rgba(30,58,47,0.08);
+  --shadow-lg: 0 12px 48px rgba(30,58,47,0.14);
+}
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--dark);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── NAVBAR ── */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: rgba(30,58,47,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 64px;
+}
+
+.nav-logo {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: white;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+}
+
+.leaf {
+  width: 20px; height: 20px;
+  background: var(--sage);
+  border-radius: 60% 10% 60% 10%;
+  transform: rotate(-20deg);
+  flex-shrink: 0;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  list-style: none;
+}
+
+.nav-links a {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border-radius: 8px;
+  color: rgba(255,255,255,0.6);
+  text-decoration: none;
+  font-size: .83rem;
+  font-weight: 500;
+  transition: all .2s;
+}
+
+.nav-links a:hover { background: rgba(255,255,255,.08); color: white; }
+.nav-links a.active { background: rgba(255,255,255,.12); color: white; }
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.nav-avatar {
+  width: 36px; height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--sage), var(--moss));
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Playfair Display', serif;
+  font-size: .95rem;
+  font-weight: 700;
+  color: white;
+}
+
+/* ── PAGE CONTENT ── */
+.page-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 40px;
+  flex: 1;
+  width: 100%;
+}
+
+.section-heading {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 6px;
+}
+
+.section-sub {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-bottom: 40px;
+}
+
+/* ── GRID ── */
+.grid-3 {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.card {
+  background: white;
+  border-radius: 18px;
+  border: 1px solid var(--border);
+  transition: transform .2s, box-shadow .2s;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
+
+.card-img-container {
+  height: 220px;
+  background: linear-gradient(135deg, #d4e8d4, #a8c8a8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 5rem;
+  position: relative;
+}
+
+.card-img-container img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.card-content {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--forest);
+  margin-bottom: 6px;
+}
+
+.card-meta {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin-bottom: 16px;
+}
+
+.card-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: auto;
+}
+
+.btn {
+  padding: 9px 20px;
+  border-radius: 10px;
+  font-size: .82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .2s;
+  border: none;
+  font-family: 'DM Sans', sans-serif;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--forest);
+  border: 1.5px solid var(--border);
+  flex: 1;
+}
+.btn-outline:hover { border-color: var(--forest); }
+
+.btn-fav {
+  background: rgba(176,90,47,.1);
+  color: var(--rust);
+  border: 1.5px solid rgba(176,90,47,.2);
+  width: 42px;
+  padding: 0;
+}
+.btn-fav:hover {
+  background: rgba(176,90,47,.2);
+}
+
+.empty-state {
+  text-align: center;
+  padding: 80px 0;
+  color: var(--muted);
+}
+.empty-state .icon {
+  font-size: 4rem;
+  margin-bottom: 20px;
+  opacity: 0.8;
+}
+.empty-state p {
+  font-size: 1.1rem;
+  margin-bottom: 24px;
+}
+
+/* ── ALERTS ── */
+.flash-messages {
+  position: fixed;
+  bottom: 28px; right: 28px;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.flash {
+  background: var(--forest);
+  color: white;
+  padding: 13px 22px;
+  border-radius: 13px;
+  font-size: .84rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lg);
+  animation: slideIn 0.3s cubic-bezier(.34,1.56,.64,1);
+}
+
+@keyframes slideIn {
+  from { transform: translateY(80px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* ── FOOTER ── */
+footer {
+  background: var(--forest);
+  color: rgba(255,255,255,.5);
+  text-align: center;
+  padding: 28px 40px;
+  font-size: .78rem;
+  margin-top: auto;
+}
+footer span { color: var(--sage); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <a href="{{ path('app_participant') }}" class="nav-logo"><span class="leaf"></span> Loopi</a>
+
+  <ul class="nav-links">
+    <li><a href="{{ path('app_participant') }}">🏠 Accueil</a></li>
+    <li><a href="{{ path('app_participant') }}">🎨 Galerie</a></li>
+    <li><a href="{{ path('app_favoris') }}" class="active">❤️ Mes Favoris</a></li>
+  </ul>
+
+  <div class="nav-right">
+    <div class="nav-avatar">T</div>
+  </div>
+</nav>
+
+<div class="page-wrapper">
+  <div class="section-heading">Mes Favoris</div>
+  <div class="section-sub">Retrouvez toutes les œuvres qui ont retenu votre attention</div>
+
+  {% if favorisList is empty %}
+    <div class="empty-state">
+      <div class="icon">💔</div>
+      <p>Vous n'avez pas encore ajouté d'œuvres à vos favoris.</p>
+      <a href="{{ path('app_participant') }}" class="btn btn-outline" style="padding: 12px 24px;">Explorer la galerie</a>
+    </div>
+  {% else %}
+    <div class="grid-3">
+      {% for favori in favorisList %}
+        {% set produit = favori.produit %}
+        <div class="card">
+          <div class="card-img-container" onclick="window.location.href='{{ path('app_detaile_produit', {'id': produit.id}) }}'" style="cursor:pointer">
+            {% if produit.imageProduit %}
+              <img src="/uploads/{{ produit.imageProduit }}" alt="{{ produit.nomProduit }}">
+            {% else %}
+              🎨
+            {% endif %}
+          </div>
+          <div class="card-content">
+            <div class="card-title">{{ produit.nomProduit }}</div>
+            <div class="card-meta">
+              {{ produit.category ? produit.category.nomCat : 'Sans catégorie' }}
+              <br>
+              <span style="opacity:0.7">Ajouté le {{ favori.dateAjout ? favori.dateAjout|date('d/m/Y') : 'Récemment' }}</span>
+            </div>
+            
+            <div class="card-actions">
+              <a href="{{ path('app_detaile_produit', {'id': produit.id}) }}" class="btn btn-outline">Détails</a>
+              <a href="{{ path('app_favoris_toggle', {'id': produit.id}) }}" class="btn btn-fav" title="Retirer des favoris">❌</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+</div>
+
+<div class="flash-messages">
+  {% for label, messages in app.flashes %}
+    {% for message in messages %}
+      <div class="flash flash-{{ label }}">{{ message }}</div>
+    {% endfor %}
+  {% endfor %}
+</div>
+
+<footer>
+  &copy; 2026 <span>Loopi</span>. Tous droits réservés. Espace Participant.
+</footer>
+
+</body>
+</html>
