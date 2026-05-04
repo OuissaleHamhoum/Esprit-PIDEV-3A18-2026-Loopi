@@ -988,8 +988,9 @@ class ApiController extends AbstractController
 
         $uploadedImage = $request->files->get('image_evenement');
         if ($uploadedImage instanceof UploadedFile && $uploadedImage->isValid()) {
-            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp'];
-            $extension = strtolower($uploadedImage->guessExtension() ?: '');
+            $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
+            $extension = strtolower($uploadedImage->guessExtension() ?: $uploadedImage->getClientOriginalExtension());
+            $extension = $extension === 'svg+xml' ? 'svg' : $extension;
             if (!in_array($extension, $allowedExtensions, true)) {
                 return new JsonResponse(['success' => false, 'errors' => ['image_evenement' => 'Format d\'image non pris en charge.']], Response::HTTP_BAD_REQUEST);
             }
@@ -1077,11 +1078,7 @@ class ApiController extends AbstractController
         try {
             $user = $this->getUser();
             $userId = $user ? $user->getId() : 2;
-            $data = json_decode($request->getContent(), true) ?? [];
-
-            if (!$data) {
-                return new JsonResponse(['success' => false, 'message' => 'Données JSON invalides'], 400);
-            }
+            $data = $this->getRequestData($request);
 
             $errors = [];
 
@@ -1146,6 +1143,42 @@ class ApiController extends AbstractController
             $event->setDateSoumission(new \DateTime());
             $event->setCreatedAt(new \DateTime());
             $event->setUpdatedAt(new \DateTime());
+
+            // Handle image upload
+            $uploadedFilename = $this->uploadEventImage($request);
+            if ($uploadedFilename) {
+                $event->setImageEvenement($uploadedFilename);
+            } elseif (isset($data['generatedImage'])) {
+                // Handle base64 generated image
+                $base64Data = $data['generatedImage'];
+                if (preg_match('/^data:image\/(\w+);base64,/', $base64Data, $type)) {
+                    $base64Data = substr($base64Data, strpos($base64Data, ',') + 1);
+                    $type = strtolower($type[1]); // jpg, png, gif
+
+                    if (in_array($type, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                        $base64Data = str_replace(' ', '+', $base64Data);
+                        $imageData = base64_decode($base64Data);
+
+                        if ($imageData !== false) {
+                            $projectDir = $this->getParameter('kernel.project_dir');
+                            $uploadsDir = $projectDir . '/public/uploads/events';
+                            if (!is_dir($uploadsDir)) {
+                                mkdir($uploadsDir, 0755, true);
+                            }
+
+                            $filename = uniqid('event_ai_', true) . '.' . $type;
+                            if (file_put_contents($uploadsDir . '/' . $filename, $imageData)) {
+                                $event->setImageEvenement($filename);
+                            }
+                        }
+                    }
+                }
+            }
+
+            if (isset($data['latitude']) && isset($data['longitude'])) {
+                $event->setLatitude((float)$data['latitude']);
+                $event->setLongitude((float)$data['longitude']);
+            }
 
             $entityManager = $doctrine->getManager();
             $entityManager->persist($event);
@@ -1221,7 +1254,7 @@ class ApiController extends AbstractController
         }
     }
 
-    #[Route('/organisateur/events/{id}', name: 'api_organisateur_events_update', methods: ['PUT'])]
+    #[Route('/organisateur/events/{id}', name: 'api_organisateur_events_update', methods: ['POST', 'PUT'])]
     public function updateOrganisateurEvent(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
     {
         try {
@@ -1237,7 +1270,7 @@ class ApiController extends AbstractController
                 return new JsonResponse(['success' => false, 'message' => 'Accès non autorisé.'], Response::HTTP_FORBIDDEN);
             }
 
-            $data = json_decode($request->getContent(), true) ?? [];
+            $data = $this->getRequestData($request);
             $titre = trim($data['titre'] ?? $event->getTitre());
             $description = trim($data['description'] ?? $event->getDescription());
             $dateEvenement = $data['date_evenement'] ?? ($event->getDateEvenement() ? $event->getDateEvenement()->format('Y-m-d') : '');
@@ -1292,6 +1325,42 @@ class ApiController extends AbstractController
             $event->setLieu($lieu);
             $event->setCapaciteMax($capaciteMax);
             $event->setUpdatedAt(new \DateTime());
+
+            if (isset($data['latitude']) && isset($data['longitude'])) {
+                $event->setLatitude((float)$data['latitude']);
+                $event->setLongitude((float)$data['longitude']);
+            }
+
+            // Handle image upload
+            $uploadedFilename = $this->uploadEventImage($request);
+            if ($uploadedFilename) {
+                $event->setImageEvenement($uploadedFilename);
+            } elseif (isset($data['generatedImage'])) {
+                // Handle base64 generated image
+                $base64Data = $data['generatedImage'];
+                if (preg_match('/^data:image\/(\w+);base64,/', $base64Data, $type)) {
+                    $base64Data = substr($base64Data, strpos($base64Data, ',') + 1);
+                    $type = strtolower($type[1]); // jpg, png, gif
+
+                    if (in_array($type, ['jpg', 'jpeg', 'png', 'gif', 'webp'])) {
+                        $base64Data = str_replace(' ', '+', $base64Data);
+                        $imageData = base64_decode($base64Data);
+
+                        if ($imageData !== false) {
+                            $projectDir = $this->getParameter('kernel.project_dir');
+                            $uploadsDir = $projectDir . '/public/uploads/events';
+                            if (!is_dir($uploadsDir)) {
+                                mkdir($uploadsDir, 0755, true);
+                            }
+
+                            $filename = uniqid('event_ai_', true) . '.' . $type;
+                            if (file_put_contents($uploadsDir . '/' . $filename, $imageData)) {
+                                $event->setImageEvenement($filename);
+                            }
+                        }
+                    }
+                }
+            }
 
             $doctrine->getManager()->flush();
 
@@ -1356,6 +1425,20 @@ class ApiController extends AbstractController
             ], Response::HTTP_BAD_REQUEST);
         }
 
+        // 1. Try Stability AI if key is present
+        $stabilityApiKey = $_ENV['STABILITY_AI_API_KEY'] ?? null;
+        if ($stabilityApiKey) {
+            $imageData = $this->generateImageWithStabilityAI($titre, $description, $stabilityApiKey);
+            if ($imageData) {
+                return new JsonResponse([
+                    'success' => true,
+                    'message' => 'Image générée avec succès par IA (Stability AI)',
+                    'imageData' => 'data:image/png;base64,' . $imageData,
+                    'mimeType' => 'image/png'
+                ]);
+            }
+        }
+
         // Essayer d'abord la méthode GD (locale, toujours disponible)
         try {
             $imageData = $this->generateImageWithGD($titre, $description);
@@ -1380,6 +1463,47 @@ class ApiController extends AbstractController
             'imageData' => 'data:image/svg+xml;base64,' . $imageData,
             'mimeType' => 'image/svg+xml'
         ]);
+    }
+
+    private function generateImageWithStabilityAI(string $titre, string $description, string $apiKey): ?string
+    {
+        $prompt = "A high quality, professional, and aesthetic event cover image for an event titled '$titre'. Description: " . substr($description, 0, 500) . ". No text in the image, clean composition, vivid colors.";
+        
+        $ch = curl_init('https://api.stability.ai/v1/generation/stable-diffusion-v1-6/text-to-image');
+        
+        $data = [
+            'text_prompts' => [
+                ['text' => $prompt]
+            ],
+            'cfg_scale' => 7,
+            'height' => 512,
+            'width' => 512,
+            'samples' => 1,
+            'steps' => 30,
+        ];
+
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_POST, true);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'Content-Type: application/json',
+            'Accept: application/json',
+            'Authorization: Bearer ' . $apiKey
+        ]);
+
+        $response = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+
+        if ($httpCode === 200 && $response) {
+            $result = json_decode($response, true);
+            if (isset($result['artifacts'][0]['base64'])) {
+                return $result['artifacts'][0]['base64'];
+            }
+        }
+        
+        error_log("Stability AI Error ($httpCode): $response");
+        return null;
     }
 
     /**
@@ -1545,7 +1669,7 @@ SVG;
         return null;
     }
 
-    #[Route('/admin/events/{id}', name: 'api_admin_events_update', methods: ['PUT', 'POST'])]
+    #[Route('/admin/events/{id<\d+>}', name: 'api_admin_events_update', methods: ['PUT', 'POST'])]
     public function updateEvent(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
     {
         $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
@@ -1563,8 +1687,8 @@ SVG;
 
         $titre = trim($data['titre'] ?? $event->getTitre());
         $description = trim($data['description'] ?? $event->getDescription());
-        $dateEvenement = $data['date_evenement'] ?? $event->getDateEvenement()->format('Y-m-d');
-        $heureEvenement = $data['heure_evenement'] ?? $event->getDateEvenement()->format('H:i');
+        $dateEvenement = $data['date_evenement'] ?? ($event->getDateEvenement() ? $event->getDateEvenement()->format('Y-m-d') : '');
+        $heureEvenement = $data['heure_evenement'] ?? ($event->getDateEvenement() ? $event->getDateEvenement()->format('H:i') : '00:00');
         $lieu = trim($data['lieu'] ?? $event->getLieu());
         $idOrganisateur = (int)($data['id_organisateur'] ?? $event->getIdOrganisateur());
         $capaciteMax = (int)($data['capacite_max'] ?? $event->getCapaciteMax());
@@ -1592,9 +1716,6 @@ SVG;
                     $dateTimeString = $dateEvenement . ' ' . $heureEvenement;
                 }
                 $dateObj = new \DateTime($dateTimeString);
-                if ($dateObj < new \DateTime() && $event->getStatutValidation() === 'en_attente') {
-                    $errors['date_evenement'] = 'La date de l\'événement ne peut pas être dans le passé.';
-                }
             } catch (\Exception $e) {
                 $errors['date_evenement'] = 'Format de date invalide.';
             }
@@ -1610,7 +1731,7 @@ SVG;
             $errors['id_organisateur'] = 'L\'organisateur est requis.';
         } else {
             $organisateur = $doctrine->getRepository(User::class)->find($idOrganisateur);
-            if (!$organisateur || !in_array($organisateur->getRole(), ['organisateur', 'admin'])) {
+            if (!$organisateur) {
                 $errors['id_organisateur'] = 'Organisateur invalide.';
             }
         }
@@ -1643,7 +1764,8 @@ SVG;
             $uploadedImage = $request->files->get('image_evenement');
             if ($uploadedImage instanceof UploadedFile && $uploadedImage->isValid()) {
                 $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg'];
-                $extension = strtolower($uploadedImage->guessExtension() ?: '');
+                $extension = strtolower($uploadedImage->guessExtension() ?: $uploadedImage->getClientOriginalExtension());
+                $extension = $extension === 'svg+xml' ? 'svg' : $extension;
                 if (!in_array($extension, $allowedExtensions, true)) {
                     return new JsonResponse(['success' => false, 'errors' => ['image_evenement' => 'Format d\'image non pris en charge.']], Response::HTTP_BAD_REQUEST);
                 }
@@ -1685,20 +1807,20 @@ SVG;
                 'id' => $event->getIdEvenement(),
                 'titre' => $event->getTitre(),
                 'description' => $event->getDescription(),
-                'date_evenement' => $event->getDateEvenement()->format('Y-m-d H:i:s'),
+                'date_evenement' => $event->getDateEvenement() ? $event->getDateEvenement()->format('Y-m-d H:i:s') : null,
                 'lieu' => $event->getLieu(),
                 'organisateur' => $organisateur->getDisplayName(),
                 'id_organisateur' => $event->getIdOrganisateur(),
                 'capacite_max' => $event->getCapaciteMax(),
                 'image_evenement' => $event->getImageEvenement(),
                 'statut' => $event->getStatut(),
-                'created_at' => $event->getCreatedAt()->format('Y-m-d H:i:s'),
-                'updated_at' => $event->getUpdatedAt()->format('Y-m-d H:i:s'),
+                'created_at' => $event->getCreatedAt() ? $event->getCreatedAt()->format('Y-m-d H:i:s') : null,
+                'updated_at' => $event->getUpdatedAt() ? $event->getUpdatedAt()->format('Y-m-d H:i:s') : null,
             ]
         ]);
     }
 
-    #[Route('/admin/events/{id}', name: 'api_admin_events_show', methods: ['GET'])]
+    #[Route('/admin/events/{id<\d+>}', name: 'api_admin_events_show', methods: ['GET'])]
     public function showEvent(int $id, ManagerRegistry $doctrine): JsonResponse
     {
         $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
@@ -1747,7 +1869,7 @@ SVG;
         ]);
     }
 
-    #[Route('/admin/events/{id}', name: 'api_admin_events_delete', methods: ['DELETE'])]
+    #[Route('/admin/events/{id<\d+>}', name: 'api_admin_events_delete', methods: ['DELETE'])]
     public function deleteEvent(int $id, ManagerRegistry $doctrine): JsonResponse
     {
         $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
@@ -1762,7 +1884,7 @@ SVG;
         return new JsonResponse(['success' => true, 'message' => 'Événement supprimé avec succès.']);
     }
 
-    #[Route('/admin/events/{id}/validate', name: 'api_admin_event_validate', methods: ['POST'])]
+    #[Route('/admin/events/{id<\d+>}/validate', name: 'api_admin_event_validate', methods: ['POST'])]
     public function validateEvent(int $id, ManagerRegistry $doctrine): JsonResponse
     {
         $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
@@ -1781,7 +1903,7 @@ SVG;
         return new JsonResponse(['success' => true, 'message' => 'Événement validé avec succès.']);
     }
 
-    #[Route('/admin/events/{id}/reject', name: 'api_admin_event_reject', methods: ['POST'])]
+    #[Route('/admin/events/{id<\d+>}/reject', name: 'api_admin_event_reject', methods: ['POST'])]
     public function rejectEvent(int $id, ManagerRegistry $doctrine): JsonResponse
     {
         $event = $doctrine->getRepository('App\Entity\Evenement')->find($id);
