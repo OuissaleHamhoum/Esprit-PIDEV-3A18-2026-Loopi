@@ -88,6 +88,27 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     private ?\DateTimeImmutable $updatedAt = null;
 >>>>>>> 52d701171b98191117769fda401d16d57735b5e5
 
+    #[ORM\Column(type: Types::BOOLEAN, options: ['default' => false])]
+    private bool $has_donated_first_time = false;
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => '0.00'])]
+    private string $total_plastic = '0.00';
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => '0.00'])]
+    private string $total_paper = '0.00';
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => '0.00'])]
+    private string $total_glass = '0.00';
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => '0.00'])]
+    private string $total_metal = '0.00';
+
+    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => '0.00'])]
+    private string $total_cardboard = '0.00';
+
+    #[ORM\Column(type: 'integer', options: ['default' => 0])]
+    private int $xp = 0;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -266,6 +287,7 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
 
         return $this;
     }
+<<<<<<< HEAD
 }
 =======
     public function getUpdatedAt(): ?\DateTimeImmutable
@@ -276,10 +298,82 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function setUpdatedAt(\DateTimeImmutable $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+=======
+
+    public function getDisplayName(): string
+    {
+        return trim($this->prenom . ' ' . $this->nom);
+    }
+
+    public function isHasDonatedFirstTime(): bool
+    {
+        return $this->has_donated_first_time;
+    }
+
+    public function setHasDonatedFirstTime(bool $has_donated_first_time): static
+    {
+        $this->has_donated_first_time = $has_donated_first_time;
+        return $this;
+    }
+
+    public function getTotalPlastic(): string
+    {
+        return $this->total_plastic;
+    }
+
+    public function setTotalPlastic(string $total_plastic): static
+    {
+        $this->total_plastic = $total_plastic;
+        return $this;
+    }
+
+    public function getTotalPaper(): string
+    {
+        return $this->total_paper;
+    }
+
+    public function setTotalPaper(string $total_paper): static
+    {
+        $this->total_paper = $total_paper;
+        return $this;
+    }
+
+    public function getTotalGlass(): string
+    {
+        return $this->total_glass;
+    }
+
+    public function setTotalGlass(string $total_glass): static
+    {
+        $this->total_glass = $total_glass;
+        return $this;
+    }
+
+    public function getTotalMetal(): string
+    {
+        return $this->total_metal;
+    }
+
+    public function setTotalMetal(string $total_metal): static
+    {
+        $this->total_metal = $total_metal;
+        return $this;
+    }
+
+    public function getTotalCardboard(): string
+    {
+        return $this->total_cardboard;
+    }
+
+    public function setTotalCardboard(string $total_cardboard): static
+    {
+        $this->total_cardboard = $total_cardboard;
+>>>>>>> web-Evenement
 
         return $this;
     }
 
+<<<<<<< HEAD
     public function getRoles(): array
     {
         $roles = ['ROLE_USER'];
@@ -302,3 +396,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     }
 }
 >>>>>>> 52d701171b98191117769fda401d16d57735b5e5
+=======
+    public function getXp(): int
+    {
+        return $this->xp;
+    }
+
+    public function setXp(int $xp): static
+    {
+        $this->xp = $xp;
+        return $this;
+    }
+}
+>>>>>>> web-Evenement

@@ -27,7 +27,9 @@ security:
         main:
             lazy: true
             provider: app_user_provider
-            custom_authenticator: App\Security\LoginFormAuthenticator
+            custom_authenticators:
+                - App\Security\LoginFormAuthenticator
+                - App\Security\GoogleAuthenticator
             logout:
                 path: app_logout
                 target: app_home
@@ -36,7 +38,14 @@ security:
                 lifetime: 604800 # 1 week
 
     access_control:
+        - { path: ^/connect/google, roles: PUBLIC_ACCESS }
+        - { path: ^/qr-login, roles: PUBLIC_ACCESS }
+        - { path: ^/qr-phone-login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login-qr-token, roles: PUBLIC_ACCESS }
+        - { path: ^/api/qr-login, roles: PUBLIC_ACCESS }
+        - { path: ^/api/face-login, roles: PUBLIC_ACCESS }
         - { path: ^/admin, roles: ROLE_ADMIN }
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
         - { path: ^/organisateur, roles: ROLE_ORGANISATEUR }
         - { path: ^/participant, roles: ROLE_PARTICIPANT }
 =======

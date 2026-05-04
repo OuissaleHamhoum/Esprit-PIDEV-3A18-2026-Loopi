@@ -41,6 +41,12 @@
         ]
     },
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+    "endroid/qr-code-bundle": {
+        "version": "6.0.0"
+    },
+>>>>>>> web-Evenement
     "symfony/console": {
         "version": "6.4",
 =======

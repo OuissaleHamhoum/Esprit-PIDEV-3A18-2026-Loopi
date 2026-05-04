@@ -6,7 +6,7 @@
 <title>Loopi — Administration</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F7F5F0;--cream:#FDFCF9;--card:#FFFFFF;--forest:#1E3A2F;--moss:#3D6B4F;--sage:#7A9E7E;--sand:#C9A96E;--rust:#B05A2F;--danger:#DC3545;--warn:#F59E0B;--success:#10B981;--info:#3B82F6;--muted:#6B7468;--border:rgba(30,58,47,0.09);--dark:#111510;--text:#1A2218}
+:root{--bg:#F7F5F0;--cream:#FDFCF9;--light:#FAFAF7;--card:#FFFFFF;--forest:#1E3A2F;--moss:#3D6B4F;--sage:#7A9E7E;--sand:#C9A96E;--rust:#B05A2F;--danger:#DC3545;--warn:#F59E0B;--success:#10B981;--info:#3B82F6;--muted:#6B7468;--border:rgba(30,58,47,0.09);--dark:#111510;--text:#1A2218;--loopi-mint:#3D6B4F}
 *{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);display:flex;min-height:100vh;font-size:14px}
 
@@ -53,6 +53,14 @@ nav.snav{padding:12px 10px;flex:1;overflow-y:auto}
 .btn-success:hover{background:rgba(16,185,129,.2)}
 .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border)}
 .btn-ghost:hover{background:var(--bg);color:var(--forest)}
+.btn-action{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 12px;border-radius:10px;border:1px solid transparent;background:rgba(30,58,47,.06);color:var(--forest);font-size:.82rem;font-weight:700;cursor:pointer;transition:all .18s;white-space:nowrap}
+.btn-action:hover{transform:translateY(-1px);background:rgba(61,107,79,.12)}
+.btn-action:focus{outline:none;box-shadow:0 0 0 3px rgba(61,107,79,.15)}
+.btn-action-view{background:rgba(61,107,79,.08);border-color:rgba(61,107,79,.14);color:var(--forest)}
+.btn-action-edit{background:var(--forest);color:white;border-color:transparent}
+.btn-action-edit:hover{background:var(--moss)}
+.btn-action-delete{background:transparent;color:var(--danger);border-color:rgba(220,53,69,.2)}
+.btn-action-delete:hover{background:rgba(220,53,69,.12);color:var(--danger)}
 .btn-sm{padding:4px 10px;font-size:.7rem;border-radius:6px}
 
 /* STAT CARDS */
@@ -124,8 +132,8 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
 .act-time{font-size:.66rem;color:var(--muted);margin-top:1px}
 
 /* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(17,21,16,0.7);backdrop-filter:blur(6px);z-index:2000;align-items:center;justify-content:center;animation:fadeIn .2s ease}
-.modal-overlay.open{display:flex}
+.modal-overlay{display:none !important;position:fixed;inset:0;background:rgba(17,21,16,0.7);backdrop-filter:blur(6px);z-index:2000;align-items:center;justify-content:center;animation:fadeIn .2s ease;pointer-events:none;opacity:0;visibility:hidden;transition:opacity .2s ease, visibility .2s ease}
+.modal-overlay.open{display:flex !important;pointer-events:auto;opacity:1;visibility:visible}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 .modal{background:white;border-radius:24px;width:460px;max-width:92vw;overflow:hidden;animation:slideUp .25s ease;position:relative}
 @keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -144,6 +152,59 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--moss);background:white}
 .fg textarea{resize:vertical;min-height:70px}
 .frow2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+/* AUTH MODAL STYLES (matching login page) */
+.auth-modal{background:white;border-radius:24px;width:90vw;max-width:920px;max-height:92vh;overflow:hidden;animation:slideUp .25s ease;position:relative;box-shadow:0 30px 70px rgba(17,21,16,.18)}
+.auth-split{display:grid;grid-template-columns:1.05fr 1fr;min-height:520px}
+.auth-split-left{position:relative;background:linear-gradient(135deg,var(--forest) 0%,var(--moss) 100%);color:white;display:flex;flex-direction:column;justify-content:center;padding:44px 38px}
+.auth-split-left::before{content:'';position:absolute;inset:0;background:url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="rgba(255,255,255,0.04)"/><circle cx="75" cy="75" r="1" fill="rgba(255,255,255,0.04)"/><circle cx="50" cy="50" r="1" fill="rgba(255,255,255,0.04)"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');opacity:.25;pointer-events:none}
+.auth-panel{position:relative;z-index:1;display:flex;flex-direction:column;gap:28px;max-width:420px}
+.auth-brand{display:flex;align-items:center;gap:.9rem;}
+.auth-brand-label{font-size:.95rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.78)}
+.auth-title{font-size:2rem;font-weight:900;line-height:1.05;margin:0;max-width:15ch}
+.auth-description{font-size:1rem;color:rgba(255,255,255,.85);line-height:1.65;max-width:32ch}
+.auth-highlights{display:flex;flex-wrap:wrap;gap:.75rem}
+.auth-chip{padding:.55rem 1rem;border-radius:999px;background:rgba(255,255,255,.12);font-size:.78rem;font-weight:600;color:white}
+.auth-footer{margin-top:auto;display:flex;flex-direction:column;gap:.9rem}
+.auth-logos{display:flex;align-items:center;gap:1rem}
+.auth-note{font-size:.85rem;color:rgba(255,255,255,.75);margin:0;max-width:280px}
+.auth-split-right{position:relative;background:var(--cream);padding:32px 36px;display:flex;align-items:center;justify-content:center}
+.auth-card{width:100%;max-width:420px;background:white;border-radius:22px;box-shadow:0 18px 40px rgba(30,58,47,.08);padding:28px 30px;}
+.auth-card-header{display:flex;align-items:center;gap:18px;margin-bottom:22px}
+.auth-card-title{font-size:1.2rem;font-weight:800;color:var(--forest);margin:0}
+.auth-card-subtitle{font-size:.92rem;color:var(--muted);margin:2px 0 0}
+.modal-close{position:absolute;top:20px;right:22px;background:transparent;border:none;color:var(--muted);font-size:1.35rem;cursor:pointer;z-index:2}
+.loopi-logo-img{height:40px;width:auto;margin-bottom:0}
+.loopi-logo-img--auth{height:44px}
+.user-avatar{width:72px;height:72px;border-radius:18px;background:linear-gradient(135deg,var(--rust),#d4783c);display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.7rem;font-weight:700;color:white;flex-shrink:0;overflow:hidden;background-size:cover;background-position:center;border:4px solid rgba(255,255,255,.14)}
+.form-label{display:block;font-size:.78rem;font-weight:700;color:var(--forest);margin-bottom:.55rem}
+.form-control,.form-select{padding:.92rem 1.1rem;border:1px solid #d7d3c8;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:.95rem;color:var(--text);outline:none;transition:border-color .2s,box-shadow .2s;background:#faf8f3}
+.form-control:focus,.form-select:focus{border-color:var(--moss);background:white;box-shadow:0 0 0 3px rgba(61,107,79,0.1)}
+.form-control-lg{padding:1rem 1.25rem;font-size:1rem}
+.form-select-lg{padding:1rem 1.25rem;font-size:1rem}
+.btn-loopi{background:linear-gradient(135deg,var(--forest),var(--moss));color:white;border:none;padding:.95rem 1.5rem;border-radius:14px;font-family:'DM Sans',sans-serif;font-size:.95rem;font-weight:700;cursor:pointer;transition:all .2s;display:inline-flex;align-items:center;justify-content:center}
+.btn-loopi:hover{background:linear-gradient(135deg,var(--moss),var(--sage));transform:translateY(-1px);box-shadow:0 8px 18px rgba(30,58,47,0.18)}
+.btn-outline-secondary{background:transparent;color:#6c757d;border:1px solid #6c757d;padding:.55rem 1rem;border-radius:12px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-outline-secondary:hover{background:#6c757d;color:white}
+.btn-outline-danger{background:transparent;color:#dc3545;border:1px solid #dc3545;padding:.55rem 1rem;border-radius:12px;font-size:.85rem;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-outline-danger:hover{background:#dc3545;color:white}
+
+/* PHOTO SECTION */
+.photo-section{text-align:center;margin-bottom:1.75rem;padding:18px;background:var(--bg);border-radius:18px;border:1px solid var(--border)}
+.photo-preview{width:110px;height:110px;border-radius:18px;background:var(--cream);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:#6c757d;margin:0 auto 1rem;overflow:hidden;background-size:cover;background-position:center}
+.photo-preview.empty{background:linear-gradient(135deg,var(--moss),var(--sage));color:white}
+.photo-buttons{display:flex;gap:.75rem;justify-content:center;flex-wrap:wrap}
+.photo-buttons button{padding:.6rem 1rem;font-size:.82rem;border-radius:10px;border:1px solid var(--border);background:white;color:var(--forest);cursor:pointer;transition:all .18s;font-weight:600}
+.photo-buttons button:hover{background:var(--forest);color:white;border-color:var(--forest)}
+
+/* RESPONSIVE */
+@media (max-width: 991.98px) {
+  .auth-modal{max-width:95vw;max-height:95vh}
+  .auth-split{grid-template-columns:1fr}
+  .auth-split-left{display:none}
+  .auth-split-right{padding:24px 20px}
+  .auth-card{padding:24px 22px}
+}
 
 /* ALERT */
 .alert{padding:12px 16px;border-radius:10px;font-size:.8rem;font-weight:500;margin-bottom:16px;display:flex;align-items:center;gap:8px}
@@ -189,7 +250,13 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
     </div>
   </div>
   <div class="s-user">
-    <div class="s-av">{{ app.user.nom|default('A')[:1]|upper }}</div>
+    <div
+      class="s-av"
+      id="sidebarUserAvatar"
+      {% if app.user and app.user.photo and app.user.photo != 'default.jpg' %}
+        style="background-image:url('/uploads/users/{{ app.user.photo }}?t={{ 'now'|date('U') }}');background-size:cover;background-position:center;color:transparent"
+      {% endif %}
+    >{{ app.user.nom|default('A')[:1]|upper }}</div>
     <div><div class="s-uname">{{ app.user.nom|default('Admin System') }}</div><div class="s-urole">{{ app.user.email|default('admin@loopi.tn') }}</div></div>
   </div>
   <nav class="snav">
@@ -202,8 +269,8 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
       <div class="breadcrumb">Loopi Admin / <span id="breadcrumb-text">Vue d'ensemble</span></div>
     </div>
     <div class="h-right">
-      <div class="h-notif" onclick="showToast('3 nouvelles notifications')">🔔<span class="dot"></span></div>
-      <button class="btn btn-primary btn-sm" onclick="openUserModal('create')">+ Ajouter utilisateur</button>
+      <div class="h-notif" onclick="showToast('3 nouvelles notifications')" style="cursor:pointer;transition:transform 0.2s" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">🔔<span class="dot"></span></div>
+      <button class="btn-submit" style="padding:13px;background:var(--forest);color:white;border:none;border-radius:10px;font-weight:700;font-size:0.92rem;cursor:pointer;transition:all 0.2s;letter-spacing:0.02em;min-width:150px" onclick="openUserModal('create')" onmouseover="this.style.background='var(--moss)';this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(30,58,47,0.2)'" onmouseout="this.style.background='var(--forest)';this.style.transform='translateY(0)';this.style.boxShadow='none'" title="Ajouter un nouvel utilisateur">Ajouter utilisateur</button>
     </div>
   </div>
 
@@ -211,6 +278,7 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
     {% include 'admin/dashboard.html.twig' %}
     {% include 'admin/users.html.twig' %}
     {% include 'admin/events.html.twig' %}
+    {% include 'admin/events-map.html.twig' %}
     {% include 'admin/products.html.twig' %}
     {% include 'admin/collections.html.twig' %}
     {% include 'admin/donations.html.twig' %}
@@ -223,47 +291,273 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
 </main>
 
 <!-- MODAL AJOUTER UTILISATEUR -->
-<div class="modal-overlay" id="userModal" onclick="if(event.target===this)closeUserModal()">
-  <div class="modal">
-    <div class="modal-header">
-      <div class="modal-title" id="userModalTitle">Ajouter un utilisateur</div>
-      <button class="modal-close" onclick="closeUserModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div id="userFormErrors" style="color:#b91c1c;font-size:.82rem;margin-bottom:12px;display:none"></div>
-      <input type="hidden" id="userId">
-      <input type="hidden" id="userPhoto">
-      
-      <!-- Photo Section -->
-      <div class="photo-section">
-        <div class="photo-preview empty" id="photoPreview">📸</div>
-        <div class="photo-buttons" id="photoButtons">
-          <button type="button" onclick="startCamera()">📷 Caméra</button>
-          <button type="button" onclick="document.getElementById('photoFile').click()">📤 Télécharger</button>
-          <button type="button" onclick="clearPhoto()">✕ Effacer</button>
+<div class="modal-overlay" id="userModal" onclick="if(event.target===this)closeUserModal()" style="z-index:2000;position:fixed;inset:0;background:rgba(17,21,16,0.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;animation:fadeIn 0.2s ease">
+  <div class="auth-modal" style="background:white;border-radius:24px;width:420px;max-width:92vw;overflow:hidden;animation:slideUp 0.3s ease;position:relative;box-shadow:0 10px 40px rgba(17,21,16,0.15);max-height:92vh;overflow-y:auto">
+    <button class="modal-close" onclick="closeUserModal()" style="position:absolute;top:16px;right:16px;width:32px;height:32px;border-radius:50%;border:none;background:rgba(30,58,47,0.07);color:var(--muted);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s;z-index:10" onmouseover="this.style.background='rgba(30,58,47,0.15)'" onmouseout="this.style.background='rgba(30,58,47,0.07)'" title="Fermer (Échap)">✕</button>
+    <div class="auth-card auth-card-full">
+      <div class="auth-card-header" style="padding:32px 32px 24px;background:var(--cream);color:var(--dark);border-radius:24px 24px 0 0;border-bottom:1px solid rgba(30,58,47,0.07);position:relative;text-align:center">
+        <h2 class="auth-card-title" id="userModalTitle" style="font-family:'Playfair Display',serif;font-size:1.5rem;margin:0 0 8px 0;font-weight:900;color:var(--forest);letter-spacing:-0.5px">Ajouter utilisateur</h2>
+        <p id="userModalDescription" style="font-size:0.8rem;color:var(--muted);margin:0;display:none;font-weight:500"></p>
+      </div>
+
+      <div id="userFormErrors" class="alert alert-danger" style="display:none;margin:16px 28px 0;border-radius:10px;border-left:4px solid #dc3545;padding:12px 14px;background:#fff5f5;color:#721c24;font-size:0.85rem;line-height:1.5;animation:slideDown 0.3s ease" role="alert"></div>
+
+      <form id="userForm" novalidate style="padding:28px 32px 32px">
+        <input type="hidden" id="userId">
+        <input type="hidden" id="userPhoto">
+
+        <div style="display:grid;gap:clamp(16px,3vw,20px);margin-bottom:24px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,3vw,16px)">
+            <div>
+              <label class="form-label" for="userNom" style="font-size:0.8rem;font-weight:600;margin-bottom:6px;display:block;color:var(--forest)">Nom</label>
+              <input type="text" class="form-control" id="userNom" name="nom" required maxlength="50" placeholder="Dupont" style="padding:12px 14px;font-size:0.88rem;border:1.5px solid rgba(30,58,47,0.15);transition:border-color 0.2s;background:var(--light);width:100%;border-radius:10px;outline:none;font-family:'DM Sans',sans-serif;color:var(--dark)" onchange="this.style.borderColor='var(--moss)'"></input>
+            </div>
+            <div>
+              <label class="form-label" for="userPrenom" style="font-size:0.8rem;font-weight:600;margin-bottom:6px;display:block;color:var(--forest)">Prénom</label>
+              <input type="text" class="form-control" id="userPrenom" name="prenom" required maxlength="50" placeholder="Marie" style="padding:12px 14px;font-size:0.88rem;border:1.5px solid rgba(30,58,47,0.15);transition:border-color 0.2s;background:var(--light);width:100%;border-radius:10px;outline:none;font-family:'DM Sans',sans-serif;color:var(--dark)" onchange="this.style.borderColor='var(--moss)'"></input>
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label" for="userEmail" style="font-size:0.8rem;font-weight:600;margin-bottom:6px;display:block;color:var(--forest)">Email</label>
+            <input type="email" class="form-control" id="userEmail" name="email" required maxlength="100" inputmode="email" placeholder="user@loopi.tn" style="padding:12px 14px;font-size:0.88rem;border:1.5px solid rgba(30,58,47,0.15);transition:border-color 0.2s;background:var(--light);width:100%;border-radius:10px;outline:none;font-family:'DM Sans',sans-serif;color:var(--dark)" onchange="this.style.borderColor='var(--moss)'"></input>
+          </div>
+
+          <div id="passwordField" style="transition:all 0.2s">
+            <label class="form-label" for="userPassword" style="font-size:0.8rem;font-weight:600;margin-bottom:6px;display:block;color:var(--forest)">Mot de passe</label>
+            <input type="password" class="form-control" id="userPassword" name="password" minlength="6" maxlength="128" placeholder="Minimum 6 caractères" style="padding:12px 14px;font-size:0.88rem;border:1.5px solid rgba(30,58,47,0.15);transition:border-color 0.2s;background:var(--light);width:100%;border-radius:10px;outline:none;font-family:'DM Sans',sans-serif;color:var(--dark)" onchange="this.style.borderColor='var(--moss)'"></input>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:clamp(12px,3vw,16px)">
+            <div>
+              <label class="form-label" for="userRole" style="font-size:0.8rem;font-weight:600;margin-bottom:6px;display:block;color:var(--forest)">Rôle</label>
+              <select class="form-select" id="userRole" name="role" required style="padding:12px 14px;font-size:0.88rem;border:1.5px solid rgba(30,58,47,0.15);transition:border-color 0.2s;background:var(--light);cursor:pointer;width:100%;border-radius:10px;appearance:none;outline:none;font-family:'DM Sans',sans-serif;color:var(--dark)" onchange="this.style.borderColor='var(--moss)'">
+                <option value="participant">Participant</option>
+                <option value="organisateur">Organisateur</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
+            <div>
+              <label class="form-label" for="userGenre" style="font-size:0.8rem;font-weight:600;margin-bottom:6px;display:block;color:var(--forest)">Genre</label>
+              <select class="form-select" id="userGenre" name="genre" style="padding:12px 14px;font-size:0.88rem;border:1.5px solid rgba(30,58,47,0.15);transition:border-color 0.2s;background:var(--light);cursor:pointer;width:100%;border-radius:10px;appearance:none;outline:none;font-family:'DM Sans',sans-serif;color:var(--dark)" onchange="this.style.borderColor='var(--moss)'">
+                <option value="">Aucun</option>
+                <option value="Masculin">Masculin</option>
+                <option value="Féminin">Féminin</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="photo-section" id="photoSection" style="display:none;padding:20px;background:linear-gradient(135deg,rgba(61,107,79,0.08) 0%,rgba(107,138,112,0.08) 100%);border:2px dashed var(--moss);border-radius:14px;text-align:center;animation:fadeIn 0.3s ease;transition:all 0.2s">
+            <div class="photo-preview empty" id="photoPreview" style="width:90px;height:90px;margin:0 auto 14px;border-radius:14px;background:linear-gradient(135deg,var(--moss),var(--forest));display:flex;align-items:center;justify-content:center;font-size:2.2rem;color:white;border:3px solid white;box-shadow:0 4px 12px rgba(61,107,79,0.15);transition:all 0.2s">📸</div>
+            <p style="font-size:0.85rem;color:var(--muted);margin:0 0 12px 0;font-weight:600">Photo de profil</p>
+            <div class="photo-buttons" id="photoButtons" style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+              <button type="button" class="btn btn-sm" style="padding:10px 20px;font-size:0.8rem;border-radius:9px;border:2px solid var(--forest);background:white;color:var(--forest);cursor:pointer;font-weight:700;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);user-select:none;overflow:hidden;position:relative" onclick="document.getElementById('photoFile').click()" onmouseover="this.style.background='var(--forest)';this.style.color='white';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 15px rgba(30,58,47,0.25)';this.style.borderColor='var(--moss)'" onmouseout="this.style.background='white';this.style.color='var(--forest)';this.style.transform='translateY(0)';this.style.boxShadow='none';this.style.borderColor='var(--forest)'" title="Charger une photo de profil">📁 Charger photo</button>
+              <button type="button" class="btn btn-sm" style="padding:10px 20px;font-size:0.8rem;border-radius:9px;border:2px solid #1d4ed8;background:white;color:#1d4ed8;cursor:pointer;font-weight:700;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);user-select:none;overflow:hidden;position:relative" onclick="startCamera()" onmouseover="this.style.background='#1d4ed8';this.style.color='white';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 15px rgba(29,78,216,0.25)';this.style.borderColor='#3b82f6'" onmouseout="this.style.background='white';this.style.color='#1d4ed8';this.style.transform='translateY(0)';this.style.boxShadow='none';this.style.borderColor='#1d4ed8'" title="Prendre une photo avec la caméra">📷 Prendre photo</button>
+              <button type="button" class="btn btn-sm" style="padding:10px 20px;font-size:0.8rem;border-radius:9px;border:2px solid #dc3545;background:white;color:#dc3545;cursor:pointer;font-weight:700;transition:all 0.25s cubic-bezier(0.4,0,0.2,1);user-select:none;overflow:hidden;position:relative" onclick="clearPhoto()" onmouseover="this.style.background='#dc3545';this.style.color='white';this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 15px rgba(220,53,69,0.25)';this.style.borderColor='#ff6b7a'" onmouseout="this.style.background='white';this.style.color='#dc3545';this.style.transform='translateY(0)';this.style.boxShadow='none';this.style.borderColor='#dc3545'" title="Effacer la photo sélectionnée">🗑️ Supprimer</button>
+            </div>
+            <input type="file" id="photoFile" accept="image/*" onchange="handlePhotoUpload(event)" style="display:none">
+          </div>
         </div>
-        <input type="file" id="photoFile" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)">
-      </div>
-      
-      <div class="frow2">
-        <div class="fg"><label>Nom</label><input id="userNom" placeholder="Dupont"></div>
-        <div class="fg"><label>Prénom</label><input id="userPrenom" placeholder="Marie"></div>
-      </div>
-      <div class="fg"><label>Email</label><input type="email" id="userEmail" placeholder="marie@loopi.tn"></div>
-      <div class="fg" id="passwordField"><label>Mot de passe</label><input type="password" id="userPassword" placeholder="••••••••"></div>
-      <div class="frow2">
-        <div class="fg"><label>Rôle</label><select id="userRole"><option value="participant">Participant</option><option value="organisateur">Organisateur</option><option value="admin">Admin</option></select></div>
-        <div class="fg"><label>Genre</label><select id="userGenre"><option value="">Aucun</option><option value="Masculin">Masculin</option><option value="Féminin">Féminin</option></select></div>
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-ghost" type="button" onclick="closeUserModal()">Annuler</button>
-        <button class="btn-submit" type="button" id="userModalSubmit" onclick="submitUserForm(event)">Créer le compte</button>
-      </div>
+
+        <div style="border-top:1px solid rgba(30,58,47,0.07);padding-top:16px;display:flex;gap:12px;margin-top:16px"> 
+          <button type="button" class="btn-submit" style="flex:1;padding:13px;background:rgba(30,58,47,0.07);color:var(--forest);border:none;border-radius:10px;font-weight:700;font-size:0.92rem;cursor:pointer;transition:all 0.2s;user-select:none" onclick="closeUserModal()" title="Annuler">Annuler</button>
+          <button type="button" class="btn-submit" style="flex:1;padding:13px;background:var(--forest);color:white;border:none;border-radius:10px;font-weight:700;font-size:0.92rem;cursor:pointer;transition:all 0.2s;user-select:none;position:relative" id="userModalSubmit" onclick="submitUserForm(event)" onmouseover="this.style.background='var(--moss)';this.style.transform='translateY(-1px)';this.style.boxShadow='0 4px 12px rgba(30,58,47,0.2)'" onmouseout="this.style.background='var(--forest)';this.style.transform='translateY(0)';this.style.boxShadow='none'" title="Valider">
+            <span id="submitButtonText" style="transition:opacity 0.2s ease">Créer</span>
+            <span id="submitLoadingSpinner" style="display:none;position:absolute;right:16px;top:50%;transform:translateY(-50%);width:14px;height:14px;border:2px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:spin 0.8s linear infinite"></span>
+          </button>
+        </div>
+      </form>
     </div>
   </div>
 </div>
 
+<style>
+/* ANIMATIONS */
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes slideUp { from { transform: translateY(30px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+@keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes buttonPulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(107, 138, 112, 0.3); } 50% { box-shadow: 0 0 0 8px rgba(107, 138, 112, 0); } }
+
+/* MODAL VISIBILITY */
+#userModal.open { display: flex !important; }
+
+/* FORM STYLES - LOGIN MATCHING */
+.form-label {
+  font-weight: 600;
+  font-size: 0.8rem;
+  color: var(--forest);
+  transition: color 0.2s ease;
+}
+
+.form-control, .form-select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1.5px solid rgba(30,58,47,0.15);
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.88rem;
+  color: var(--dark);
+  transition: border-color 0.2s;
+  outline: none;
+  background: var(--light);
+}
+
+.form-control:hover, .form-select:hover {
+  border-color: rgba(30,58,47,0.25);
+}
+
+.form-control:focus, .form-select:focus {
+  border-color: var(--moss);
+  background: white;
+  box-shadow: 0 0 0 2px rgba(107,138,112,0.1);
+}
+
+.form-control:disabled, .form-select:disabled {
+  background: rgba(0, 0, 0, 0.05);
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* BUTTONS */
+.btn-submit {
+  width: 100%;
+  padding: 13px;
+  background: var(--forest);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 0.02em;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background: var(--moss);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(30,58,47,0.2);
+}
+
+.btn-submit:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 2px;
+}
+
+/* MODAL HEADER */
+.auth-card-header {
+  text-align: center;
+}
+
+.auth-card-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--forest);
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+/* ERROR MESSAGES */
+#userFormErrors {
+  border-left: 4px solid #dc3545;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #fff5f5;
+  color: #721c24;
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .auth-modal { width: 95vw !important; }
+  .form-group { margin-bottom: 12px; }
+  button { font-size: 0.88rem; }
+}
+
+@media (max-width: 480px) {
+  .auth-modal { width: 98vw !important; }
+  .form-control, .form-select, .btn-submit { font-size: 16px; }
+  .btn-submit { min-height: 44px; padding: 12px 14px; }
+}
+
+/* PRINT */
+@media print {
+  .modal-overlay, button, .auth-modal { display: none !important; }
+}
+
+/* DARK MODE */
+@media (prefers-color-scheme: dark) {
+  .form-control, .form-select { 
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.2);
+    color: white;
+  }
+  .form-control:focus, .form-select:focus {
+    border-color: var(--moss);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+}
+</style>
+
 <div class="toast" id="toast"></div>
+
+<!-- ADMIN COLL MODAL -->
+<div class="modal-overlay" id="adminCollModal" onclick="if(event.target===this)closeAdminCollModal()">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title">Modifier Collection</div>
+      <button class="modal-close" onclick="closeAdminCollModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="adminCollErrors" style="color:#b91c1c;font-size:.82rem;margin-bottom:12px;display:none"></div>
+      <input type="hidden" id="adminCollId">
+      <div class="fg">
+        <label>Titre</label>
+        <input id="adminCollTitle">
+      </div>
+      <div class="frow2">
+        <div class="fg">
+          <label>Matériau</label>
+          <select id="adminCollMat">
+            <option>Verre</option><option>Métal</option><option>Plastique</option>
+            <option>Papier</option><option>Bois</option><option>Autre</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Statut</label>
+          <select id="adminCollStatus">
+            <option value="active">Active</option>
+            <option value="inactive">Inactive</option>
+          </select>
+        </div>
+      </div>
+      <div class="frow2">
+        <div class="fg">
+          <label>Objectif cible</label>
+          <input type="number" id="adminCollGoal">
+        </div>
+        <div class="fg">
+          <label>Unité</label>
+          <input id="adminCollUnit" placeholder="ex: kg">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-ghost" onclick="closeAdminCollModal()">Annuler</button>
+        <button type="button" class="btn-submit" onclick="submitAdminEditColl()">Enregistrer</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Camera Modal -->
 <div id="cameraModal">
@@ -280,12 +574,48 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
 <script>
 const breadcrumbs = {
   dashboard:'Vue d\'ensemble', analytics:'Analytique', users:'Utilisateurs', events:'Événements',
-  products:'Produits', collections:'Collections', donations:'Donations', coupons:'Coupons',
+  'events-map':'Carte Événements', products:'Produits', collections:'Collections', donations:'Donations', coupons:'Coupons',
   feedbacks:'Avis & Feedbacks', settings:'Paramètres', notifs:'Notifications'
 };
 let adminUsers = [];
 let adminEvents = [];
 let userModalMode = 'create';
+const currentUserId = {{ app.user ? app.user.id : 'null' }};
+
+async function checkAuthentication() {
+  try {
+    const response = await fetch('/api/health', {
+      credentials: 'include',
+      headers: { 'Accept': 'application/json' }
+    });
+    const data = await response.json();
+    return response.ok && data.success && data.user;
+  } catch (error) {
+    return false;
+  }
+}
+
+async function parseJsonResponse(response) {
+  const text = await response.text();
+  try {
+    const json = JSON.parse(text);
+    if (typeof json === 'object' && json !== null) {
+      return json;
+    }
+  } catch (error) {
+    console.error('Invalid JSON response:', text);
+  }
+  return {
+    success: false,
+    message: response.status === 401
+      ? 'Accès non autorisé. Veuillez vous reconnecter.'
+      : response.status === 403
+        ? 'Accès refusé.'
+        : 'Réponse serveur invalide.',
+    status: response.status,
+    body: text,
+  };
+}
 
 function goPage(name, navEl) {
   document.querySelectorAll('[id^=page-]').forEach(p => p.style.display = 'none');
@@ -294,13 +624,34 @@ function goPage(name, navEl) {
   if (navEl) navEl.classList.add('active');
   document.getElementById('breadcrumb-text').textContent = breadcrumbs[name] || name;
 
+  if (typeof cleanupEventsMapPage === 'function' && name !== 'events-map') {
+    cleanupEventsMapPage();
+  }
+
   // Load data based on page
   switch (name) {
     case 'users':
       refreshUserTable();
       break;
     case 'events':
-      fetchAdminEvents();
+      checkAuthentication().then(isAuthenticated => {
+        if (isAuthenticated) {
+          if (typeof loadEvents === 'function') {
+            loadEvents();
+          }
+          if (typeof loadOrganisateurs === 'function') {
+            loadOrganisateurs();
+          }
+        } else {
+          showToast('Accès refusé. Veuillez vous connecter en tant qu\'administrateur.');
+          setTimeout(() => window.location.href = '/login', 3000);
+        }
+      });
+      break;
+    case 'events-map':
+      if (typeof initEventsMapPage === 'function') {
+        initEventsMapPage();
+      }
       break;
     case 'products':
       refreshProductTable();
@@ -323,6 +674,7 @@ function goPage(name, navEl) {
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function closeUserModal() {
+  closeCamera();
   resetUserForm();
   closeModal('userModal');
 }
@@ -330,48 +682,55 @@ function closeUserModal() {
 function openUserModal(mode, id = null) {
   userModalMode = mode;
   const title = document.getElementById('userModalTitle');
+  const description = document.getElementById('userModalDescription');
   const submitButton = document.getElementById('userModalSubmit');
+  const submitButtonText = document.getElementById('submitButtonText');
   const formErrors = document.getElementById('userFormErrors');
-  const photoButtons = document.getElementById('photoButtons');
+  const photoSection = document.getElementById('photoSection');
   const passwordField = document.getElementById('passwordField');
 
   formErrors.style.display = 'none';
   formErrors.textContent = '';
 
   if (mode === 'create') {
-    title.textContent = 'Ajouter un utilisateur';
-    submitButton.textContent = 'Créer le compte';
-    submitButton.className = 'btn-submit';
-    submitButton.style.display = 'inline-flex';
-    photoButtons.style.display = 'flex';
+    title.textContent = '✨ Ajouter un nouvel utilisateur';
+    if (description) description.textContent = 'Créez un nouveau compte utilisateur en remplissant les champs ci-dessous.';
+    submitButtonText.textContent = '✅ Créer';
+    submitButton.disabled = false;
+    submitButton.style.display = 'inline-block';
     if (passwordField) passwordField.style.display = 'block';
+    if (photoSection) photoSection.style.display = 'block';
     fillUserForm({ nom: '', prenom: '', email: '', password: '', role: 'participant', genre: '' });
     setFormDisabled(false);
-    document.getElementById('userPassword').placeholder = '••••••••';
+    document.getElementById('userPassword').required = true;
+    document.getElementById('userPassword').focus();
   } else {
     const user = adminUsers.find(u => u.id === id);
     if (!user) {
-      showToast('Utilisateur introuvable.');
+      showToast('❌ Utilisateur introuvable.');
       return;
     }
     fillUserForm(user);
 
     if (mode === 'edit') {
-      title.textContent = 'Modifier un utilisateur';
-      submitButton.textContent = 'Enregistrer';
-      submitButton.className = 'btn-submit';
-      submitButton.style.display = 'inline-flex';
-      photoButtons.style.display = 'flex';
-      if (passwordField) passwordField.style.display = 'block';
-      setFormDisabled(false);
-      document.getElementById('userPassword').placeholder = 'Laisser vide pour conserver le mot de passe';
-    } else {
-      title.textContent = 'Détails utilisateur';
-      submitButton.textContent = 'Fermer';
-      submitButton.className = 'btn btn-ghost';
-      submitButton.style.display = 'inline-flex';
-      photoButtons.style.display = 'none';
+      title.textContent = '✏️ Modifier: ' + (user.nom || 'Utilisateur');
+      if (description) description.textContent = 'Mettez à jour les informations du compte. Tous les changements seront sauvegardés.';
+      submitButtonText.textContent = '💾 Enregistrer';
+      submitButton.disabled = false;
+      submitButton.style.display = 'inline-block';
       if (passwordField) passwordField.style.display = 'none';
+      if (photoSection) photoSection.style.display = 'block';
+      setFormDisabled(false);
+      document.getElementById('userPassword').required = false;
+      document.getElementById('userNom').focus();
+    } else if (mode === 'show') {
+      title.textContent = '👁️ Détails: ' + (user.nom || 'Utilisateur');
+      if (description) description.textContent = 'Mode lecture seule - aucune modification possible. Fermez pour retourner à la liste.';
+      submitButton.style.display = 'none';
+      if (passwordField) passwordField.style.display = 'none';
+      if (photoSection) photoSection.style.display = 'block';
+      const photoButtons = document.getElementById('photoButtons');
+      if (photoButtons) photoButtons.style.display = 'none';
       setFormDisabled(true);
     }
   }
@@ -407,13 +766,32 @@ function fillUserForm(user) {
   }
 }
 
+function updateSidebarUserAvatar(user) {
+  const avatar = document.getElementById('sidebarUserAvatar');
+  if (!avatar || !user) return;
+
+  if (user.photoUrl && user.photoUrl !== '/uploads/users/default.jpg') {
+    avatar.style.backgroundImage = `url('${user.photoUrl}?t=${Date.now()}')`;
+    avatar.style.backgroundSize = 'cover';
+    avatar.style.backgroundPosition = 'center';
+    avatar.style.color = 'transparent';
+  } else {
+    avatar.style.backgroundImage = 'none';
+    avatar.style.color = 'white';
+    avatar.textContent = (user.nom || '?').charAt(0).toUpperCase();
+  }
+}
+
 function resetUserForm() {
   document.getElementById('userFormErrors').style.display = 'none';
   document.getElementById('userFormErrors').textContent = '';
   userModalMode = 'create';
   fillUserForm({ nom: '', prenom: '', email: '', password: '', role: 'participant', genre: '' });
   document.getElementById('userPassword').placeholder = '••••••••';
-  document.getElementById('photoButtons').style.display = 'flex';
+  const photoButtons = document.getElementById('photoButtons');
+  if (photoButtons) photoButtons.style.display = 'flex';
+  const photoSection = document.getElementById('photoSection');
+  if (photoSection) photoSection.style.display = 'block';
   const passwordField = document.getElementById('passwordField');
   if (passwordField) passwordField.style.display = 'block';
   setFormDisabled(false);
@@ -458,7 +836,20 @@ async function importUsersCsv(file) {
 
 async function submitUserForm(event) {
   event.preventDefault();
+
+  // Form validation
+  const form = document.getElementById('userForm');
+  if (!form.checkValidity()) {
+    form.classList.add('was-validated');
+    return;
+  }
+  form.classList.remove('was-validated');
+
   const errorsElement = document.getElementById('userFormErrors');
+  const submitButton = document.getElementById('userModalSubmit');
+  const submitButtonText = document.getElementById('submitButtonText');
+  const submitLoadingSpinner = document.getElementById('submitLoadingSpinner');
+
   errorsElement.style.display = 'none';
   errorsElement.textContent = '';
 
@@ -492,8 +883,16 @@ async function submitUserForm(event) {
   if (!nom || !prenom || !email || (userModalMode === 'create' && !password)) {
     errorsElement.style.display = 'block';
     errorsElement.textContent = 'Tous les champs obligatoires doivent être remplis. Le mot de passe est requis lors de la création.';
+    errorsElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    document.getElementById('userNom').focus();
     return;
   }
+
+  // État de soumission
+  submitButton.disabled = true;
+  submitButtonText.style.opacity = '0.6';
+  submitLoadingSpinner.style.display = 'inline-block';
+  submitButtonText.textContent = userModalMode === 'edit' ? '⏳ Enregistrement...' : '⏳ Création...';
 
   try {
     const response = await fetch(url, {
@@ -507,11 +906,19 @@ async function submitUserForm(event) {
     if (!response.ok) {
       if (response.status === 401) {
         errorsElement.style.display = 'block';
-        errorsElement.textContent = 'Vous n\'êtes pas autorisé. Veuillez vous reconnecter.';
+        errorsElement.textContent = '🔒 Vous n\'êtes pas autorisé. Veuillez vous reconnecter.';
+        submitButton.disabled = false;
+        submitButtonText.style.opacity = '1';
+        submitLoadingSpinner.style.display = 'none';
+        submitButtonText.textContent = userModalMode === 'edit' ? '💾 Enregistrer' : '✅ Créer';
         return;
       } else if (response.status === 403) {
         errorsElement.style.display = 'block';
-        errorsElement.textContent = 'Vous n\'avez pas les permissions requises.';
+        errorsElement.textContent = '⛔ Vous n\'avez pas les permissions requises.';
+        submitButton.disabled = false;
+        submitButtonText.style.opacity = '1';
+        submitLoadingSpinner.style.display = 'none';
+        submitButtonText.textContent = userModalMode === 'edit' ? '💾 Enregistrer' : '✅ Créer';
         return;
       }
     }
@@ -520,21 +927,45 @@ async function submitUserForm(event) {
     console.log('[User Form] API Response:', result);
 
     if (result.success) {
-      showToast(userModalMode === 'edit' ? 'Utilisateur mis à jour.' : 'Utilisateur créé.');
-      closeUserModal();
-      refreshUserTable();
+      if (userModalMode === 'edit' && Number(userId) === Number(currentUserId) && result.user) {
+        updateSidebarUserAvatar(result.user);
+      }
+      submitButtonText.textContent = userModalMode === 'edit' ? '✅ Enregistré !' : '✅ Créé !';
+      submitLoadingSpinner.style.display = 'none';
+      showToast(userModalMode === 'edit' ? '✅ Utilisateur mis à jour avec succès.' : '✅ Utilisateur créé avec succès.');
+      
+      setTimeout(() => {
+        closeUserModal();
+        refreshUserTable();
+      }, 400);
     } else {
       errorsElement.style.display = 'block';
       if (result.errors) {
-        errorsElement.innerHTML = Object.values(result.errors).join('<br>');
+        const errorMessages = Object.entries(result.errors)
+          .map(([field, message]) => `<strong>${field}:</strong> ${message}`)
+          .join('<br>');
+        errorsElement.innerHTML = '❌ Erreur: <br>' + errorMessages;
       } else {
-        errorsElement.textContent = result.message || 'Erreur lors du traitement du formulaire.';
+        errorsElement.textContent = '❌ ' + (result.message || 'Erreur lors du traitement du formulaire.');
       }
+      errorsElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      
+      // Réactivation du bouton
+      submitButton.disabled = false;
+      submitButtonText.style.opacity = '1';
+      submitLoadingSpinner.style.display = 'none';
+      submitButtonText.textContent = userModalMode === 'edit' ? '💾 Enregistrer' : '✅ Créer';
     }
   } catch (error) {
     errorsElement.style.display = 'block';
-    errorsElement.textContent = 'Erreur réseau: ' + error.message;
+    errorsElement.textContent = '⚠️ Erreur réseau: ' + error.message;
     console.error('[User Form] Error:', error);
+    
+    // Réactivation du bouton
+    submitButton.disabled = false;
+    submitButtonText.style.opacity = '1';
+    submitLoadingSpinner.style.display = 'none';
+    submitButtonText.textContent = userModalMode === 'edit' ? '💾 Enregistrer' : '✅ Créer';
   }
 }
 
@@ -604,22 +1035,25 @@ function renderUsersTable(users) {
   emptyState.style.display = 'none';
   summary.textContent = `${users.length} comptes enregistrés`;
   tbody.innerHTML = users.map(user => {
+    const displayName = user.displayName || [`${user.nom || ''}`, `${user.prenom || ''}`].filter(Boolean).join(' ').trim() || user.email || 'Utilisateur';
     const avatarHtml = user.photoUrl && user.photoUrl !== '/uploads/users/default.jpg' 
       ? `<div class="uc-av" style="background-image:url('${user.photoUrl}?t=${Date.now()}');background-size:cover;background-position:center"></div>`
       : `<div class="uc-av" style="background:linear-gradient(135deg, #6b8a70, #3d6b5a)">${user.nom ? user.nom.charAt(0).toUpperCase() : '?'}</div>`;
     
     return `
-    <tr>
-      <td><div class="user-cell">${avatarHtml}<div><div class="uc-name">${user.displayName}</div><div class="uc-email">${user.email}</div></div></div></td>
-      <td style="color:var(--muted)">${user.email}</td>
-      <td><span class="badge ${getRoleClass(user.role)}">${getRoleLabel(user.role)}</span></td>
-      <td style="color:var(--muted)">${user.genre || '-'}</td>
-      <td style="color:var(--muted)">${formatDate(user.createdAt)}</td>
-      <td style="color:var(--muted)">${formatDate(user.updatedAt)}</td>
-      <td style="display:flex;gap:5px;flex-wrap:wrap">
-        <button class="btn btn-outline btn-sm" onclick="openUserModal('show', ${user.id})">Voir</button>
-        <button class="btn btn-primary btn-sm" onclick="openUserModal('edit', ${user.id})">Éditer</button>
-        <button class="btn btn-danger btn-sm" onclick="deleteUser(${user.id})">Suppr.</button>
+    <tr style="border-bottom:1px solid var(--border);transition:background 0.15s;cursor:default" onmouseover="this.style.background='rgba(61,107,79,0.05)'" onmouseout="this.style.background='transparent'">
+      <td style="padding:14px"><div class="user-cell">${avatarHtml}<div><div class="uc-name">${displayName}</div><div class="uc-email">${user.email}</div></div></div></td>
+      <td style="color:var(--muted);padding:14px;font-size:0.9rem">${user.email}</td>
+      <td style="padding:14px"><span class="badge ${getRoleClass(user.role)}" style="font-size:0.75rem;padding:5px 10px">${getRoleLabel(user.role)}</span></td>
+      <td style="color:var(--muted);padding:14px;font-size:0.9rem">${user.genre || '-'}</td>
+      <td style="color:var(--muted);padding:14px;font-size:0.9rem">${formatDate(user.createdAt)}</td>
+      <td style="color:var(--muted);padding:14px;font-size:0.9rem">${formatDate(user.updatedAt)}</td>
+      <td style="padding:14px;vertical-align:middle">
+        <div style="display:flex;gap:8px;flex-wrap:nowrap;align-items:center;white-space:nowrap">
+          <button class="btn-action btn-action-view" onclick="openUserModal('show', ${user.id})" title="Voir les détails">Voir</button>
+          <button class="btn-action btn-action-edit" onclick="openUserModal('edit', ${user.id})" title="Modifier">Modifier</button>
+          <button class="btn-action btn-action-delete" onclick="deleteUser(${user.id})" title="Supprimer">Supp.</button>
+        </div>
       </td>
     </tr>
   `}).join('');
@@ -694,156 +1128,6 @@ function exportUsersCsv() {
   URL.revokeObjectURL(url);
 }
 
-async function fetchAdminEvents() {
-  const url = '/api/admin/events';
-  console.log('[Admin Events] Fetching:', url);
-
-  try {
-    const response = await fetch(url);
-    console.log('[Admin Events] Response status:', response.status, response.statusText);
-
-    if (!response.ok) {
-      if (response.status === 401) {
-        showToast('Session expirée. Veuillez vous reconnecter.');
-        window.location.href = '/logout';
-        return;
-      } else if (response.status === 403) {
-        showToast('Accès refusé. Vous devez être administrateur.');
-        return;
-      } else if (response.status === 404) {
-        showToast('Endpoint non trouvé.');
-        return;
-      }
-    }
-
-    const result = await response.json();
-    console.log('[Admin Events] API Response:', result);
-
-    if (result.success) {
-      adminEvents = result.events || [];
-      renderEventsTable(adminEvents);
-    } else {
-      showToast('Erreur lors du chargement des événements: ' + (result.message || 'Erreur inconnue'));
-    }
-  } catch (error) {
-    showToast('Erreur de connexion: ' + error.message);
-    console.error('[Admin Events] Error:', error);
-  }
-}
-
-function renderEventsTable(events) {
-  const tbody = document.getElementById('eventsTableBody');
-  const alert = document.getElementById('eventsAlert');
-  const summary = document.getElementById('eventsSummary');
-  
-  if (!tbody || !alert || !summary) return;
-
-  if (events.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:20px;color:var(--muted)">Aucun événement trouvé.</td></tr>';
-    alert.style.display = 'none';
-    summary.textContent = '';
-    return;
-  }
-
-  // Compter les événements en attente (pour l'instant, tous sont validés)
-  const pendingCount = events.filter(e => e.statut === 'en_attente').length;
-  
-  if (pendingCount > 0) {
-    alert.innerHTML = `⚠️ ${pendingCount} événement(s) en attente de validation par l'administrateur.`;
-    alert.style.display = 'block';
-  } else {
-    alert.style.display = 'none';
-  }
-
-  summary.textContent = `${events.length} événement(s) enregistré(s)`;
-
-  tbody.innerHTML = events.map(event => {
-    const statusBadge = event.statut === 'validé' 
-      ? '<span class="badge b-active">Validé</span>' 
-      : '<span class="badge b-pending">En attente</span>';
-    
-    const actions = event.statut === 'validé'
-      ? `<div style="display:flex;gap:5px">
-          <button class="btn btn-ghost btn-sm" onclick="viewEventDetails(${event.id})">Voir</button>
-          <button class="btn btn-danger btn-sm" onclick="rejectEvent(${event.id})">Rejeter</button>
-        </div>`
-      : `<div style="display:flex;gap:5px">
-          <button class="btn btn-success btn-sm" onclick="validateEvent(${event.id})">✓ Valider</button>
-          <button class="btn btn-danger btn-sm" onclick="rejectEvent(${event.id})">✕ Rejeter</button>
-        </div>`;
-
-    return `
-      <tr>
-        <td style="font-weight:600">${event.titre}</td>
-        <td style="color:var(--muted)">${event.organisateur}</td>
-        <td style="color:var(--muted)">${formatDate(event.date_evenement)}</td>
-        <td style="color:var(--muted)">${event.lieu || '-'}</td>
-        <td style="color:var(--muted)">${event.capacite_max || '-'}</td>
-        <td>${statusBadge}</td>
-        <td>${actions}</td>
-      </tr>
-    `;
-  }).join('');
-}
-
-async function validateEvent(id) {
-  try {
-    const response = await fetch(`/api/admin/events/${id}/validate`, { method: 'POST' });
-    const result = await response.json();
-    
-    if (result.success) {
-      showToast('Événement validé avec succès ✓');
-      fetchAdminEvents(); // Recharger la liste
-    } else {
-      showToast('Erreur: ' + (result.message || 'Impossible de valider l\'événement'));
-    }
-  } catch (error) {
-    showToast('Erreur de connexion: ' + error.message);
-  }
-}
-
-async function rejectEvent(id) {
-  if (!confirm('Confirmer le rejet de cet événement ?')) {
-    return;
-  }
-
-  try {
-    const response = await fetch(`/api/admin/events/${id}/reject`, { method: 'POST' });
-    const result = await response.json();
-    
-    if (result.success) {
-      showToast('Événement rejeté avec succès');
-      fetchAdminEvents(); // Recharger la liste
-    } else {
-      showToast('Erreur: ' + (result.message || 'Impossible de rejeter l\'événement'));
-    }
-  } catch (error) {
-    showToast('Erreur de connexion: ' + error.message);
-  }
-}
-
-function viewEventDetails(id) {
-  const event = adminEvents.find(e => e.id === id);
-  if (!event) {
-    showToast('Événement introuvable');
-    return;
-  }
-  
-  // Pour l'instant, juste afficher un toast avec les détails
-  showToast(`Détails: ${event.titre} - ${event.description || 'Pas de description'}`);
-}
-
-function formatDate(value) {
-  if (!value) {
-    return '-';
-  }
-  try {
-    return new Date(value).toLocaleString('fr-FR', { dateStyle: 'medium', timeStyle: 'short' });
-  } catch (e) {
-    return value;
-  }
-}
-
 window.addEventListener('DOMContentLoaded', () => {
   console.log('[Admin] DOM Content Loaded');
   const searchInput = document.getElementById('userSearch');
@@ -904,7 +1188,9 @@ window.addEventListener('DOMContentLoaded', () => {
   // Initialize events table on first page load if events page is currently visible
   if (eventsPage && eventsPage.style.display !== 'none') {
     console.log('[Admin] Events page visible, loading events...');
-    fetchAdminEvents();
+    if (typeof loadEvents === 'function') {
+      loadEvents();
+    }
   }
 
   // Initialize products table on first page load if products page is currently visible
@@ -1115,20 +1401,24 @@ function populateCollectionsDetails(collections) {
   const container = document.getElementById('collectionsDetails');
 
   if (collections.length === 0) {
-    container.innerHTML = '<div class="blk"><div style="text-align:center;padding:30px;color:var(--muted)">Aucune collection trouvée.</div></div>';
+    container.innerHTML = '<div class="blk" style="grid-column:1/-1"><div style="text-align:center;padding:30px;color:var(--muted)">Aucune collection trouvée.</div></div>';
     return;
   }
 
-  // Show first 2 collections as examples
-  const displayCollections = collections.slice(0, 2);
-
-  container.innerHTML = displayCollections.map(collection => {
+  container.innerHTML = collections.map(collection => {
     const progress = collection.progress || 0;
     const progressColor = progress > 50 ? 'var(--moss)' : progress > 25 ? 'var(--sand)' : '#e8c48a';
 
     return `
       <div class="blk">
-        <div class="blk-title">${collection.title} — ${collection.materialType}</div>
+        <div class="blk-title">
+          <div style="flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${collection.title} <span style="font-size:.7rem;font-weight:normal;color:var(--muted)">— ${collection.materialType}</span></div>
+          <div style="display:flex;gap:5px;flex-shrink:0">
+            <button class="btn btn-primary btn-sm" onclick='openAdminEditCollModal(${JSON.stringify(collection).replace(/'/g, "&apos;")})'>Éditer</button>
+            <button class="btn btn-danger btn-sm" onclick="deleteAdminCollection(${collection.id})">Suppr.</button>
+          </div>
+        </div>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:8px">Organisateur : ${collection.organisateur || 'Inconnu'}</div>
         <div style="height:8px;background:var(--bg);border-radius:4px;overflow:hidden;margin:12px 0">
           <div style="width:${Math.min(progress, 100)}%;height:100%;background:linear-gradient(to right,${progressColor},#${progressColor === 'var(--moss)' ? '7a9e7e' : progressColor === 'var(--sand)' ? 'e8c48a' : 'e8c48a'});border-radius:4px"></div>
         </div>
@@ -1136,12 +1426,72 @@ function populateCollectionsDetails(collections) {
           <span style="color:${progress > 50 ? 'var(--success)' : 'var(--warn)'};font-weight:700">${collection.currentAmount} ${collection.unit}</span>
           <span style="color:var(--muted)">/ ${collection.goalAmount} ${collection.unit} · ${progress.toFixed(0)}%</span>
         </div>
-        <div style="text-align:center;padding:30px 0;color:var(--muted);font-size:.82rem">
-          ${collection.currentAmount > 0 ? 'Donations en cours...' : 'Aucune donation pour l\'instant.'}
+        <div style="text-align:center;padding:10px 0;color:var(--muted);font-size:.82rem">
+          Statut : <span class="badge ${collection.status==='active'?'b-active':'b-pending'}">${collection.status==='active'?'Active':'Inactive'}</span>
         </div>
       </div>
     `;
   }).join('');
+}
+
+function openAdminEditCollModal(c) {
+  document.getElementById('adminCollId').value = c.id;
+  document.getElementById('adminCollTitle').value = c.title;
+  document.getElementById('adminCollMat').value = c.materialType;
+  document.getElementById('adminCollStatus').value = c.status;
+  document.getElementById('adminCollGoal').value = c.goalAmount;
+  document.getElementById('adminCollUnit').value = c.unit;
+  document.getElementById('adminCollErrors').style.display = 'none';
+  document.getElementById('adminCollModal').classList.add('open');
+}
+
+function closeAdminCollModal() {
+  document.getElementById('adminCollModal').classList.remove('open');
+}
+
+async function submitAdminEditColl() {
+  const id = document.getElementById('adminCollId').value;
+  const errEl = document.getElementById('adminCollErrors');
+  errEl.style.display = 'none';
+
+  const fd = new FormData();
+  fd.append('title', document.getElementById('adminCollTitle').value);
+  fd.append('materialType', document.getElementById('adminCollMat').value);
+  fd.append('status', document.getElementById('adminCollStatus').value);
+  fd.append('goalAmount', document.getElementById('adminCollGoal').value);
+  fd.append('unit', document.getElementById('adminCollUnit').value);
+
+  try {
+    const res = await fetch('/api/admin/collections/' + id, { method: 'POST', body: fd });
+    const json = await res.json();
+    if(json.success) {
+      closeAdminCollModal();
+      showToast('Collection mise à jour');
+      refreshCollections();
+    } else {
+      errEl.textContent = json.message || Object.values(json.errors || {})[0] || 'Erreur.';
+      errEl.style.display = 'block';
+    }
+  } catch {
+    errEl.textContent = 'Erreur réseau.';
+    errEl.style.display = 'block';
+  }
+}
+
+async function deleteAdminCollection(id) {
+  if(!confirm('Confirmer la suppression de cette collection ?')) return;
+  try {
+    const res = await fetch('/api/admin/collections/' + id, { method: 'DELETE' });
+    const json = await res.json();
+    if(json.success) {
+      showToast('Collection supprimée');
+      refreshCollections();
+    } else {
+      showToast(json.message || 'Erreur');
+    }
+  } catch {
+    showToast('Erreur réseau');
+  }
 }
 
 function populateCollectionFilters(collections) {
@@ -1197,6 +1547,8 @@ function populateDonationsTable(donations) {
     const userInitial = donation.donateur ? donation.donateur.prenom.charAt(0).toUpperCase() : '?';
     const userName = donation.donateur ? `${donation.donateur.prenom} ${donation.donateur.nom}` : 'Anonyme';
 
+    const statusBadge = donation.status === 'confirmé' ? '<span class="badge b-active">Confirmé</span>' : (donation.status === 'annulé' ? '<span class="badge b-danger">Annulé</span>' : '<span class="badge b-pending">En attente</span>');
+
     return `
       <tr>
         <td>
@@ -1208,11 +1560,54 @@ function populateDonationsTable(donations) {
         <td style="color:var(--muted)">${donation.collection || 'N/A'}</td>
         <td style="color:var(--success);font-weight:700">${donation.amount} ${donation.unit || ''}</td>
         <td style="color:var(--muted)">${donation.donationDate || 'N/A'}</td>
-        <td><span class="badge ${donation.status === 'confirmé' ? 'b-active' : 'b-pending'}">${donation.status === 'confirmé' ? 'Confirmé' : 'En attente'}</span></td>
-        <td><button class="btn btn-ghost btn-sm" onclick="showToast('Voir donation')">Voir</button></td>
+        <td>
+          <select onchange="changeDonationStatus(${donation.id}, this.value)" style="padding:4px 8px;border-radius:6px;border:1px solid var(--border);font-size:.7rem;outline:none;background:var(--bg);cursor:pointer">
+            <option value="confirmé" ${donation.status === 'confirmé' ? 'selected' : ''}>Confirmé</option>
+            <option value="en_attente" ${donation.status === 'en_attente' ? 'selected' : ''}>En attente</option>
+            <option value="annulé" ${donation.status === 'annulé' ? 'selected' : ''}>Annulé</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn btn-danger btn-sm" onclick="deleteAdminDonation(${donation.id})">Suppr.</button>
+        </td>
       </tr>
     `;
   }).join('');
+}
+
+async function changeDonationStatus(id, newStatus) {
+  try {
+    const res = await fetch('/api/admin/donations/' + id, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: newStatus })
+    });
+    const json = await res.json();
+    if(json.success) {
+      showToast('Statut mis à jour');
+      refreshDonationsTable();
+    } else {
+      showToast(json.message || 'Erreur lors de la mise à jour');
+    }
+  } catch {
+    showToast('Erreur réseau');
+  }
+}
+
+async function deleteAdminDonation(id) {
+  if(!confirm('Confirmer la suppression de cette donation ?')) return;
+  try {
+    const res = await fetch('/api/admin/donations/' + id, { method: 'DELETE' });
+    const json = await res.json();
+    if(json.success) {
+      showToast('Donation supprimée');
+      refreshDonationsTable();
+    } else {
+      showToast(json.message || 'Erreur');
+    }
+  } catch {
+    showToast('Erreur réseau');
+  }
 }
 
 // ─── COUPONS MANAGEMENT ───
@@ -1430,6 +1825,215 @@ function clearPhoto() {
   document.getElementById('photoPreview').classList.add('empty');
   document.getElementById('photoFile').value = '';
 }
+
+// Form validation for user modal
+(function () {
+  var f = document.getElementById('userForm');
+  if (!f) return;
+  f.addEventListener('submit', function (e) {
+    if (!f.checkValidity()) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    f.classList.add('was-validated');
+  });
+})();
+
+// Keyboard accessibility
+document.addEventListener('keydown', function(e) {
+  const modal = document.getElementById('userModal');
+  if (!modal || modal.classList && !modal.classList.contains('open')) return;
+  
+  // Close on Escape
+  if (e.key === 'Escape') {
+    closeUserModal();
+  }
+  
+  // Submit on Ctrl+Enter or Cmd+Enter
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+    const submitBtn = document.getElementById('userModalSubmit');
+    if (submitBtn && userModalMode !== 'show') {
+      e.preventDefault();
+      submitUserForm(e);
+    }
+  }
+});
+
+// Focus management in modal
+document.getElementById('userModal').addEventListener('keydown', function(e) {
+  if (e.key === 'Tab') {
+    const focusable = this.querySelectorAll('button, input, select, textarea, [tabindex]:not([tabindex=\"-1\"])');
+    const firstFocus = focusable[0];
+    const lastFocus = focusable[focusable.length - 1];
+    
+    if (e.shiftKey && document.activeElement === firstFocus) {
+      e.preventDefault();
+      lastFocus.focus();
+    } else if (!e.shiftKey && document.activeElement === lastFocus) {
+      e.preventDefault();
+      firstFocus.focus();
+    }
+  }
+});
+
+// Input validation visual feedback
+['userNom', 'userPrenom', 'userEmail', 'userPassword', 'userRole', 'userGenre'].forEach(id => {
+  const input = document.getElementById(id);
+  if (!input) return;
+  
+  input.addEventListener('blur', function() {
+    if (this.hasAttribute('required') && !this.value.trim()) {
+      this.style.borderColor = '#dc3545';
+      this.style.boxShadow = '0 0 0 3px rgba(220,53,69,0.1)';
+    } else if (this.type === 'email' && this.value && !this.checkValidity()) {
+      this.style.borderColor = '#dc3545';
+      this.style.boxShadow = '0 0 0 3px rgba(220,53,69,0.1)';
+    } else if (this.value) {
+      this.style.borderColor = 'var(--moss)';
+      this.style.boxShadow = '0 0 0 3px rgba(107,138,112,0.1)';
+    }
+  });
+});
+
+// ─── KEYBOARD EVENTS & ACCESSIBILITY ───
+
+document.addEventListener('keydown', function(e) {
+  // Fermer le modal avec Échap
+  if (e.key === 'Escape' && document.getElementById('userModal').classList.contains('open')) {
+    closeUserModal();
+    return;
+  }
+  
+  // Soumettre le formulaire avec Ctrl+Entrée ou Cmd+Entrée
+  if ((e.ctrlKey || e.metaKey) && e.key === 'Enter' && document.getElementById('userModal').classList.contains('open')) {
+    const submitBtn = document.getElementById('userModalSubmit');
+    if (submitBtn && submitBtn.style.display !== 'none' && !submitBtn.disabled) {
+      e.preventDefault();
+      submitUserForm(e);
+    }
+  }
+});
+
+// Focus management dans le modal
+document.getElementById('userModal').addEventListener('keydown', function(e) {
+  if (e.key === 'Tab' && this.classList.contains('open')) {
+    const focusable = this.querySelectorAll(
+      'button:not(:disabled), input:not(:disabled), select:not(:disabled), textarea:not(:disabled), [tabindex]:not([tabindex="-1"])'
+    );
+    
+    if (focusable.length === 0) return;
+    
+    const firstFocusable = focusable[0];
+    const lastFocusable = focusable[focusable.length - 1];
+    const activeElement = document.activeElement;
+    
+    if (e.shiftKey) {
+      // Shift+Tab: go backwards
+      if (activeElement === firstFocusable) {
+        e.preventDefault();
+        lastFocusable.focus();
+      }
+    } else {
+      // Tab: go forward
+      if (activeElement === lastFocusable) {
+        e.preventDefault();
+        firstFocusable.focus();
+      }
+    }
+  }
+});
+
+// Amélioration des boutons au hover & focus
+document.querySelectorAll('button').forEach(button => {
+  // Feedback visuel au click
+  button.addEventListener('mousedown', function(e) {
+    if (!this.disabled) {
+      this.style.transform = (this.style.transform || 'translateY(0)').replace('translateY', 'translateY') + ' scale(0.97)';
+    }
+  });
+  
+  button.addEventListener('mouseup', function() {
+    this.style.transform = (this.style.transform || 'translateY(0)').replace('scale(0.97)', '');
+  });
+  
+  button.addEventListener('mouseleave', function() {
+    this.style.transform = (this.style.transform || 'translateY(0)').replace('scale(0.97)', '');
+  });
+  
+  // Support du focus-visible
+  button.addEventListener('focus', function(e) {
+    if (e.isTrusted) {
+      this.setAttribute('data-focused', 'true');
+    }
+  });
+  
+  button.addEventListener('blur', function() {
+    this.removeAttribute('data-focused');
+  });
+});
+
+window.addEventListener('DOMContentLoaded', function() {
+  document.querySelectorAll('.modal-overlay.open, .events-modal.open, #cameraModal.active').forEach(el => {
+    el.classList.remove('open');
+    el.classList.remove('active');
+  });
+});
+
+// Auto-focus du premier input au modal open
+const userModal = document.getElementById('userModal');
+const observer = new MutationObserver(function(mutations) {
+  mutations.forEach(function(mutation) {
+    if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+      if (userModal.classList.contains('open')) {
+        setTimeout(() => {
+          const firstFocusable = userModal.querySelector('input:not([type="hidden"]):not(:disabled), button:not(:disabled)');
+          if (firstFocusable) {
+            firstFocusable.focus();
+          }
+        }, 100);
+      }
+    }
+  });
+});
+
+observer.observe(userModal, { attributes: true });
+
+// Validation feedback on field change
+document.getElementById('userForm').addEventListener('input', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') {
+    const field = e.target;
+    if (field.value.trim()) {
+      field.style.borderColor = 'var(--moss)';
+      field.style.boxShadow = '0 0 0 2px rgba(107,138,112,0.08)';
+    } else {
+      field.style.borderColor = 'var(--border)';
+      field.style.boxShadow = 'none';
+    }
+  }
+});
+
+function formatDate(dateString) {
+  if (!dateString) return '-';
+  const date = new Date(dateString);
+  return date.toLocaleDateString('fr-FR') + ' ' + date.toLocaleTimeString('fr-FR', {hour: '2-digit', minute: '2-digit'});
+}
+
+
+
+
+// Alias de compatibilité pour les événements
+async function generateImageWithAI() {
+    if (typeof generateEventImage === 'function') {
+        return generateEventImage();
+    } else {
+        console.warn("generateEventImage n'est pas définie.");
+    }
+}
+
+
+
+
+
 </script>
 </body>
 </html>

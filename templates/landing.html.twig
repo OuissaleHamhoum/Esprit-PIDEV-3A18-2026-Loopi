@@ -1702,7 +1702,18 @@
           </div>
           <button class="btn-submit" type="submit" id="loginBtn">Se connecter</button>
         </form>
+        <div style="margin-top:12px; display:grid; gap:10px;">
+          <button class="btn-submit" type="button" id="loginQrBtn" style="background:rgba(59,130,246,0.12); color:#1d4ed8;" onclick="openQrLoginModal()">
+            🔳 Connexion QR (téléphone)
+          </button>
+          <button class="btn-submit" type="button" id="loginFaceBtn" style="background:rgba(16,185,129,0.12); color:#065f46;" onclick="openFaceLoginModal()">
+            👤 Connexion visage (démo)
+          </button>
+        </div>
         <div class="form-divider">ou</div>
+        <a href="/connect/google" class="btn-submit" style="display:block;text-align:center;text-decoration:none;background:#fff;color:#111;border:1px solid rgba(30,58,47,0.15);">
+          G Se connecter avec Google
+        </a>
         <div style="text-align:center; font-size:0.8rem; color:var(--muted)">
           Pas encore de compte ? <a href="#" style="color:var(--moss); font-weight:600; text-decoration:none;" onclick="switchTab('signup'); return false;">S'inscrire gratuitement</a>
         </div>
@@ -1732,6 +1743,21 @@
             <label>Mot de passe</label>
             <input type="password" id="signupPassword" placeholder="Min. 6 caractères" required>
             <small id="signupPasswordError" style="color:#f55; display:none;"></small>
+          </div>
+          <div class="form-group">
+            <label>Photo de profil (optionnel)</label>
+            <input type="hidden" id="signupPhoto" value="">
+            <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+              <div id="signupPhotoPreview" style="width:76px;height:76px;border-radius:16px;background:linear-gradient(135deg,var(--moss),var(--forest));display:flex;align-items:center;justify-content:center;color:white;font-size:1.7rem;overflow:hidden;border:2px solid rgba(30,58,47,0.12);">
+                📸
+              </div>
+              <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button type="button" class="btn-ghost" style="padding:10px 14px" onclick="document.getElementById('signupPhotoFile').click()">📁 Choisir</button>
+                <button type="button" class="btn-ghost" style="padding:10px 14px; border-color:#1d4ed8; color:#1d4ed8" onclick="startSignupCamera()">📷 Caméra</button>
+                <button type="button" class="btn-ghost" style="padding:10px 14px; border-color:#dc3545; color:#dc3545" onclick="clearSignupPhoto()">🗑️ Supprimer</button>
+              </div>
+            </div>
+            <input type="file" id="signupPhotoFile" accept="image/*" style="display:none" onchange="handleSignupPhotoUpload(event)">
           </div>
           <div class="form-group">
             <label>Je suis…</label>
@@ -1906,6 +1932,7 @@
     const email = document.getElementById('signupEmail').value.trim();
     const password = document.getElementById('signupPassword').value;
     const role = document.getElementById('roleInput').value;
+    const photo = document.getElementById('signupPhoto').value;
     const btn = document.getElementById('signupBtn');
 
     // Client-side validation
@@ -1952,7 +1979,7 @@
       const response = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ nom, prenom, email, password, role })
+        body: JSON.stringify({ nom, prenom, email, password, role, photo })
       });
 
       const data = await response.json();
@@ -2047,6 +2074,323 @@
 
   // Keyboard close
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
+
+  // --- Signup photo helpers (upload + camera) ---
+  let signupCameraStream = null;
+
+  function updateSignupPhotoPreview(dataUrl) {
+    const preview = document.getElementById('signupPhotoPreview');
+    if (!preview) return;
+    if (!dataUrl) {
+      preview.innerHTML = '📸';
+      preview.style.backgroundImage = '';
+      preview.style.backgroundSize = '';
+      preview.style.backgroundPosition = '';
+      return;
+    }
+    preview.innerHTML = `<img src="${dataUrl}" alt="Photo" style="width:100%;height:100%;object-fit:cover">`;
+  }
+
+  function handleSignupPhotoUpload(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const dataUrl = e.target.result;
+      document.getElementById('signupPhoto').value = dataUrl;
+      updateSignupPhotoPreview(dataUrl);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function clearSignupPhoto() {
+    document.getElementById('signupPhoto').value = '';
+    document.getElementById('signupPhotoFile').value = '';
+    updateSignupPhotoPreview('');
+    stopSignupCamera();
+  }
+
+  function startSignupCamera() {
+    const modal = document.getElementById('signupCameraModal');
+    const video = document.getElementById('signupCameraVideo');
+    if (!modal || !video) return;
+
+    modal.classList.add('active');
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false })
+      .then(stream => {
+        signupCameraStream = stream;
+        video.srcObject = stream;
+        video.play();
+      })
+      .catch(() => {
+        modal.classList.remove('active');
+        document.getElementById('signupErrorContainer').textContent = 'Impossible d’accéder à la caméra.';
+        document.getElementById('signupErrorContainer').style.display = 'block';
+      });
+  }
+
+  function stopSignupCamera() {
+    if (signupCameraStream) {
+      signupCameraStream.getTracks().forEach(t => t.stop());
+      signupCameraStream = null;
+    }
+    const modal = document.getElementById('signupCameraModal');
+    const video = document.getElementById('signupCameraVideo');
+    if (video) video.srcObject = null;
+    if (modal) modal.classList.remove('active');
+  }
+
+  function captureSignupPhoto() {
+    const video = document.getElementById('signupCameraVideo');
+    const canvas = document.getElementById('signupPhotoCanvas');
+    if (!video || !canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = video.videoWidth || 640;
+    canvas.height = video.videoHeight || 480;
+    ctx.drawImage(video, 0, 0);
+    const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+    document.getElementById('signupPhoto').value = dataUrl;
+    updateSignupPhotoPreview(dataUrl);
+    stopSignupCamera();
+  }
+
+  // --- QR login (modal) ---
+  function openQrLoginModal() {
+    document.getElementById('qrLoginModal').classList.add('active');
+    document.getElementById('qrWarn').style.display = 'none';
+    document.getElementById('qrBox').style.display = 'none';
+    document.getElementById('qrBtn').disabled = false;
+    document.getElementById('qrBtn').textContent = 'Générer QR';
+  }
+
+  function closeQrLoginModal() {
+    document.getElementById('qrLoginModal').classList.remove('active');
+    document.getElementById('qrWarn').style.display = 'none';
+    document.getElementById('qrBox').style.display = 'none';
+  }
+
+  async function startQrLoginModal() {
+    const btn = document.getElementById('qrBtn');
+    const warn = document.getElementById('qrWarn');
+    const box = document.getElementById('qrBox');
+
+    warn.style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'Génération...';
+    try {
+      const r = await fetch('/api/qr-login/start', { method:'POST', headers:{'Accept':'application/json'}});
+      const data = await r.json();
+      if (!r.ok || !data.success) throw new Error(data.message || 'Erreur QR');
+
+      const host = window.location.hostname;
+      const phoneHost = host === 'localhost' ? null : host;
+      if (!phoneHost) {
+        warn.textContent = 'Ouvrez le site via l’IP du PC (ex: http://192.168.x.x:8080) pour que le téléphone puisse accéder au PC sur le même Wi‑Fi.';
+        warn.style.display = 'block';
+      }
+
+      const url8081 = `http://${phoneHost || 'VOTRE_IP_PC'}:8081${data.phoneUrl}`;
+      const qrImgUrl = `https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=${encodeURIComponent(url8081)}`;
+      document.getElementById('qrImg').src = qrImgUrl;
+      const link = document.getElementById('qrA');
+      link.href = url8081;
+      link.textContent = url8081;
+      document.getElementById('qrMins').textContent = String(Math.round((data.expiresIn || 300)/60));
+      box.style.display = 'block';
+
+      const token = data.token;
+      const startedAt = Date.now();
+      const poll = async () => {
+        try {
+          const rr = await fetch(`/api/qr-login/status/${encodeURIComponent(token)}`, { headers:{'Accept':'application/json'}});
+          const s = await rr.json();
+          if (s.status === 'approved') {
+            window.location.href = `/qr-login/${encodeURIComponent(token)}`;
+            return;
+          }
+          if (s.status === 'expired') {
+            warn.textContent = 'QR expiré. Régénérez.';
+            warn.style.display = 'block';
+            return;
+          }
+        } catch(e) {}
+        if (Date.now() - startedAt < (data.expiresIn || 300)*1000) setTimeout(poll, 1500);
+      };
+      setTimeout(poll, 1200);
+    } catch (e) {
+      warn.textContent = e.message || 'Erreur serveur.';
+      warn.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Générer QR';
+    }
+  }
+
+  // --- Face login (demo) ---
+  let faceStream = null;
+
+  function openFaceLoginModal() {
+    document.getElementById('faceLoginModal').classList.add('active');
+    document.getElementById('faceErr').style.display = 'none';
+  }
+
+  function closeFaceLoginModal() {
+    stopFaceCamera();
+    document.getElementById('faceLoginModal').classList.remove('active');
+    document.getElementById('faceErr').style.display = 'none';
+  }
+
+  async function startFaceCamera() {
+    const video = document.getElementById('faceVideo');
+    try {
+      faceStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+      video.srcObject = faceStream;
+      await video.play();
+    } catch (e) {
+      const el = document.getElementById('faceErr');
+      el.textContent = 'Impossible d’accéder à la caméra.';
+      el.style.display = 'block';
+    }
+  }
+
+  function stopFaceCamera() {
+    if (faceStream) {
+      faceStream.getTracks().forEach(t => t.stop());
+      faceStream = null;
+    }
+    const video = document.getElementById('faceVideo');
+    if (video) video.srcObject = null;
+  }
+
+  async function submitFaceLogin() {
+    const video = document.getElementById('faceVideo');
+    const canvas = document.getElementById('faceCanvas');
+    const err = document.getElementById('faceErr');
+    const btn = document.getElementById('faceSubmitBtn');
+    err.style.display = 'none';
+
+    if (!video || !video.videoWidth) { err.textContent = 'Activez la caméra avant.'; err.style.display = 'block'; return; }
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+    canvas.getContext('2d').drawImage(video, 0, 0);
+    const snapshot = canvas.toDataURL('image/jpeg', 0.8);
+
+    btn.disabled = true;
+    btn.textContent = 'Vérification...';
+    try {
+      const res = await fetch('/api/face-login/identify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+        body: JSON.stringify({ snapshot })
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || !data.success) {
+        err.textContent = data.message || 'Vérification échouée.';
+        err.style.display = 'block';
+        return;
+      }
+      window.location.href = `/qr-login/${encodeURIComponent(data.token)}`;
+    } catch (e) {
+      err.textContent = 'Erreur réseau.';
+      err.style.display = 'block';
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Se connecter';
+    }
+  }
 </script>
+
+<style>
+  #signupCameraModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:3000;align-items:center;justify-content:center;flex-direction:column}
+  #signupCameraModal.active{display:flex}
+  .signup-camera{background:white;border-radius:16px;padding:14px;max-width:520px;width:min(520px,92vw)}
+  .signup-camera video{width:100%;border-radius:12px;display:block;margin-bottom:12px}
+  .signup-camera .row{display:flex;gap:10px;justify-content:center}
+  .signup-camera button{padding:10px 14px;border-radius:10px;border:none;font-weight:800;cursor:pointer}
+  .signup-camera .capture{background:var(--forest);color:white}
+  .signup-camera .cancel{background:var(--bg);color:var(--forest);border:1px solid rgba(30,58,47,0.15)}
+</style>
+<div id="signupCameraModal">
+  <div class="signup-camera">
+    <video id="signupCameraVideo" playsinline></video>
+    <canvas id="signupPhotoCanvas" style="display:none"></canvas>
+    <div class="row">
+      <button type="button" class="capture" onclick="captureSignupPhoto()">📸 Capturer</button>
+      <button type="button" class="cancel" onclick="stopSignupCamera()">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  #qrLoginModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:3400;align-items:center;justify-content:center}
+  #qrLoginModal.active{display:flex}
+  .qr-card{width:min(560px,92vw);background:#fff;border-radius:18px;border:1px solid rgba(30,58,47,.12);box-shadow:0 22px 60px rgba(17,21,16,.18);overflow:hidden}
+  .qr-head{padding:16px 18px;background:var(--cream);border-bottom:1px solid rgba(30,58,47,.08);display:flex;justify-content:space-between;align-items:center}
+  .qr-body{padding:16px 18px;display:grid;gap:12px}
+  .qr-warn{display:none;padding:10px 12px;border-radius:12px;background:rgba(220,53,69,.1);border:1px solid rgba(220,53,69,.25);color:#b91c1c;font-weight:800}
+  .qr-box{display:none;border:1px solid rgba(30,58,47,.12);border-radius:16px;padding:14px;background:#faf8f3;text-align:center}
+  .qr-img{width:220px;height:220px;border-radius:14px;border:1px solid rgba(30,58,47,0.12);background:#fff;display:block;margin:10px auto}
+  .qr-link{word-break:break-all;font-weight:900;color:var(--moss);text-decoration:none}
+  #faceLoginModal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:3500;align-items:center;justify-content:center}
+  #faceLoginModal.active{display:flex}
+  .face-card{width:min(560px,92vw);background:#fff;border-radius:18px;border:1px solid rgba(30,58,47,.12);box-shadow:0 22px 60px rgba(17,21,16,.18);overflow:hidden}
+  .face-head{padding:16px 18px;background:var(--cream);border-bottom:1px solid rgba(30,58,47,.08);display:flex;justify-content:space-between;align-items:center}
+  .face-body{padding:16px 18px;display:grid;gap:12px}
+  .face-video{width:100%;border-radius:14px;background:#000;aspect-ratio: 16 / 9}
+  .face-row{display:flex;gap:10px;flex-wrap:wrap}
+  .face-btn{padding:10px 14px;border-radius:12px;border:1px solid rgba(30,58,47,.14);background:#fff;font-weight:800;cursor:pointer}
+  .face-btn.primary{border:none;background:linear-gradient(135deg,var(--forest),var(--moss));color:#fff;flex:1}
+  .face-err{display:none;padding:10px 12px;border-radius:12px;background:rgba(220,53,69,.1);border:1px solid rgba(220,53,69,.25);color:#b91c1c;font-weight:800}
+  .xbtn{border:none;background:rgba(30,58,47,.08);width:34px;height:34px;border-radius:12px;cursor:pointer}
+ </style>
+
+<div id="qrLoginModal" onclick="if(event.target===this)closeQrLoginModal()">
+  <div class="qr-card">
+    <div class="qr-head">
+      <div style="font-weight:900;color:var(--forest)">Connexion QR (téléphone)</div>
+      <button class="xbtn" type="button" onclick="closeQrLoginModal()">✕</button>
+    </div>
+    <div class="qr-body">
+      <div class="qr-warn" id="qrWarn"></div>
+      <div class="qr-box" id="qrBox">
+        <div style="color:var(--muted);font-size:.85rem">
+          Scannez le QR (valide <span id="qrMins">5</span> min)
+        </div>
+        <img id="qrImg" class="qr-img" alt="QR Login">
+        <div style="font-size:.85rem;color:var(--muted)">
+          Lien: <a id="qrA" class="qr-link" href="#" target="_blank" rel="noopener">ouvrir</a>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="face-btn" id="qrBtn" type="button" onclick="startQrLoginModal()">Générer QR</button>
+        <button class="face-btn primary" type="button" onclick="closeQrLoginModal()">Fermer</button>
+      </div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.4">
+        Important: ouvrez le site via l’IP du PC (pas <strong>localhost</strong>) et lancez <code>start-qr-server.ps1</code> pour le port <strong>8081</strong>.
+      </div>
+    </div>
+  </div>
+</div>
+<div id="faceLoginModal" onclick="if(event.target===this)closeFaceLoginModal()">
+  <div class="face-card">
+    <div class="face-head">
+      <div style="font-weight:900;color:var(--forest)">Connexion visage (démo)</div>
+      <button class="xbtn" type="button" onclick="closeFaceLoginModal()">✕</button>
+    </div>
+    <div class="face-body">
+      <div class="face-err" id="faceErr"></div>
+      <video id="faceVideo" class="face-video" playsinline></video>
+      <canvas id="faceCanvas" style="display:none"></canvas>
+      <div class="face-row">
+        <button class="face-btn" type="button" onclick="startFaceCamera()">📷 Autoriser caméra</button>
+        <button class="face-btn primary" id="faceSubmitBtn" type="button" onclick="submitFaceLogin()">Se connecter</button>
+      </div>
+      <div style="font-size:.78rem;color:var(--muted);line-height:1.4">
+        Cette option est une <strong>démo</strong>: elle compare une empreinte d’image de la caméra avec les photos de profil existantes et connecte l’utilisateur trouvé.
+      </div>
+    </div>
+  </div>
+</div>
 </body>
 </html>

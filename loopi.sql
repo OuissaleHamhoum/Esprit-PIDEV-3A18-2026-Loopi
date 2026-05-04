@@ -1,26 +1,53 @@
+-- phpMyAdmin SQL Dump
+-- version 4.1.14
+-- http://www.phpmyadmin.net
+--
+-- Host: 127.0.0.1
+-- Generation Time: Apr 18, 2026 at 07:33 PM
+-- Server version: 5.6.17
+-- PHP Version: 5.5.12
+
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
+
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
 /*!40101 SET NAMES utf8 */;
 
-CREATE DATABASE IF NOT EXISTS `loopi_db`;
-USE `loopi_db`;
+--
+-- Database: `loopi_db`
+--
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `category_produit`
+--
 
 CREATE TABLE IF NOT EXISTS `category_produit` (
   `id_cat` int(11) NOT NULL AUTO_INCREMENT,
   `nom_cat` varchar(100) NOT NULL,
   PRIMARY KEY (`id_cat`),
   UNIQUE KEY `nom_cat` (`nom_cat`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=5 ;
+
+--
+-- Dumping data for table `category_produit`
+--
 
 INSERT INTO `category_produit` (`id_cat`, `nom_cat`) VALUES
 (2, 'Art mural '),
 (4, 'Installations artistiques'),
 (3, 'Mobilier artistique'),
 (1, 'Objets décoratifs');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `collection`
+--
 
 CREATE TABLE IF NOT EXISTS `collection` (
   `id_collection` int(11) NOT NULL AUTO_INCREMENT,
@@ -36,11 +63,23 @@ CREATE TABLE IF NOT EXISTS `collection` (
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_collection`),
   KEY `idx_user` (`id_user`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=10 ;
+
+--
+-- Dumping data for table `collection`
+--
 
 INSERT INTO `collection` (`id_collection`, `title`, `material_type`, `image_collection`, `goal_amount`, `current_amount`, `unit`, `status`, `id_user`, `created_at`, `updated_at`) VALUES
-(2, 'piece mario', 'Verre', 'C:\\Users\\MSI\\Pictures\\image_de_produit_loopi\\Mario.png', 123, 24.6, 'kg', 'active', 2, '2026-02-16 08:44:11', '2026-02-16 08:47:45'),
-(3, 'PIECE', 'Métal', '', 1267, 0, 'kg', 'active', 2, '2026-02-16 08:45:22', '2026-02-16 08:45:22');
+(4, 'metals', 'Métal', 'coll_69d4823045eca.jpg', 1000, 1197.22, 'kg', 'active', 2, '2026-04-07 03:04:00', '2026-04-07 05:05:33'),
+(6, 'plastic', 'Plastique', 'coll_69d49e84bf2c6.jpg', 5000, 0, 'kg', 'active', 2, '2026-04-07 05:04:52', '2026-04-07 05:04:52'),
+(8, 'glass collection', 'Verre', 'coll_69d5067c6efc9.jpg', 9999, 50, 'kg', 'active', 2, '2026-04-07 12:28:28', '2026-04-07 13:07:53'),
+(9, 'collection paper', 'Papier', 'coll_69d50f397616d.jpg', 1000, 55, 'kg', 'active', 2, '2026-04-07 13:05:45', '2026-04-18 15:45:50');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `content`
+--
 
 CREATE TABLE IF NOT EXISTS `content` (
   `id_content` int(11) NOT NULL AUTO_INCREMENT,
@@ -52,6 +91,12 @@ CREATE TABLE IF NOT EXISTS `content` (
   UNIQUE KEY `unique_commande_produit` (`id_commande`,`id_produit`),
   KEY `id_produit` (`id_produit`)
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `coupon`
+--
 
 CREATE TABLE IF NOT EXISTS `coupon` (
   `id_coupon` int(11) NOT NULL AUTO_INCREMENT,
@@ -70,11 +115,21 @@ CREATE TABLE IF NOT EXISTS `coupon` (
   KEY `id_donation` (`id_donation`),
   KEY `idx_code` (`code`),
   KEY `idx_used` (`used`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+
+--
+-- Dumping data for table `coupon`
+--
 
 INSERT INTO `coupon` (`id_coupon`, `code`, `discount_percent`, `donation_date`, `used`, `id_user`, `id_donation`, `expiration_date`, `min_amount`, `created_at`) VALUES
 (1, 'ECO10', '10.00', '2026-02-08', 0, 3, 1, '2026-03-10', '0.00', '2026-02-08 13:08:00'),
 (2, 'GREEN15', '15.00', '2026-02-08', 0, 4, 2, '2026-04-09', '0.00', '2026-02-08 13:08:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `donation`
+--
 
 CREATE TABLE IF NOT EXISTS `donation` (
   `id_donation` int(11) NOT NULL AUTO_INCREMENT,
@@ -86,12 +141,29 @@ CREATE TABLE IF NOT EXISTS `donation` (
   PRIMARY KEY (`id_donation`),
   KEY `fk_donation_user` (`id_user`),
   KEY `fk_donation_collection` (`id_collection`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=15 ;
+
+--
+-- Dumping data for table `donation`
+--
 
 INSERT INTO `donation` (`id_donation`, `id_user`, `id_collection`, `amount`, `donation_date`, `status`) VALUES
 (1, 3, 1, 2.4, '2026-02-11 18:07:31', 'confirmé'),
 (2, 3, 1, 5.8, '2026-02-11 20:20:38', 'confirmé'),
-(3, 3, 2, 24.6, '2026-02-16 08:47:45', 'confirmé');
+(4, 3, 4, 10, '2026-04-07 03:17:21', 'confirmé'),
+(6, 3, 4, 0.22, '2026-04-07 04:13:39', 'confirmé'),
+(7, 3, 4, 50, '2026-04-07 04:14:42', 'confirmé'),
+(8, 3, 4, 41, '2026-04-07 04:21:24', 'confirmé'),
+(10, 3, 4, 44, '2026-04-07 04:27:10', 'confirmé'),
+(12, 3, 4, 52, '2026-04-07 04:38:33', 'confirmé'),
+(13, 3, 4, 1000, '2026-04-07 05:05:33', 'confirmé'),
+(14, 3, 9, 55, '2026-04-18 15:45:50', 'confirmé');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `evenement`
+--
 
 CREATE TABLE IF NOT EXISTS `evenement` (
   `id_evenement` int(11) NOT NULL AUTO_INCREMENT,
@@ -102,14 +174,32 @@ CREATE TABLE IF NOT EXISTS `evenement` (
   `id_organisateur` int(11) NOT NULL,
   `capacite_max` int(11) DEFAULT NULL,
   `image_evenement` varchar(255) DEFAULT NULL,
+  `statut` varchar(20) NOT NULL DEFAULT 'en_attente',
+  `statut_validation` varchar(20) DEFAULT 'en_attente',
+  `date_soumission` datetime DEFAULT NULL,
+  `date_validation` datetime DEFAULT NULL,
+  `commentaire_validation` text DEFAULT NULL,
+  `latitude` decimal(10,8) DEFAULT NULL,
+  `longitude` decimal(11,8) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_evenement`),
   KEY `id_organisateur` (`id_organisateur`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
 
-INSERT INTO `evenement` (`id_evenement`, `titre`, `description`, `date_evenement`, `lieu`, `id_organisateur`, `capacite_max`, `image_evenement`, `created_at`) VALUES
-(1, 'Nettoyage de plage', 'Journée de nettoyage', '2024-06-15 09:00:00', 'Plage Sousse', 2, 50, NULL, '2026-02-08 13:08:00'),
-(2, 'Atelier recyclage', 'Apprenez à recycler', '2024-06-20 14:00:00', 'Centre Tunis', 2, 30, NULL, '2026-02-08 13:08:00');
+--
+-- Dumping data for table `evenement`
+--
+
+INSERT INTO `evenement` (`id_evenement`, `titre`, `description`, `date_evenement`, `lieu`, `id_organisateur`, `capacite_max`, `image_evenement`, `statut`, `statut_validation`, `created_at`) VALUES
+(1, 'Nettoyage de plage', 'Journée de nettoyage', '2026-06-15 09:00:00', 'Plage Sousse', 2, 50, NULL, 'en_attente', 'valide', '2026-02-08 13:08:00'),
+(2, 'Atelier recyclage', 'Apprenez à recycler', '2026-06-20 14:00:00', 'Centre Tunis', 2, 30, NULL, 'en_attente', 'valide', '2026-02-08 13:08:00');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `favoris`
+--
 
 CREATE TABLE IF NOT EXISTS `favoris` (
   `id_favoris` int(11) NOT NULL AUTO_INCREMENT,
@@ -119,7 +209,11 @@ CREATE TABLE IF NOT EXISTS `favoris` (
   PRIMARY KEY (`id_favoris`),
   UNIQUE KEY `unique_favoris` (`id_user`,`id_produit`),
   KEY `id_produit` (`id_produit`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=33 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=33 ;
+
+--
+-- Dumping data for table `favoris`
+--
 
 INSERT INTO `favoris` (`id_favoris`, `id_user`, `id_produit`, `date_ajout`) VALUES
 (20, 7, 5, '2026-02-19 16:38:01'),
@@ -131,6 +225,12 @@ INSERT INTO `favoris` (`id_favoris`, `id_user`, `id_produit`, `date_ajout`) VALU
 (31, 3, 11, '2026-02-28 05:17:23'),
 (32, 3, 8, '2026-03-02 00:28:19');
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `feedback`
+--
+
 CREATE TABLE IF NOT EXISTS `feedback` (
   `id_feedback` int(11) NOT NULL AUTO_INCREMENT,
   `id_user` int(11) NOT NULL,
@@ -141,7 +241,11 @@ CREATE TABLE IF NOT EXISTS `feedback` (
   PRIMARY KEY (`id_feedback`),
   KEY `idx_user` (`id_user`),
   KEY `idx_date` (`date_commentaire`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=39 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=39 ;
+
+--
+-- Dumping data for table `feedback`
+--
 
 INSERT INTO `feedback` (`id_feedback`, `id_user`, `note`, `commentaire`, `date_commentaire`, `id_produit`) VALUES
 (14, 4, 5, 'BEHYA BARCHA', '2026-02-15 21:45:05', 1),
@@ -164,118 +268,55 @@ INSERT INTO `feedback` (`id_feedback`, `id_user`, `note`, `commentaire`, `date_c
 (37, 3, 4, 'fuck', '2026-02-28 06:08:21', 11),
 (38, 3, 3, 'what', '2026-03-02 00:52:25', 5);
 
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `genre`
+--
+
 CREATE TABLE IF NOT EXISTS `genre` (
   `id_genre` int(11) NOT NULL AUTO_INCREMENT,
   `sexe` varchar(50) NOT NULL,
   PRIMARY KEY (`id_genre`),
   UNIQUE KEY `sexe` (`sexe`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
+
+--
+-- Dumping data for table `genre`
+--
 
 INSERT INTO `genre` (`id_genre`, `sexe`) VALUES
 (2, 'Femme'),
 (1, 'Homme'),
 (3, 'Non spécifié');
 
-CREATE TABLE notifications (
-  id INT NOT NULL AUTO_INCREMENT,
-  id_user INT NOT NULL,
-  type VARCHAR(50) NOT NULL,
-  titre VARCHAR(200) NOT NULL,
-  message TEXT NOT NULL,
-  is_read BOOLEAN DEFAULT FALSE,
-  id_evenement INT,
-  id_participation INT,
-  nom_organisateur VARCHAR(200),
-  email_organisateur VARCHAR(200),
-  nom_participant VARCHAR(200),
-  email_participant VARCHAR(200),
-  nom_admin VARCHAR(200),
-  email_admin VARCHAR(200),
-  commentaire TEXT,
-  event_titre VARCHAR(200),
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (id),
-  INDEX idx_user_read (id_user, is_read),
-  INDEX idx_created (created_at),
-  INDEX idx_type (type),
-  FOREIGN KEY (id_user) REFERENCES users(id) ON DELETE CASCADE,
-  FOREIGN KEY (id_evenement) REFERENCES evenement(id_evenement) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS `notification_galerie` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `id_organisateur` int(11) NOT NULL,
-  `id_participant` int(11) NOT NULL,
-  `id_produit` int(11) NOT NULL,
-  `nom_participant` varchar(100) NOT NULL,
-  `nom_produit` varchar(255) NOT NULL,
-  `date_notification` datetime NOT NULL,
-  `is_read` tinyint(1) DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `id_organisateur` (`id_organisateur`),
-  KEY `id_participant` (`id_participant`),
-  KEY `id_produit` (`id_produit`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+--
+-- Table structure for table `notifications`
+--
 
-CREATE TABLE IF NOT EXISTS `participation` (
+CREATE TABLE IF NOT EXISTS `notifications` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `id_user` int(11) NOT NULL,
-  `id_evenement` int(11) NOT NULL,
-  `contact` varchar(100) NOT NULL,
-  `age` int(11) DEFAULT NULL,
-  `date_inscription` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `statut` enum('inscrit','present','absent') DEFAULT 'inscrit',
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `unique_participation` (`id_user`,`id_evenement`),
-  KEY `id_evenement` (`id_evenement`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=4 ;
-
-INSERT INTO `participation` (`id`, `id_user`, `id_evenement`, `contact`, `age`, `date_inscription`, `statut`) VALUES
-(1, 3, 1, 'participant@loopi.tn', 28, '2026-02-08 13:08:00', 'inscrit'),
-(2, 4, 1, 'ben.ali@email.com', 35, '2026-02-08 13:08:00', 'inscrit'),
-(3, 5, 2, 'marie.dupont@email.com', 32, '2026-02-08 13:08:00', 'inscrit');
-
-CREATE TABLE IF NOT EXISTS `produit` (
-  `id_produit` int(11) NOT NULL AUTO_INCREMENT,
-  `nom_produit` varchar(200) NOT NULL,
-  `description` text,
-  `image_produit` varchar(255) DEFAULT NULL,
-  `id_cat` int(11) NOT NULL,
-  `id_user` int(11) DEFAULT NULL,
+  `type` varchar(50) NOT NULL,
+  `titre` varchar(200) NOT NULL,
+  `message` text NOT NULL,
+  `is_read` tinyint(1) DEFAULT '0',
+  `id_evenement` int(11) DEFAULT NULL,
+  `id_participation` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id_produit`),
-  KEY `id_user` (`id_user`),
-  KEY `idx_categorie` (`id_cat`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=13 ;
+  PRIMARY KEY (`id`),
+  KEY `id_evenement` (`id_evenement`),
+  KEY `idx_user_read` (`id_user`,`is_read`),
+  KEY `idx_created` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=1 ;
 
-INSERT INTO `produit` (`id_produit`, `nom_produit`, `description`, `image_produit`, `id_cat`, `id_user`, `created_at`, `updated_at`) VALUES
-(1, 'chaise artisanale', 'Cette photographie met en avant une série de chaises artisanales au design unique et audacieux. La structure principale est constituée d''un cadre en métal noir minimaliste, mais c''est le revêtement qui attire immédiatement l''œil :', 'C:\\Users\\MSI\\Pictures\\image_de_produit_loopi\\chaise artisanale.png', 3, 2, '2026-02-08 13:08:00', '2026-02-10 14:39:25'),
-(2, 'glass artwork', 'Much of the glass we throw out is not recycled. To reuse your old glass, all you need is access to a kiln and some glass bottles.', 'C:\\Users\\MSI\\Pictures\\image_de_produit_loopi\\glass artwork.png', 4, 2, '2026-02-08 13:08:00', '2026-02-10 14:40:15'),
-(3, 'Mushrooms Sculpture', 'Hand Crafted Copper Mushrooms Sculpture Wood Base Recycled Art Unique', 'C:\\Users\\MSI\\Pictures\\image_de_produit_loopi\\Hand Crafted Copper Mushrooms.png', 1, 2, '2026-02-08 13:08:00', '2026-02-10 14:47:25'),
-(5, '3D Mosaic', 'These 3D Wood, Metal, and Stone Mosaics have been Daniel Potampa''s tribute to natural beauty and a way to responsibly use these rare and precious materials. No artificial dyes or stains have been used, each piece remains it''s natural color.', 'C:\\Users\\MSI\\Pictures\\image_de_produit_loopi\\3D Mosaic.png', 2, 2, '2026-02-08 17:46:58', '2026-02-10 16:03:27'),
-(8, 'Tin Fish', 'Look at the intricate detail of this tin fish. Each scale is made from recycled metal and carefully placed to replicate natural patterns.', 'C:\\Users\\MSI\\Pictures\\image_de_produit_loopi\\Tin Fish.png', 1, 2, '2026-02-08 20:18:19', '2026-02-10 14:43:10'),
-(10, 'org THENI', 'theni organizateur yhabat', 'C:\\Users\\MSI\\Pictures\\Screenshots\\Capture d''écran 2026-01-21 141734.png', 4, 6, '2026-02-10 00:19:25', '2026-02-10 00:19:25'),
-(11, 'esprit etudient', 'Cette œuvre d''art contemporaine se distingue par son originalité et sa qualité d''exécution. Les textures et les couleurs s''harmonisent pour créer une pièce unique qui captivera les amateurs d''art.', 'C:\\Users\\MSI\\IdeaProjects\\Loopi-Project\\src\\main\\resources\\images\\galerie_image\\Hippopotamus.png', 1, 2, '2026-02-16 08:32:27', '2026-02-28 23:36:48');
+-- --------------------------------------------------------
 
-CREATE TABLE IF NOT EXISTS `social_shares` (
-  `id_share` int(11) NOT NULL AUTO_INCREMENT,
-  `id_produit` int(11) NOT NULL,
-  `id_user` int(11) DEFAULT NULL,
-  `network` varchar(50) NOT NULL,
-  `share_date` datetime NOT NULL,
-  PRIMARY KEY (`id_share`),
-  KEY `id_user` (`id_user`),
-  KEY `idx_produit` (`id_produit`),
-  KEY `idx_network` (`network`),
-  KEY `idx_date` (`share_date`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 AUTO_INCREMENT=5 ;
-
-INSERT INTO `social_shares` (`id_share`, `id_produit`, `id_user`, `network`, `share_date`) VALUES
-(1, 1, 1, 'facebook', '2026-02-21 01:36:40'),
-(2, 1, 2, 'twitter', '2026-02-21 01:36:40'),
-(3, 2, 1, 'whatsapp', '2026-02-21 01:36:40'),
-(4, 3, 3, 'linkedin', '2026-02-21 01:36:40');
+--
+-- Table structure for table `users`
+--
 
 CREATE TABLE IF NOT EXISTS `users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -288,93 +329,41 @@ CREATE TABLE IF NOT EXISTS `users` (
   `id_genre` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `has_donated_first_time` tinyint(1) DEFAULT '0',
+  `total_plastic` double DEFAULT '0',
+  `total_paper` double DEFAULT '0',
+  `total_glass` double DEFAULT '0',
+  `total_metal` double DEFAULT '0',
+  `total_cardboard` double DEFAULT '0',
   PRIMARY KEY (`id`),
   UNIQUE KEY `email` (`email`),
   KEY `id_genre` (`id_genre`),
   KEY `idx_email` (`email`),
   KEY `idx_role` (`role`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 AUTO_INCREMENT=8 ;
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=7 ;
 
-INSERT INTO `users` (`id`, `nom`, `prenom`, `email`, `password`, `photo`, `role`, `id_genre`, `created_at`, `updated_at`) VALUES
-(1, 'Admin', 'System', 'admin@loopi.tn', 'admin123', 'default.jpg', 'admin', 1, '2026-02-08 13:08:00', '2026-03-02 00:30:28'),
-(2, 'Organisateur', 'Eco', 'organisateur@loopi.tn', 'org123', 'default.jpg', 'organisateur', 1, '2026-02-08 13:08:00', '2026-03-02 00:29:36'),
-(3, 'Participant', 'Test', 'participant@loopi.tn', 'part123', 'default.jpg', 'participant', 2, '2026-02-08 13:08:00', '2026-03-02 00:38:22'),
-(4, 'Ben', 'Ali', 'ben.ali@email.com', 'ben123', 'default.jpg', 'participant', 1, '2026-02-08 13:08:00', '2026-02-08 13:08:00'),
-(5, 'Dupont', 'Marie', 'marie.dupont@email.com', 'marie123', 'default.jpg', 'participant', 2, '2026-02-08 13:08:00', '2026-02-08 13:08:00'),
-(6, 'Martin', 'Pierre', 'pierre@email.com', 'pierre123', 'default.jpg', 'organisateur', 1, '2026-02-08 13:08:00', '2026-02-10 00:16:58'),
-(7, 'majdoub', 'yassine', 'yassinemajdoub@loopi.tn', 'yassine123', 'default.jpg', 'participant', 1, '2026-02-19 16:36:49', '2026-02-19 16:36:49');
+--
+-- Dumping data for table `users`
+--
 
-CREATE TABLE IF NOT EXISTS `v_users_passwords` (
-  `id` int(11),
-  `nom` varchar(100),
-  `prenom` varchar(100),
-  `email` varchar(100),
-  `password` varchar(100),
-  `role` enum('admin','organisateur','participant'),
-  `photo` varchar(255),
-  `created_at` timestamp
-);
+INSERT INTO `users` (`id`, `nom`, `prenom`, `email`, `password`, `photo`, `role`, `id_genre`, `created_at`, `updated_at`, `has_donated_first_time`, `total_plastic`, `total_paper`, `total_glass`, `total_metal`, `total_cardboard`) VALUES
+(1, 'Admin', 'System', 'admin@loopi.tn', 'admin123', 'default.jpg', 'admin', 1, '2026-02-08 12:08:00', '2026-02-08 12:08:00', 0, 0, 0, 0, 0, 0),
+(2, 'Organisateur', 'Eco', 'organisateur@loopi.tn', 'org123', 'default.jpg', 'organisateur', 1, '2026-02-08 12:08:00', '2026-04-18 17:30:44', 0, 0, 0, 0, 0, 0),
+(3, 'Participant', 'Test', 'participant@loopi.tn', 'part123', 'default.jpg', 'participant', 2, '2026-02-08 12:08:00', '2026-04-07 05:09:16', 0, 0, 0, 0, 0, 0),
+(4, 'Ben', 'Ali', 'ben.ali@email.com', 'ben123', 'default.jpg', 'participant', 1, '2026-02-08 12:08:00', '2026-02-08 12:08:00', 0, 0, 0, 0, 0, 0),
+(5, 'Dupont', 'Marie', 'marie.dupont@email.com', 'marie123', 'default.jpg', 'participant', 2, '2026-02-08 12:08:00', '2026-02-08 12:08:00', 0, 0, 0, 0, 0, 0),
+(6, 'Martin', 'Pierre', 'pierre@email.com', 'pierre123', 'default.jpg', 'organisateur', 1, '2026-02-08 12:08:00', '2026-02-09 23:16:58', 0, 0, 0, 0, 0, 0);
 
-DROP TABLE IF EXISTS `v_users_passwords`;
+--
+-- Constraints for dumped tables
+--
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_users_passwords` AS select `users`.`id` AS `id`,`users`.`nom` AS `nom`,`users`.`prenom` AS `prenom`,`users`.`email` AS `email`,`users`.`password` AS `password`,`users`.`role` AS `role`,`users`.`photo` AS `photo`,`users`.`created_at` AS `created_at` from `users`;
-
-ALTER TABLE `collection`
-  ADD CONSTRAINT `collection_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-
-ALTER TABLE `content`
-  ADD CONSTRAINT `content_ibfk_1` FOREIGN KEY (`id_commande`) REFERENCES `feedback` (`id_feedback`) ON DELETE CASCADE,
-  ADD CONSTRAINT `content_ibfk_2` FOREIGN KEY (`id_produit`) REFERENCES `produit` (`id_produit`) ON DELETE CASCADE;
-
-ALTER TABLE `favoris`
-  ADD CONSTRAINT `favoris_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id`),
-  ADD CONSTRAINT `favoris_ibfk_2` FOREIGN KEY (`id_produit`) REFERENCES `produit` (`id_produit`);
-
-ALTER TABLE `feedback`
-  ADD CONSTRAINT `feedback_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id`) ON DELETE CASCADE;
-
+--
+-- Constraints for table `notifications`
+--
 ALTER TABLE `notifications`
   ADD CONSTRAINT `notifications_ibfk_1` FOREIGN KEY (`id_user`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   ADD CONSTRAINT `notifications_ibfk_2` FOREIGN KEY (`id_evenement`) REFERENCES `evenement` (`id_evenement`) ON DELETE CASCADE;
-
-ALTER TABLE `notification_galerie`
-  ADD CONSTRAINT `notification_galerie_ibfk_1` FOREIGN KEY (`id_organisateur`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `notification_galerie_ibfk_2` FOREIGN KEY (`id_participant`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  ADD CONSTRAINT `notification_galerie_ibfk_3` FOREIGN KEY (`id_produit`) REFERENCES `produit` (`id_produit`) ON DELETE CASCADE;
-
-ALTER TABLE `social_shares`
-  ADD CONSTRAINT `social_shares_ibfk_1` FOREIGN KEY (`id_produit`) REFERENCES `produit` (`id_produit`) ON DELETE CASCADE,
-  ADD CONSTRAINT `social_shares_ibfk_2` FOREIGN KEY (`id_user`) REFERENCES `users` (`id`) ON DELETE SET NULL;
-
-ALTER TABLE evenement ADD COLUMN statut_validation VARCHAR(20) DEFAULT 'en_attente';
-ALTER TABLE evenement ADD COLUMN date_soumission TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP;
-ALTER TABLE evenement ADD COLUMN date_validation TIMESTAMP NULL;
-ALTER TABLE evenement ADD COLUMN commentaire_validation TEXT;
-ALTER TABLE evenement ADD COLUMN latitude DOUBLE;
-ALTER TABLE evenement ADD COLUMN longitude DOUBLE;
-
-ALTER TABLE participation ADD INDEX idx_statut (statut);
-ALTER TABLE participation ADD INDEX idx_date_inscription (date_inscription);
-ALTER TABLE evenement ADD INDEX idx_statut_validation (statut_validation);
-ALTER TABLE evenement ADD INDEX idx_date_evenement (date_evenement);
-ALTER TABLE notifications ADD INDEX idx_type (type);
-
-UPDATE evenement SET statut_validation = 'approuve' WHERE statut_validation IS NULL;
-UPDATE evenement SET date_soumission = created_at WHERE date_soumission IS NULL;
-
-INSERT INTO evenement (titre, description, date_evenement, lieu, id_organisateur, capacite_max, statut_validation, latitude, longitude) VALUES
-('Collecte de plastique', 'Collecte de plastique dans le parc', '2026-04-10 10:00:00', 'Parc Belvedere Tunis', 2, 40, 'approuve', 36.8065, 10.1815),
-('Nettoyage forêt', 'Action écologique pour nettoyer la forêt', '2026-04-15 09:00:00', 'Forêt de Sejnane', 6, 30, 'approuve', 37.0572, 9.2380),
-('Atelier recyclage créatif', 'Créer des objets avec matériaux recyclés', '2026-04-20 14:00:00', 'Centre culturel Sfax', 2, 25, 'approuve', 34.7406, 10.7603),
-('Collecte de verre', 'Collecte de bouteilles en verre', '2026-04-22 11:00:00', 'Plage Hammamet', 6, 50, 'approuve', 36.4000, 10.6167),
-('Formation tri des déchets', 'Apprendre à trier les déchets', '2026-04-30 15:00:00', 'Université Tunis', 2, 60, 'approuve', 36.8189, 10.1658);
-
-INSERT INTO notifications (id_user, type, titre, message, id_evenement, nom_organisateur, email_organisateur, event_titre) VALUES
-(3, 'inscription', 'Inscription confirmée', 'Vous êtes inscrit à l’événement Collecte de plastique', 3, 'Organisateur Eco', 'organisateur@loopi.tn', 'Collecte de plastique'),
-(4, 'inscription', 'Participation enregistrée', 'Votre participation à Atelier recyclage créatif est confirmée', 3, 'Organisateur Eco', 'organisateur@loopi.tn', 'Atelier recyclage créatif'),
-(2, 'nouvelle_participation', 'Nouveau participant', 'Un participant vient de rejoindre votre événement', 4, 'Pierre Martin', 'pierre@email.com', 'Collecte de verre'),
-(3, 'rappel', 'Rappel événement', 'Rappel : votre événement commence bientôt', 4, 'Pierre Martin', 'pierre@email.com', 'Collecte de verre'),
-(7, 'nouvel_evenement', 'Nouvel événement disponible', 'Un nouvel événement écologique est disponible', 5, 'Organisateur Eco', 'organisateur@loopi.tn', 'Formation tri des déchets');
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
