@@ -373,6 +373,7 @@ nav.snav {
   color: var(--text);
 }
 
+<<<<<<< HEAD
 /* EVENTS GRID */
 .events-header {
   display: flex;
@@ -535,6 +536,75 @@ nav.snav {
   color: var(--muted);
   margin-bottom: 20px;
 }
+=======
+/* BLOCK */
+.blk{background:var(--card);border-radius:16px;padding:20px;border:1px solid var(--border)}
+.blk-title{font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;color:white;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center}
+.blk-title span{font-family:'DM Sans',sans-serif;font-size:.72rem;color:var(--accent);cursor:pointer}
+
+/* TABLE */
+.tbl{width:100%;border-collapse:collapse;font-size:.8rem}
+.tbl th{text-align:left;padding:8px 10px;font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border)}
+.tbl td{padding:10px;border-bottom:1px solid rgba(255,255,255,.04);vertical-align:middle}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+
+/* STATUS BADGES */
+.sbadge{padding:3px 9px;border-radius:50px;font-size:.62rem;font-weight:700;white-space:nowrap}
+.s-active{background:rgba(93,168,122,.15);color:var(--accent)}
+.s-pending{background:rgba(201,169,110,.15);color:var(--sand)}
+.s-rejected{background:rgba(224,90,58,.12);color:var(--danger)}
+.s-full{background:rgba(255,255,255,.08);color:var(--muted)}
+
+/* PRODUCT CARDS */
+.prod-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.prod-card{background:var(--card2);border-radius:12px;overflow:hidden;cursor:pointer;transition:transform .18s;border:1px solid var(--border)}
+.prod-card:hover{transform:translateY(-3px)}
+.prod-img{height:120px;display:flex;align-items:center;justify-content:center;font-size:3rem;position:relative}
+.prod-body{padding:10px 12px}
+.prod-name{font-size:.8rem;font-weight:700;color:white}
+.prod-cat{font-size:.65rem;color:var(--muted);margin-top:2px}
+.prod-actions{display:flex;gap:6px;margin-top:8px}
+
+/* PARTICIPANT ROW */
+.part-row{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.79rem}
+.part-row:last-child{border-bottom:none}
+.part-av{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:white;flex-shrink:0}
+.part-name{flex:1;color:white;font-weight:500}
+.part-meta{font-size:.7rem;color:var(--muted)}
+
+/* COLLECTION CARD */
+.coll-card{background:var(--card2);border-radius:13px;padding:16px;border:1px solid var(--border);margin-bottom:10px}
+.coll-header{display:flex;justify-content:space-between;margin-bottom:10px}
+.coll-title{font-weight:700;color:white;font-size:.88rem}
+.coll-mat{background:rgba(93,168,122,.12);color:var(--accent);border-radius:8px;padding:2px 8px;font-size:.65rem;font-weight:600}
+.prog-bar{height:5px;background:rgba(255,255,255,.08);border-radius:3px;overflow:hidden;margin:8px 0 4px}
+.prog-fill{height:100%;border-radius:3px;background:linear-gradient(to right,var(--accent),var(--sage))}
+.prog-nums{display:flex;justify-content:space-between;font-size:.68rem;color:var(--muted)}
+
+/* CHART BARS (CSS only) */
+.chart-bars{display:flex;align-items:flex-end;gap:8px;height:100px;margin-top:10px}
+.bar-col{display:flex;flex-direction:column;align-items:center;flex:1;gap:4px}
+.bar{width:100%;border-radius:5px 5px 0 0;background:linear-gradient(to top,var(--moss),var(--accent));min-height:4px;transition:height .6s ease}
+.bar-lbl{font-size:.6rem;color:var(--muted)}
+
+/* FORM */
+.form-row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.fg{margin-bottom:12px}
+.fg label{display:block;font-size:.73rem;font-weight:600;color:rgba(255,255,255,.7);margin-bottom:5px}
+.fg input,.fg textarea,.fg select{width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none;transition:border-color .2s}
+.fg input:focus,.fg textarea:focus,.fg select:focus{border-color:var(--accent)}
+.fg textarea{resize:vertical;min-height:80px}
+select option { background: var(--surface); color: white; }
+
+/* NOTIFICATION FEED */
+.notif-item{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:1px solid rgba(255,255,255,.05);font-size:.79rem}
+.notif-item:last-child{border-bottom:none}
+.notif-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;background:rgba(93,168,122,.12)}
+.notif-body{flex:1}
+.notif-text{color:white;font-weight:500}
+.notif-time{font-size:.68rem;color:var(--muted);margin-top:2px}
+>>>>>>> collection
 
 /* MODAL */
 .modal-overlay {
@@ -1014,6 +1084,24 @@ nav.snav {
             <option value="year" style="color:#000">Cette année</option>
           </select>
         </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:18px">
+        <div class="blk">
+          <div class="blk-title">Collections</div>
+          <div class="coll-card">
+            <div class="coll-header"><div class="coll-title">Piece Mario</div><span class="coll-mat">Verre</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:20%"></div></div>
+            <div class="prog-nums"><span style="color:var(--accent)">24.6 kg</span><span>/ 123 kg</span></div>
+            <button class="btn btn-ghost" style="width:100%;margin-top:10px;font-size:.75rem" onclick="showToast('Détail de Piece Mario')">Voir détails</button>
+          </div>
+          <div class="coll-card">
+            <div class="coll-header"><div class="coll-title">PIECE Métal</div><span class="coll-mat" style="background:rgba(201,169,110,.1);color:var(--sand)">Métal</span></div>
+            <div class="prog-bar"><div class="prog-fill" style="width:1%"></div></div>
+            <div class="prog-nums"><span style="color:var(--sand)">0 kg</span><span>/ 1267 kg</span></div>
+            <button class="btn btn-ghost" style="width:100%;margin-top:10px;font-size:.75rem" onclick="showToast('Détail de PIECE Métal')">Voir détails</button>
+          </div>
+          <button class="btn btn-g" style="width:100%;margin-top:4px" onclick="openCollModal()">+ Nouvelle collection</button>
+        </div>
         <div class="donut-container" id="statusDonut"></div>
       </div>
     </div>
@@ -1094,6 +1182,7 @@ nav.snav {
   <!-- COLLECTIONS -->
   <div id="page-collections" style="display:none">
     <div class="topbar">
+<<<<<<< HEAD
       <div><div class="page-title">♻️ Mes Collections</div><div class="page-sub">Suivez vos collectes de matériaux</div></div>
     </div>
     <div id="collectionsContainer"></div>
@@ -1130,11 +1219,57 @@ nav.snav {
     <div class="stats-mini-grid">
       <div class="stat-mini-card"><div class="stat-mini-value" id="profileStatsEvents">0</div><div class="stat-mini-label">Événements</div></div>
       <div class="stat-mini-card"><div class="stat-mini-value" id="profileStatsParticipants">0</div><div class="stat-mini-label">Participants</div></div>
+=======
+      <div><div class="page-title">Mes Collections</div><div class="page-sub">Gérez vos collectes de matériaux recyclés</div></div>
+      <button class="btn btn-g" id="btnNewColl" onclick="openCollModal()">+ Nouvelle collection</button>
+    </div>
+
+    <!-- Gamification Botanique -->
+    <div class="blk" style="margin-bottom:18px;display:flex;align-items:center;padding:24px;gap:25px;background:linear-gradient(145deg,rgba(15,28,21,0.6),rgba(30,58,47,0.3));border:1px solid rgba(93,168,122,0.15)">
+      <div style="width:110px;height:110px;border-radius:20px;background:var(--bg);border:2px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:center;overflow:hidden;box-shadow:inset 0 4px 10px rgba(0,0,0,0.3)">
+        <img id="plantImage" src="/images/tree_stage1_sapling.png" style="height:80%;max-width:90%;object-fit:contain;transition:all 0.5s" onerror="this.outerHTML='<span style=\\'font-size:3rem\\'>🌱</span>'" alt="Gamification Plant">
+      </div>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+          <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:white;text-shadow:0 2px 4px rgba(0,0,0,0.3)">La Plante Loopi</div>
+          <div style="background:rgba(93,168,122,0.15);color:var(--forest);padding:4px 10px;border-radius:8px;font-size:0.75rem;font-weight:bold" id="plantTotalBadge">Total : 0 kg</div>
+        </div>
+        <div style="font-size:0.85rem;color:var(--muted);margin-bottom:14px">Impact cumulé des contributions de vos participants à travers <span style="font-weight:600;color:var(--sand)">toutes vos collections</span>.</div>
+        
+        <div style="background:rgba(0,0,0,0.3);height:8px;border-radius:10px;width:100%;overflow:hidden;margin-bottom:8px;box-shadow:inset 0 1px 3px rgba(0,0,0,0.5)">
+          <div id="plantProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--moss),var(--accent));border-radius:10px;transition:width 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);position:relative">
+            <div style="position:absolute;top:0;right:0;bottom:0;width:20px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3));border-radius:10px"></div>
+          </div>
+        </div>
+        <div id="plantNextGoal" style="font-size:0.75rem;color:var(--sand);font-weight:600">Calcul du niveau en cours...</div>
+      </div>
+    </div>
+
+    <!-- Search + Filter -->
+    <div class="blk" style="padding:14px 18px;margin-bottom:18px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+      <input id="collSearch" type="text" placeholder="🔍 Rechercher par titre…" oninput="filterCollections()" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none;width:220px;transition:border-color .2s" onfocus="this.style.borderColor='var(--accent)'" onblur="this.style.borderColor='var(--border)'">
+      <select id="collMaterial" onchange="filterCollections()" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none;cursor:pointer">
+        <option value="">♻️ Tous les matériaux</option>
+        <option>Verre</option><option>Métal</option><option>Plastique</option><option>Bois</option><option>Papier</option><option>Autre</option>
+      </select>
+      <select id="collStatus" onchange="filterCollections()" style="padding:8px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none;cursor:pointer">
+        <option value="">Tous statuts</option>
+        <option value="active">Actif</option>
+        <option value="inactive">Inactif</option>
+      </select>
+      <span id="collCount" style="margin-left:auto;font-size:.75rem;color:var(--muted)"></span>
+    </div>
+
+    <!-- Collection cards grid -->
+    <div id="collGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:16px">
+      <div style="grid-column:1/-1;text-align:center;padding:40px 0;color:var(--muted)" id="collLoading">Chargement…</div>
+>>>>>>> collection
     </div>
   </div>
 
 </main>
 
+<<<<<<< HEAD
 <!-- MODAL CRÉER/MODIFIER ÉVÉNEMENT -->
 <div class="modal-overlay" id="eventModal" onclick="if(event.target===this)closeEventModal()">
   <div class="modal modal-large">
@@ -1206,10 +1341,88 @@ nav.snav {
     <div class="modal-footer">
       <button type="button" class="btn btn-ghost" onclick="closeEventModal()">Annuler</button>
       <button type="button" class="btn btn-g" onclick="saveEvent()">💾 Enregistrer</button>
+=======
+<!-- ═══ COLLECTION MODAL ═══ -->
+<div class="modal-overlay" id="collModal" onclick="if(event.target===this)closeCollModal()">
+  <div class="modal" style="width:540px">
+    <div class="modal-title">
+      <span id="collModalTitle">Nouvelle collection</span>
+      <button class="modal-close" onclick="closeCollModal()">✕</button>
+    </div>
+    <form id="collForm" onsubmit="submitCollForm(event)" enctype="multipart/form-data" novalidate>
+      <input type="hidden" id="collEditId" value="">
+
+      <div class="form-row2">
+        <div class="fg" style="grid-column:1/-1">
+          <label>Titre <span style="color:var(--danger)">*</span></label>
+          <input id="cf_title" name="title" minlength="5" maxlength="255" placeholder="Minimum 5 caractères" required autocomplete="off">
+          <div id="err_title" style="color:var(--danger);font-size:.7rem;margin-top:3px;display:none"></div>
+        </div>
+        <div class="fg">
+          <label>Type de matériau <span style="color:var(--danger)">*</span></label>
+          <select id="cf_material" name="materialType" required style="width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none">
+            <option value="">Choisir…</option>
+            <option>Verre</option><option>Métal</option><option>Plastique</option><option>Bois</option><option>Papier</option><option>Autre</option>
+          </select>
+          <div id="err_material" style="color:var(--danger);font-size:.7rem;margin-top:3px;display:none"></div>
+        </div>
+        <div class="fg">
+          <label>Statut</label>
+          <select id="cf_status" name="status" style="width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none">
+            <option value="active">Actif</option>
+            <option value="inactive">Inactif</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>Objectif <span style="color:var(--danger)">*</span></label>
+          <input id="cf_goal" name="goalAmount" type="number" min="0.01" step="0.01" placeholder="ex: 150" required
+            oninput="this.value=this.value.replace(/[^0-9.]/g,'')">
+          <div id="err_goal" style="color:var(--danger);font-size:.7rem;margin-top:3px;display:none"></div>
+        </div>
+        <div class="fg">
+          <label>Unité <span style="color:var(--danger)">*</span></label>
+          <select id="cf_unit" name="unit" required style="width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:white;outline:none">
+            <option value="">Choisir…</option>
+            <option>kg</option><option>litres</option><option>pièces</option>
+          </select>
+          <div id="err_unit" style="color:var(--danger);font-size:.7rem;margin-top:3px;display:none"></div>
+        </div>
+        <div class="fg" style="grid-column:1/-1">
+          <label id="imgLabel">Image <span style="color:var(--danger)">*</span></label>
+          <input id="cf_image" name="image" type="file" accept="image/*"
+            style="width:100%;padding:9px 12px;background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:9px;font-family:'DM Sans',sans-serif;font-size:.82rem;color:var(--muted);outline:none;cursor:pointer">
+          <div id="imgPreviewBox" style="margin-top:8px;display:none">
+            <img id="imgPreview" style="max-height:80px;border-radius:8px;border:1px solid var(--border)">
+          </div>
+          <div id="err_image" style="color:var(--danger);font-size:.7rem;margin-top:3px;display:none"></div>
+        </div>
+      </div>
+
+      <div id="collFormError" style="color:var(--danger);font-size:.78rem;margin-top:8px;display:none"></div>
+
+      <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:16px">
+        <button type="button" class="btn btn-ghost" onclick="closeCollModal()">Annuler</button>
+        <button type="submit" class="btn btn-g" id="collSubmitBtn">Créer la collection</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ═══ CONFIRM DELETE MODAL ═══ -->
+<div class="modal-overlay" id="confirmDeleteModal" onclick="if(event.target===this)closeDeleteModal()">
+  <div class="modal" style="width:380px;text-align:center">
+    <div style="font-size:2.5rem;margin-bottom:12px">🗑️</div>
+    <div class="modal-title" style="justify-content:center;font-size:1rem;margin-bottom:8px">Supprimer la collection ?</div>
+    <div style="font-size:.82rem;color:var(--muted);margin-bottom:22px">Cette action est irréversible. Tous les dons associés seront supprimés.</div>
+    <div style="display:flex;gap:10px;justify-content:center">
+      <button class="btn btn-ghost" onclick="closeDeleteModal()">Annuler</button>
+      <button class="btn btn-danger" id="confirmDeleteBtn" onclick="confirmDelete()">Supprimer</button>
+>>>>>>> collection
     </div>
   </div>
 </div>
 
+<<<<<<< HEAD
 <!-- MODAL DÉTAILS ÉVÉNEMENT -->
 <div class="modal-overlay" id="detailModal" onclick="if(event.target===this)closeDetailModal()">
   <div class="modal modal-large">
@@ -1227,6 +1440,10 @@ nav.snav {
 
 <!-- MODAL CONFIRMATION SUPPRESSION -->
 <div class="modal-overlay" id="deleteModal" onclick="if(event.target===this)closeDeleteModal()">
+=======
+<!-- MODAL CREER EVENEMENT -->
+<div class="modal-overlay" id="eventModal" onclick="if(event.target===this)closeModal()">
+>>>>>>> collection
   <div class="modal">
     <div class="modal-title">
       <span>Confirmer la suppression</span>
@@ -1248,6 +1465,7 @@ nav.snav {
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 
 <script>
+<<<<<<< HEAD
   // ===== GLOBAL VARIABLES =====
   let eventsData = [];
   let currentUserId = null;
@@ -2283,6 +2501,373 @@ nav.snav {
     const searchInput = document.getElementById('participantSearch');
     if (searchInput) searchInput.oninput = () => updateParticipantsList();
   });
+=======
+// ─── PAGE NAVIGATION ─────────────────────────────────────────────────────────
+function showPage(name, navEl) {
+  document.querySelectorAll('[id^=page-]').forEach(p => p.style.display = 'none');
+  document.getElementById('page-' + name).style.display = 'block';
+  document.querySelectorAll('.ni').forEach(n => n.classList.remove('active'));
+  if (navEl) navEl.classList.add('active');
+  if (name === 'collections') loadCollections();
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+function showToast(msg, color) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = color || 'var(--accent)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ─── EVENT MODAL ─────────────────────────────────────────────────────────────
+function openModal() { document.getElementById('eventModal').classList.add('active'); }
+function closeModal() { document.getElementById('eventModal').classList.remove('active'); }
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeModal(); closeCollModal(); closeDeleteModal(); }
+});
+
+// ─── IMAGE PREVIEW ───────────────────────────────────────────────────────────
+document.getElementById('cf_image').addEventListener('change', function() {
+  const file = this.files[0];
+  if (file) {
+    const reader = new FileReader();
+    reader.onload = e => {
+      document.getElementById('imgPreview').src = e.target.result;
+      document.getElementById('imgPreviewBox').style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+});
+
+// ─── COLLECTION MODAL ────────────────────────────────────────────────────────
+let _deleteCollId = null;
+
+function openCollModal(collection) {
+  const isEdit = !!collection;
+  document.getElementById('collModalTitle').textContent = isEdit ? 'Modifier la collection' : 'Nouvelle collection';
+  document.getElementById('collSubmitBtn').textContent  = isEdit ? 'Enregistrer' : 'Créer la collection';
+  document.getElementById('collEditId').value   = isEdit ? collection.id : '';
+  document.getElementById('cf_title').value     = isEdit ? collection.title : '';
+  document.getElementById('cf_material').value  = isEdit ? collection.materialType : '';
+  document.getElementById('cf_goal').value      = isEdit ? collection.goalAmount : '';
+  document.getElementById('cf_unit').value      = isEdit ? collection.unit : '';
+  document.getElementById('cf_status').value    = isEdit ? collection.status : 'active';
+  document.getElementById('cf_image').value     = '';
+  document.getElementById('imgPreviewBox').style.display = 'none';
+  const imgLbl = document.getElementById('imgLabel');
+  imgLbl.innerHTML = isEdit
+    ? 'Image <span style="color:var(--muted);font-size:.7rem">(laisser vide pour conserver l\'actuelle)</span>'
+    : 'Image <span style="color:var(--danger)">*</span>';
+  // clear errors
+  ['title','material','goal','unit','image'].forEach(f => {
+    const el = document.getElementById('err_'+f);
+    if (el) { el.style.display='none'; el.textContent=''; }
+  });
+  document.getElementById('collFormError').style.display = 'none';
+  document.getElementById('collModal').classList.add('active');
+}
+
+function closeCollModal() {
+  document.getElementById('collModal').classList.remove('active');
+}
+
+async function submitCollForm(e) {
+  e.preventDefault();
+  const editId = document.getElementById('collEditId').value;
+  const isEdit = !!editId;
+  const btn = document.getElementById('collSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = isEdit ? 'Enregistrement…' : 'Création…';
+
+  // clear errors
+  ['title','material','goal','unit','image'].forEach(f => {
+    const el = document.getElementById('err_'+f);
+    if (el) { el.style.display='none'; el.textContent=''; }
+  });
+  document.getElementById('collFormError').style.display = 'none';
+
+  const fd = new FormData();
+  fd.append('title',        document.getElementById('cf_title').value.trim());
+  fd.append('materialType', document.getElementById('cf_material').value);
+  fd.append('goalAmount',   document.getElementById('cf_goal').value);
+  fd.append('unit',         document.getElementById('cf_unit').value);
+  fd.append('status',       document.getElementById('cf_status').value);
+  const img = document.getElementById('cf_image').files[0];
+  if (img) fd.append('image', img);
+  if (isEdit) fd.append('_method', 'PUT');
+
+  const url = isEdit ? '/api/organisateur/collections/' + editId : '/api/organisateur/collections';
+  try {
+    const res = await fetch(url, { method: 'POST', body: fd });
+    const json = await res.json();
+    if (json.success) {
+      closeCollModal();
+      showToast(isEdit ? '✅ Collection mise à jour!' : '✅ Collection créée!');
+      loadCollections();
+    } else {
+      if (json.errors) {
+        const map = { title:'title', materialType:'material', goalAmount:'goal', unit:'unit', image:'image' };
+        Object.entries(json.errors).forEach(([k, msg]) => {
+          const key = map[k] || k;
+          const el = document.getElementById('err_'+key);
+          if (el) { el.textContent = msg; el.style.display = 'block'; }
+        });
+      } else {
+        document.getElementById('collFormError').textContent = json.message || 'Erreur inconnue.';
+        document.getElementById('collFormError').style.display = 'block';
+      }
+    }
+  } catch(err) {
+    document.getElementById('collFormError').textContent = 'Erreur réseau. Veuillez réessayer.';
+    document.getElementById('collFormError').style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = isEdit ? 'Enregistrer' : 'Créer la collection';
+  }
+}
+
+// ─── DELETE ───────────────────────────────────────────────────────────────────
+function askDeleteColl(id) {
+  _deleteCollId = id;
+  document.getElementById('confirmDeleteModal').classList.add('active');
+}
+function closeDeleteModal() {
+  document.getElementById('confirmDeleteModal').classList.remove('active');
+  _deleteCollId = null;
+}
+async function confirmDelete() {
+  if (!_deleteCollId) return;
+  const btn = document.getElementById('confirmDeleteBtn');
+  btn.disabled = true; btn.textContent = 'Suppression…';
+  try {
+    const res = await fetch('/api/organisateur/collections/' + _deleteCollId, { method: 'DELETE' });
+    const json = await res.json();
+    if (json.success) {
+      closeDeleteModal();
+      showToast('🗑️ Collection supprimée.');
+      loadCollections();
+    } else {
+      showToast(json.message || 'Erreur.', 'var(--danger)');
+    }
+  } catch { showToast('Erreur réseau.', 'var(--danger)'); }
+  finally {
+    btn.disabled = false; btn.textContent = 'Supprimer';
+    _deleteCollId = null;
+  }
+}
+
+// ─── LOAD & RENDER COLLECTIONS ───────────────────────────────────────────────
+let _allCollections = [];
+
+async function loadCollections() {
+  const grid = document.getElementById('collGrid');
+  document.getElementById('collLoading').style.display = 'block';
+  document.getElementById('collLoading').textContent = 'Chargement…';
+  // Remove old cards
+  grid.querySelectorAll('.coll-dyn-card').forEach(c => c.remove());
+
+  const search   = document.getElementById('collSearch')?.value || '';
+  const material = document.getElementById('collMaterial')?.value || '';
+  try {
+    let url = '/api/organisateur/collections?1=1';
+    if (search)   url += '&search=' + encodeURIComponent(search);
+    if (material) url += '&material=' + encodeURIComponent(material);
+    const res = await fetch(url);
+    const json = await res.json();
+    _allCollections = json.data || [];
+    renderCollections(_allCollections);
+    
+    // Gamification Plant
+    if (json.totalCollected !== undefined) {
+        updatePlantGamification(json.totalCollected);
+    }
+  } catch(e) {
+    document.getElementById('collLoading').textContent = '⚠️ Erreur de chargement.';
+  }
+}
+
+function updatePlantGamification(total) {
+  // 1. Safety check for the input value
+  let totFinal = parseFloat(total) || 0;
+  if (totFinal < 0) totFinal = 0; // Prevent negative kg
+
+  const progressBar = document.getElementById('plantProgressBar');
+  const totalBadge = document.getElementById('plantTotalBadge');
+  const imgEl = document.getElementById('plantImage');
+  const goalMsg = document.getElementById('plantNextGoal');
+
+  if (!progressBar || !totalBadge || !imgEl || !goalMsg) return;
+
+  // 2. Define the milestones/stages
+  const stages = [
+    { limit: 0, img: 'tree_stage1_sapling.png', icon: '🌱', label: 'Niveau 1' },
+    { limit: 100, img: 'tree_stage2_small.png', icon: '🌿', label: 'Niveau 2' },
+    { limit: 1000, img: 'tree_stage3_large.png', icon: '🌳', label: 'Niveau 3' },
+    { limit: 5000, img: 'tree_stage4_glowing.png', icon: '🌎', label: 'Niveau MAX' }
+  ];
+
+  // Which stage are we actually reaching?
+  let targetIdx = 0;
+  for (let i = 0; i < stages.length; i++) {
+    if (totFinal >= stages[i].limit) targetIdx = i;
+  }
+
+  // 3. Animation Loop
+  const duration = 2500; 
+  const startTime = performance.now();
+
+  function animate(now) {
+    const elapsed = now - startTime;
+    const progress = Math.min(elapsed / duration, 1);
+    
+    // Smooth progress curve (Linear for stable numbers)
+    const currentKg = totFinal * progress;
+    totalBadge.textContent = 'Total : ' + currentKg.toFixed(1) + ' kg';
+
+    // Figure out which stage to show right now (Equal time for each)
+    let currentStageIdx = 0;
+    if (targetIdx > 0) {
+        currentStageIdx = Math.floor(progress * (targetIdx + 1));
+        if (currentStageIdx > targetIdx) currentStageIdx = targetIdx;
+    }
+    const activeStage = stages[currentStageIdx];
+
+    // Update Image if changed
+    const newSrc = '/images/' + activeStage.img;
+    if (!imgEl.src.endsWith(activeStage.img)) {
+       imgEl.src = newSrc;
+       imgEl.style.transform = 'scale(1.15)';
+       setTimeout(() => imgEl.style.transform = 'scale(1)', 300);
+    }
+
+    // Calculate Progress Bar logic
+    let progPct = 0;
+    let msg = '';
+    
+    if (currentKg < 100) {
+      progPct = (currentKg / 100) * 100;
+      msg = `Niveau 1 🌱 ➔ Encore ${(100 - currentKg).toFixed(1)} kg pour éclore !`;
+    } else if (currentKg < 1000) {
+      progPct = ((currentKg - 100) / 900) * 100;
+      msg = `Niveau 2 🌿 ➔ Super ! ${(1000 - currentKg).toFixed(1)} kg restants !`;
+    } else if (currentKg < 5000) {
+      progPct = ((currentKg - 1000) / 4000) * 100;
+      msg = `Niveau 3 🌳 ➔ ${(5000 - currentKg).toFixed(1)} kg avant la forêt dense !`;
+    } else {
+      progPct = 100;
+      msg = `Niveau MAX 🌎 ➔ Impact Exceptionnel !`;
+      progressBar.style.background = 'linear-gradient(90deg, #d4af37, #f3e5ab)';
+    }
+
+    progressBar.style.width = Math.max(0, Math.min(progPct, 100)) + '%';
+    goalMsg.textContent = msg;
+
+    if (progress < 1) {
+      requestAnimationFrame(animate);
+    }
+  }
+
+  requestAnimationFrame(animate);
+}
+
+function filterCollections() {
+  const search   = (document.getElementById('collSearch')?.value || '').toLowerCase();
+  const material = document.getElementById('collMaterial')?.value || '';
+  const status   = document.getElementById('collStatus')?.value || '';
+  const filtered = _allCollections.filter(c => {
+    if (search   && !c.title.toLowerCase().includes(search) && !c.materialType.toLowerCase().includes(search)) return false;
+    if (material && c.materialType !== material) return false;
+    if (status   && c.status !== status) return false;
+    return true;
+  });
+  renderCollections(filtered);
+}
+
+function renderCollections(list) {
+  const grid = document.getElementById('collGrid');
+  grid.querySelectorAll('.coll-dyn-card').forEach(c => c.remove());
+  document.getElementById('collLoading').style.display = 'none';
+  document.getElementById('collCount').textContent = list.length + ' collection(s)';
+
+  if (list.length === 0) {
+    const empty = document.createElement('div');
+    empty.className = 'coll-dyn-card';
+    empty.style.cssText = 'grid-column:1/-1;text-align:center;padding:50px 0;color:var(--muted)';
+    empty.innerHTML = '<div style="font-size:2.5rem;margin-bottom:12px">📭</div><div>Aucune collection trouvée.</div>';
+    grid.appendChild(empty);
+    return;
+  }
+
+  const sortedList = [...list].sort((a, b) => {
+    const aFin = a.currentAmount >= a.goalAmount;
+    const bFin = b.currentAmount >= b.goalAmount;
+    if (aFin !== bFin) return aFin ? 1 : -1;
+    return b.currentAmount - a.currentAmount;
+  });
+
+  sortedList.forEach(c => {
+    const pct = Math.min(c.progress || (c.currentAmount/c.goalAmount*100), 100);
+    const isFinished = c.currentAmount >= c.goalAmount;
+    const imgHtml = c.imageUrl
+      ? `<img src="${c.imageUrl}" style="width:100%;height:120px;object-fit:cover;border-radius:10px 10px 0 0">`
+      : `<div style="height:80px;background:linear-gradient(135deg,var(--forest),var(--moss));border-radius:10px 10px 0 0;display:flex;align-items:center;justify-content:center;font-size:2.5rem">♻️</div>`;
+    const statusBadge = c.status === 'active'
+      ? '<span class="sbadge s-active">Actif</span>'
+      : '<span class="sbadge s-full">Inactif</span>';
+
+    const card = document.createElement('div');
+    card.className = 'coll-dyn-card blk';
+    card.style.padding = '0';
+    card.style.overflow = 'hidden';
+    card.style.opacity = '0';
+    card.style.transform = 'translateY(10px)';
+    card.style.transition = 'all 0.4s ease';
+
+    if (isFinished) {
+      card.style.filter = 'grayscale(80%) opacity(0.85)';
+    }
+    card.innerHTML = `
+      ${imgHtml}
+      <div style="padding:16px">
+        <div class="coll-header">
+          <div class="coll-title">${escHtml(c.title)}</div>
+          <div style="display:flex;gap:6px;align-items:center">
+            <span class="coll-mat">${escHtml(c.materialType)}</span>
+            ${statusBadge}
+          </div>
+        </div>
+        <div class="prog-bar" style="height:8px;margin:10px 0 4px;background:rgba(255,255,255,0.05)">
+          <div class="prog-fill" id="pb-${c.id}" style="width:0%; transition: width 2s cubic-bezier(0.2, 0.8, 0.2, 1)"></div>
+        </div>
+        <div class="prog-nums">
+          <span style="color:var(--accent);font-weight:600">${c.currentAmount.toFixed(1)} ${escHtml(c.unit)}</span>
+          <span>/ ${c.goalAmount} ${escHtml(c.unit)} · ${pct.toFixed(1)}%</span>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:6px">${c.donationsCount} donation(s)</div>
+        <div style="display:flex;gap:8px;margin-top:12px">
+          <button class="btn btn-ghost" style="flex:1;font-size:.75rem" onclick='openCollModal(${JSON.stringify(c).replace(/'/g, "&apos;")})'>✏️ Modifier</button>
+          <button class="btn btn-danger" style="flex:1;font-size:.75rem" onclick="askDeleteColl(${c.id})">🗑️ Supprimer</button>
+        </div>
+      </div>`;
+    
+    grid.appendChild(card);
+
+    // Trigger animations after a tiny delay
+    setTimeout(() => {
+      card.style.opacity = '1';
+      card.style.transform = 'translateY(0)';
+      const fill = document.getElementById(`pb-${c.id}`);
+      if (fill) fill.style.width = pct + '%';
+    }, 100);
+  });
+}
+
+function escHtml(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+>>>>>>> collection
 </script>
 </body>
 </html>

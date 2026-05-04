@@ -174,15 +174,7 @@ CREATE TABLE IF NOT EXISTS `evenement` (
   `id_organisateur` int(11) NOT NULL,
   `capacite_max` int(11) DEFAULT NULL,
   `image_evenement` varchar(255) DEFAULT NULL,
-  `statut` varchar(20) NOT NULL DEFAULT 'en_attente',
-  `statut_validation` varchar(20) DEFAULT 'en_attente',
-  `date_soumission` datetime DEFAULT NULL,
-  `date_validation` datetime DEFAULT NULL,
-  `commentaire_validation` text DEFAULT NULL,
-  `latitude` decimal(10,8) DEFAULT NULL,
-  `longitude` decimal(11,8) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_evenement`),
   KEY `id_organisateur` (`id_organisateur`)
 ) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=3 ;
@@ -191,9 +183,9 @@ CREATE TABLE IF NOT EXISTS `evenement` (
 -- Dumping data for table `evenement`
 --
 
-INSERT INTO `evenement` (`id_evenement`, `titre`, `description`, `date_evenement`, `lieu`, `id_organisateur`, `capacite_max`, `image_evenement`, `statut`, `statut_validation`, `created_at`) VALUES
-(1, 'Nettoyage de plage', 'Journée de nettoyage', '2026-06-15 09:00:00', 'Plage Sousse', 2, 50, NULL, 'en_attente', 'valide', '2026-02-08 13:08:00'),
-(2, 'Atelier recyclage', 'Apprenez à recycler', '2026-06-20 14:00:00', 'Centre Tunis', 2, 30, NULL, 'en_attente', 'valide', '2026-02-08 13:08:00');
+INSERT INTO `evenement` (`id_evenement`, `titre`, `description`, `date_evenement`, `lieu`, `id_organisateur`, `capacite_max`, `image_evenement`, `created_at`) VALUES
+(1, 'Nettoyage de plage', 'Journée de nettoyage', '2024-06-15 09:00:00', 'Plage Sousse', 2, 50, NULL, '2026-02-08 13:08:00'),
+(2, 'Atelier recyclage', 'Apprenez à recycler', '2024-06-20 14:00:00', 'Centre Tunis', 2, 30, NULL, '2026-02-08 13:08:00');
 
 -- --------------------------------------------------------
 

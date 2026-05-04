@@ -2,155 +2,94 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loopi — Espace Participant</title>
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;0,800;0,900;1,400;1,700&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,400&display=swap" rel="stylesheet">
 <style>
-/* ================================================
-   ROOT VARIABLES - DESIGN SYSTEM
-   ================================================ */
 :root {
-  --bg: #F4F2ED;
-  --bg-secondary: #FDFCF9;
-  --cream: #FAF8F2;
-  --forest: #1A3528;
-  --forest-light: #264A39;
-  --moss: #3A6347;
-  --moss-light: #4D8060;
+  --bg: #F4F1EB;
+  --cream: #FAF8F3;
+  --forest: #1E3A2F;
+  --moss: #3D6B4F;
   --sage: #7A9E7E;
-  --sage-light: #9DBBA1;
-  --sand: #C9A455;
-  --sand-light: #DFC07A;
+  --sand: #C9A96E;
   --rust: #B05A2F;
   --light: #FDFCF9;
   --dark: #111510;
-  --dark-soft: #1A2218;
   --muted: #6B7468;
-  --muted-light: #9AA39E;
   --card: #FFFFFF;
-  --border: rgba(26,53,40,0.09);
-  --border-dark: rgba(26,53,40,0.15);
-  --shadow-sm: 0 1px 4px rgba(26,53,40,0.06), 0 2px 8px rgba(26,53,40,0.04);
-  --shadow-md: 0 4px 16px rgba(26,53,40,0.08), 0 2px 6px rgba(26,53,40,0.04);
-  --shadow-lg: 0 12px 36px rgba(26,53,40,0.12), 0 4px 12px rgba(26,53,40,0.06);
-  --shadow-xl: 0 24px 56px rgba(26,53,40,0.14), 0 8px 20px rgba(26,53,40,0.08);
-  --success: #10B981;
-  --success-light: #D1FAE5;
-  --danger: #EF4444;
-  --danger-light: #FEE2E2;
-  --warning: #F59E0B;
-  --warning-light: #FEF3C7;
-  --info: #3B82F6;
-  --info-light: #DBEAFE;
-  --radius-sm: 8px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-2xl: 28px;
-  --radius-full: 9999px;
-  --nav-h: 68px;
+  --border: rgba(30,58,47,0.09);
+  --shadow: 0 4px 24px rgba(30,58,47,0.08);
+  --shadow-lg: 0 12px 48px rgba(30,58,47,0.14);
 }
 
 *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
 html { scroll-behavior: smooth; }
 
 body {
   font-family: 'DM Sans', sans-serif;
   background: var(--bg);
-  color: var(--dark-soft);
+  color: var(--dark);
   min-height: 100vh;
-  line-height: 1.6;
-  /* Subtle noise texture */
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.025'/%3E%3C/svg%3E");
 }
 
-h1, h2, h3, h4, .font-serif { font-family: 'Playfair Display', serif; }
-
-/* ================================================
-   NAVBAR
-   ================================================ */
+/* ── NAVBAR ── */
 .navbar {
   position: sticky;
   top: 0;
   z-index: 200;
-  background: rgba(26,53,40,0.97);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid rgba(255,255,255,0.05);
-  padding: 0 32px;
+  background: rgba(30,58,47,0.97);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding: 0 40px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: var(--nav-h);
+  height: 64px;
 }
 
 .nav-logo {
   font-family: 'Playfair Display', serif;
   font-size: 1.35rem;
-  font-weight: 800;
+  font-weight: 900;
   color: white;
   display: flex;
   align-items: center;
   gap: 10px;
   text-decoration: none;
-  letter-spacing: -0.02em;
 }
 
-.logo-icon {
-  width: 34px;
-  height: 34px;
-  background: linear-gradient(135deg, var(--sage), var(--moss));
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1rem;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+.leaf {
+  width: 20px; height: 20px;
+  background: var(--sage);
+  border-radius: 60% 10% 60% 10%;
+  transform: rotate(-20deg);
+  flex-shrink: 0;
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
   list-style: none;
 }
 
 .nav-links a {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 6px;
   padding: 7px 14px;
-  border-radius: var(--radius-lg);
-  color: rgba(255,255,255,0.58);
+  border-radius: 8px;
+  color: rgba(255,255,255,0.6);
   text-decoration: none;
-  font-size: 0.82rem;
+  font-size: .83rem;
   font-weight: 500;
-  transition: all 0.2s ease;
-  position: relative;
+  transition: all .2s;
 }
 
-.nav-links a:hover {
-  background: rgba(255,255,255,0.09);
-  color: white;
-}
-
-.nav-links a.active {
-  background: rgba(255,255,255,0.11);
-  color: white;
-}
-
-.nav-links a.active::after {
-  content: '';
-  position: absolute;
-  bottom: -2px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 20px;
-  height: 2px;
-  background: var(--sand);
-  border-radius: 2px;
-}
+.nav-links a:hover { background: rgba(255,255,255,.08); color: white; }
+.nav-links a.active { background: rgba(255,255,255,.12); color: white; }
 
 .nav-right {
   display: flex;
@@ -160,138 +99,75 @@ h1, h2, h3, h4, .font-serif { font-family: 'Playfair Display', serif; }
 
 .notif-btn {
   position: relative;
-  width: 38px;
-  height: 38px;
+  width: 36px; height: 36px;
   border-radius: 50%;
-  background: rgba(255,255,255,0.07);
-  border: 1px solid rgba(255,255,255,0.09);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: rgba(255,255,255,.08);
+  border: 1px solid rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
   cursor: pointer;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
-  color: rgba(255,255,255,0.65);
+  font-size: .95rem;
+  transition: background .2s;
 }
-
-.notif-btn:hover { background: rgba(255,255,255,0.14); color: white; }
-
+.notif-btn:hover { background: rgba(255,255,255,.15); }
 .notif-dot {
-  position: absolute;
-  top: 7px;
-  right: 7px;
-  width: 8px;
-  height: 8px;
+  position: absolute; top: 6px; right: 6px;
+  width: 8px; height: 8px;
   background: var(--rust);
   border-radius: 50%;
   border: 2px solid var(--forest);
-  animation: pulse-dot 2s ease infinite;
-}
-
-@keyframes pulse-dot {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.25); opacity: 0.8; }
 }
 
 .nav-avatar {
-  width: 38px;
-  height: 38px;
+  width: 36px; height: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--sage), var(--moss));
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: flex; align-items: center; justify-content: center;
   font-family: 'Playfair Display', serif;
-  font-size: 0.95rem;
+  font-size: .95rem;
   font-weight: 700;
   color: white;
   cursor: pointer;
-  transition: all 0.2s ease;
-  border: 2px solid rgba(255,255,255,0.15);
+  border: 2px solid rgba(255,255,255,.2);
 }
-
-.nav-avatar:hover { transform: scale(1.08); border-color: var(--sand); }
 
 .btn-donate {
   padding: 8px 18px;
-  border-radius: var(--radius-full);
-  background: linear-gradient(135deg, var(--sand), #c4993e);
+  border-radius: 9px;
+  background: var(--sand);
   color: var(--forest);
-  font-size: 0.8rem;
+  font-size: .82rem;
   font-weight: 700;
   border: none;
   cursor: pointer;
-  transition: all 0.25s ease;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  box-shadow: 0 2px 8px rgba(201,164,85,0.25);
-  letter-spacing: 0.01em;
+  transition: all .2s;
+  font-family: 'DM Sans', sans-serif;
 }
+.btn-donate:hover { background: #d4b070; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(201,169,110,.35); }
 
-.btn-donate:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(201,164,85,0.35);
-  background: linear-gradient(135deg, var(--sand-light), var(--sand));
-}
-
-/* Hamburger mobile */
-.nav-hamburger {
-  display: none;
-  background: none;
-  border: none;
-  color: rgba(255,255,255,0.7);
-  font-size: 1.3rem;
-  cursor: pointer;
-  padding: 4px;
-}
-
-/* ================================================
-   HERO STRIP (AMÉLIORÉ)
-   ================================================ */
+/* ── HERO / WELCOME STRIP ── */
 .hero-strip {
-  background: linear-gradient(135deg, var(--forest) 0%, #2A5240 50%, var(--moss) 100%);
-  padding: 60px 32px 80px;
+  background: linear-gradient(135deg, var(--forest) 0%, var(--moss) 100%);
+  padding: 48px 40px 52px;
   position: relative;
   overflow: hidden;
 }
 
-/* Orbs flottants */
 .hero-strip::before {
   content: '';
   position: absolute;
-  top: -60px;
-  right: -60px;
-  width: 320px;
-  height: 320px;
+  top: -60px; right: -60px;
+  width: 280px; height: 280px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(122,158,126,0.18) 0%, transparent 70%);
-  animation: float-orb 8s ease-in-out infinite;
+  background: rgba(122,158,126,.15);
 }
 
 .hero-strip::after {
   content: '';
   position: absolute;
-  bottom: 20px;
-  left: 15%;
-  width: 200px;
-  height: 200px;
+  bottom: -80px; left: 30%;
+  width: 200px; height: 200px;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(201,164,85,0.12) 0%, transparent 70%);
-  animation: float-orb 12s ease-in-out infinite reverse;
-}
-
-@keyframes float-orb {
-  0%, 100% { transform: translate(0, 0); }
-  33% { transform: translate(-12px, -20px); }
-  66% { transform: translate(8px, 10px); }
-}
-
-.hero-bg-pattern {
-  position: absolute;
-  inset: 0;
-  background-image: radial-gradient(circle at 20% 80%, rgba(122,158,126,0.08) 0%, transparent 40%),
-                    radial-gradient(circle at 80% 20%, rgba(201,164,85,0.06) 0%, transparent 40%);
+  background: rgba(201,169,110,.08);
 }
 
 .hero-inner {
@@ -299,2052 +175,727 @@ h1, h2, h3, h4, .font-serif { font-family: 'Playfair Display', serif; }
   margin: 0 auto;
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-end;
   position: relative;
   z-index: 1;
-  gap: 32px;
 }
-
-.hero-left { flex: 1; }
-
-.hero-tag {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 4px 14px;
-  background: rgba(255,255,255,0.09);
-  border: 1px solid rgba(255,255,255,0.12);
-  border-radius: var(--radius-full);
-  font-size: 0.72rem;
-  font-weight: 600;
-  color: rgba(255,255,255,0.65);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  margin-bottom: 16px;
-}
-
-.hero-tag i { color: var(--sand); font-size: 0.65rem; }
 
 .hero-greeting {
   font-family: 'Playfair Display', serif;
-  font-size: 2.4rem;
-  font-weight: 800;
+  font-size: 2.2rem;
+  font-weight: 700;
   color: white;
-  line-height: 1.15;
-  margin-bottom: 10px;
-  letter-spacing: -0.02em;
-}
-
-.hero-greeting em {
-  font-style: normal;
-  color: var(--sand-light);
+  line-height: 1.2;
 }
 
 .hero-sub {
-  font-size: 0.88rem;
-  color: rgba(255,255,255,0.48);
-  font-weight: 400;
+  font-size: .9rem;
+  color: rgba(255,255,255,.55);
+  margin-top: 6px;
 }
 
 .hero-stats {
   display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
+  gap: 32px;
 }
 
 .hero-stat {
   text-align: center;
-  padding: 18px 22px;
-  background: rgba(255,255,255,0.07);
-  border-radius: var(--radius-xl);
-  border: 1px solid rgba(255,255,255,0.09);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
-  min-width: 90px;
-  position: relative;
-  overflow: hidden;
-}
-
-.hero-stat::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(135deg, rgba(255,255,255,0.03) 0%, transparent 100%);
-}
-
-.hero-stat:hover {
-  background: rgba(255,255,255,0.12);
-  transform: translateY(-3px);
-  box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+  padding: 16px 24px;
+  background: rgba(255,255,255,.07);
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,.1);
+  backdrop-filter: blur(8px);
 }
 
 .hero-stat-val {
   font-family: 'Playfair Display', serif;
-  font-size: 1.9rem;
+  font-size: 1.7rem;
   font-weight: 700;
   color: white;
   line-height: 1;
-  letter-spacing: -0.02em;
 }
 
 .hero-stat-lbl {
-  font-size: 0.68rem;
-  color: rgba(255,255,255,0.48);
-  margin-top: 7px;
+  font-size: .72rem;
+  color: rgba(255,255,255,.5);
+  margin-top: 4px;
   font-weight: 500;
-  letter-spacing: 0.3px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 5px;
 }
 
-/* Wave SVG divider */
-.hero-wave {
-  position: absolute;
-  bottom: -1px;
-  left: 0;
-  right: 0;
-  line-height: 0;
-}
-
-.hero-wave svg {
-  display: block;
-  width: 100%;
-  height: 48px;
-}
-
-/* ================================================
-   SECTION TABS
-   ================================================ */
-.section-tabs-wrap {
+/* ── TABS NAV ── */
+.section-tabs {
   background: white;
   border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: var(--nav-h);
-  z-index: 99;
-  box-shadow: 0 2px 12px rgba(26,53,40,0.06);
-}
-
-.section-tabs {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 32px;
+  padding: 0 40px;
   display: flex;
   gap: 0;
-  overflow-x: auto;
-  scrollbar-width: none;
-  position: relative;
+  position: sticky;
+  top: 64px;
+  z-index: 100;
 }
-
-.section-tabs::-webkit-scrollbar { display: none; }
 
 .stab {
-  padding: 0 22px;
-  height: 52px;
-  border-bottom: 2px solid transparent;
+  padding: 16px 22px;
+  border-bottom: 3px solid transparent;
   cursor: pointer;
-  font-size: 0.82rem;
+  font-size: .83rem;
   font-weight: 600;
   color: var(--muted);
-  transition: color 0.2s ease, border-color 0.2s ease;
+  transition: all .2s;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 7px;
   white-space: nowrap;
+  border-left: none; border-right: none; border-top: none;
   background: transparent;
-  border-top: none;
-  border-left: none;
-  border-right: none;
   font-family: 'DM Sans', sans-serif;
-  position: relative;
 }
-
-.stab i { font-size: 0.9rem; opacity: 0.7; transition: opacity 0.2s; }
 
 .stab:hover { color: var(--forest); }
-.stab:hover i { opacity: 1; }
+.stab.active { color: var(--forest); border-bottom-color: var(--moss); }
 
-.stab.active {
-  color: var(--forest);
-  border-bottom-color: var(--moss);
-  font-weight: 700;
-}
-
-.stab.active i { opacity: 1; color: var(--moss); }
-
-.stab-badge {
-  font-size: 0.65rem;
-  background: var(--moss);
-  color: white;
-  padding: 2px 7px;
-  border-radius: var(--radius-full);
-  font-weight: 700;
-  line-height: 1.4;
-}
-
-/* ================================================
-   PAGE SECTIONS
-   ================================================ */
+/* ── CONTENT ── */
 .page-section {
   display: none;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 48px 32px 100px;
-  animation: fadeUp 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  padding: 40px 40px 80px;
+  animation: fadeUp .35s ease both;
 }
 
 .page-section.active { display: block; }
 
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(18px); }
+  from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: translateY(0); }
 }
 
-.section-header {
-  margin-bottom: 36px;
-}
+/* ── GRID LAYOUTS ── */
+.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; margin-bottom: 32px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 22px; margin-bottom: 24px; }
+.grid-3-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 22px; margin-bottom: 24px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
 
-.section-heading {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.65rem;
-  font-weight: 700;
-  color: var(--forest);
-  letter-spacing: -0.02em;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.section-heading i { color: var(--moss); font-size: 1.3rem; }
-
-.section-sub {
-  font-size: 0.85rem;
-  color: var(--muted);
-}
-
-/* ================================================
-   GRID LAYOUTS
-   ================================================ */
-.grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 32px; }
-.grid-2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 24px; margin-bottom: 24px; }
-.grid-3-2 { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; margin-bottom: 24px; }
-.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-
-/* ================================================
-   STAT CARDS (AMÉLIORÉES)
-   ================================================ */
-.stat-card {
-  background: white;
-  border-radius: var(--radius-xl);
-  border: 1px solid var(--border);
-  padding: 24px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: var(--shadow-sm);
-  position: relative;
-  overflow: hidden;
-}
-
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 4px;
-  height: 100%;
-  border-radius: 4px 0 0 4px;
-}
-
-.stat-card:nth-child(1)::before { background: linear-gradient(180deg, var(--rust), #d97b4a); }
-.stat-card:nth-child(2)::before { background: linear-gradient(180deg, var(--sand), var(--sand-light)); }
-.stat-card:nth-child(3)::before { background: linear-gradient(180deg, var(--moss), var(--sage)); }
-.stat-card:nth-child(4)::before { background: linear-gradient(180deg, var(--info), #60a5fa); }
-
-.stat-card:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
-}
-
-.stat-card-inner { padding-left: 4px; }
-
-.stat-icon {
-  width: 46px;
-  height: 46px;
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
-  margin-bottom: 18px;
-}
-
-.stat-val {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.1rem;
-  font-weight: 700;
-  color: var(--forest);
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-
-.stat-lbl {
-  font-size: 0.75rem;
-  color: var(--muted);
-  margin-top: 5px;
-  font-weight: 500;
-}
-
-.stat-trend {
-  font-size: 0.7rem;
-  margin-top: 12px;
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.trend-up { color: var(--success); }
-.trend-neutral { color: var(--muted); }
-
-/* ================================================
-   GENERIC CARD
-   ================================================ */
+/* ── CARD ── */
 .card {
   background: white;
-  border-radius: var(--radius-xl);
+  border-radius: 18px;
   border: 1px solid var(--border);
   padding: 24px;
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
+  transition: transform .2s, box-shadow .2s;
 }
 
-.card:hover { box-shadow: var(--shadow-md); }
+.card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
 
 .card-title {
   font-family: 'Playfair Display', serif;
   font-size: 1rem;
   font-weight: 700;
   color: var(--forest);
-  margin-bottom: 20px;
+  margin-bottom: 18px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: 12px;
 }
 
 .card-title a {
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.75rem;
+  font-size: .75rem;
   font-weight: 600;
   color: var(--moss);
   text-decoration: none;
-  transition: color 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 4px;
 }
 
-.card-title a:hover { color: var(--forest); }
+.card-title a:hover { text-decoration: underline; }
 
-/* ================================================
-   EVENTS SECTION
-   ================================================ */
-.events-stats {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
-  margin-bottom: 32px;
-}
-
-.event-stat {
+/* ── STAT CARD ── */
+.stat-card {
   background: white;
-  border-radius: var(--radius-lg);
-  padding: 20px 16px;
-  text-align: center;
+  border-radius: 18px;
   border: 1px solid var(--border);
-  transition: all 0.3s ease;
-  box-shadow: var(--shadow-sm);
+  padding: 22px;
+  transition: transform .2s, box-shadow .2s;
 }
 
-.event-stat:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+.stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow); }
 
-.event-stat-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin: 0 auto 12px;
-  font-size: 0.95rem;
+.stat-icon {
+  width: 44px; height: 44px;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.2rem;
+  margin-bottom: 14px;
 }
 
-.event-stat-value {
+.stat-val {
   font-family: 'Playfair Display', serif;
   font-size: 1.9rem;
   font-weight: 700;
   color: var(--forest);
   line-height: 1;
-  letter-spacing: -0.02em;
 }
 
-.event-stat-label {
-  font-size: 0.7rem;
-  color: var(--muted);
-  margin-top: 7px;
-  font-weight: 500;
-}
+.stat-lbl { font-size: .75rem; color: var(--muted); margin-top: 5px; font-weight: 500; }
+.stat-trend { font-size: .72rem; margin-top: 8px; font-weight: 600; }
+.trend-up { color: #3D9B5A; }
+.trend-neu { color: var(--muted); }
 
-/* ================================================
-   EVENT CARDS
-   ================================================ */
-.events-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
-  gap: 24px;
-}
+/* ── GALLERY GRID ── */
+.gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.gal-item { border-radius: 14px; overflow: hidden; cursor: pointer; transition: transform .2s, box-shadow .2s; border: 1px solid var(--border); background: white; }
+.gal-item:hover { transform: translateY(-4px); box-shadow: var(--shadow-lg); }
+.gal-img { height: 120px; display: flex; align-items: center; justify-content: center; font-size: 2.8rem; position: relative; }
+.gal-heart { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,.9); border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: .8rem; cursor: pointer; border: none; transition: transform .2s; box-shadow: 0 2px 8px rgba(0,0,0,.1); }
+.gal-heart:hover { transform: scale(1.2); }
+.gal-info { padding: 10px 12px 12px; }
+.gal-name { font-size: .82rem; font-weight: 700; color: var(--forest); }
+.gal-cat { font-size: .68rem; color: var(--muted); margin-top: 2px; }
 
-.event-card {
-  background: white;
-  border-radius: var(--radius-xl);
-  overflow: hidden;
-  border: 1px solid var(--border);
-  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
-  cursor: pointer;
-  box-shadow: var(--shadow-sm);
-}
+/* ── EVENTS ── */
+.event-item { display: flex; align-items: flex-start; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.event-item:last-child { border-bottom: none; padding-bottom: 0; }
+.ev-date { background: var(--forest); color: white; border-radius: 10px; width: 46px; height: 50px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; font-family: 'Playfair Display', serif; }
+.ev-day { font-size: 1.15rem; font-weight: 700; line-height: 1; }
+.ev-mon { font-size: .58rem; text-transform: uppercase; letter-spacing: .06em; opacity: .7; }
+.ev-info .ev-title { font-size: .87rem; font-weight: 700; color: var(--forest); margin-bottom: 3px; }
+.ev-info .ev-loc { font-size: .73rem; color: var(--muted); }
+.ev-badge { margin-left: auto; padding: 4px 10px; border-radius: 50px; font-size: .67rem; font-weight: 700; flex-shrink: 0; }
+.badge-inscrit { background: rgba(61,107,79,.1); color: var(--moss); }
+.badge-dispo { background: rgba(201,169,110,.15); color: #9a7040; }
 
-.event-card:hover {
-  transform: translateY(-7px);
-  box-shadow: var(--shadow-xl);
-  border-color: rgba(58,99,71,0.2);
-}
+/* ── DONATIONS ── */
+.don-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); font-size: .82rem; }
+.don-row:last-child { border-bottom: none; }
+.don-av { width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: .82rem; font-weight: 700; color: white; flex-shrink: 0; }
+.don-coll { font-weight: 600; color: var(--forest); flex: 1; }
+.don-amount { font-weight: 700; color: var(--moss); }
+.don-status { padding: 3px 9px; border-radius: 50px; font-size: .64rem; font-weight: 700; }
+.status-conf { background: rgba(61,155,90,.1); color: #3D9B5A; }
+.status-pend { background: rgba(201,169,110,.15); color: #9a7040; }
 
-.event-image {
-  height: 175px;
+/* ── COUPONS ── */
+.coupon-card {
   background: linear-gradient(135deg, var(--forest), var(--moss));
-  position: relative;
-  overflow: hidden;
-}
-
-.event-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.4s ease;
-}
-
-.event-card:hover .event-image img { transform: scale(1.07); }
-
-.event-image-placeholder {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 100%;
-  font-size: 3.5rem;
-  background: linear-gradient(135deg, var(--forest), var(--moss));
-  color: rgba(255,255,255,0.3);
-}
-
-.event-status-badge {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-}
-
-.sbadge {
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-  font-size: 0.63rem;
-  font-weight: 700;
-  backdrop-filter: blur(6px);
-  letter-spacing: 0.03em;
-}
-
-.sbadge-registered { background: rgba(16,185,129,0.92); color: white; }
-.sbadge-pending { background: rgba(245,158,11,0.92); color: var(--forest); }
-.sbadge-available { background: rgba(59,130,246,0.92); color: white; }
-
-.event-date-badge {
-  position: absolute;
-  bottom: 12px;
-  left: 12px;
-  background: rgba(0,0,0,0.72);
-  backdrop-filter: blur(10px);
-  border-radius: var(--radius-md);
-  padding: 7px 14px;
-  text-align: center;
-  min-width: 60px;
-  border: 1px solid rgba(255,255,255,0.08);
-}
-
-.event-date-day { font-size: 1.15rem; font-weight: 700; line-height: 1; color: white; }
-.event-date-month { font-size: 0.6rem; text-transform: uppercase; opacity: 0.75; color: white; letter-spacing: 0.04em; }
-
-.event-body { padding: 20px; }
-
-.event-title {
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--forest);
-  margin-bottom: 7px;
-  line-height: 1.3;
-}
-
-.event-lieu {
-  font-size: 0.74rem;
-  color: var(--muted);
-  margin-bottom: 16px;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.event-progress { margin-bottom: 14px; }
-
-.progress-bar {
-  height: 5px;
-  background: rgba(26,53,40,0.07);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  margin-bottom: 8px;
-}
-
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--moss), var(--sage-light));
-  border-radius: var(--radius-full);
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.progress-stats {
+  border-radius: 16px;
+  padding: 18px 22px;
+  color: white;
+  margin-bottom: 12px;
   display: flex;
   justify-content: space-between;
-  font-size: 0.68rem;
-  color: var(--muted);
-}
-
-.event-details-mini {
-  display: flex;
-  gap: 16px;
-  padding: 10px 0;
-  font-size: 0.7rem;
-  color: var(--muted);
-  border-top: 1px solid var(--border);
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 14px;
-}
-
-.event-details-mini span { display: flex; align-items: center; gap: 5px; }
-
-.event-actions { display: flex; gap: 10px; }
-.event-actions button { flex: 1; }
-
-.btn-subscribe {
-  background: linear-gradient(135deg, var(--forest), var(--moss));
-  color: white;
-  border: none;
-  padding: 9px 16px;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-family: 'DM Sans', sans-serif;
 }
+.coupon-code { font-family: 'Playfair Display', serif; font-size: 1.2rem; font-weight: 700; }
+.coupon-disc { font-size: .75rem; opacity: .65; margin-top: 3px; }
+.coupon-pct { font-family: 'Playfair Display', serif; font-size: 2rem; font-weight: 900; color: var(--sand); }
 
-.btn-subscribe:hover:not(:disabled) {
-  transform: translateY(-1px);
-  box-shadow: 0 4px 14px rgba(26,53,40,0.25);
-}
+/* ── PROGRESS ── */
+.prog-bar { height: 7px; background: rgba(30,58,47,.08); border-radius: 4px; overflow: hidden; margin: 6px 0; }
+.prog-fill { height: 100%; border-radius: 4px; background: linear-gradient(to right, var(--moss), var(--sage)); }
 
-.btn-subscribe:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.btn-details {
-  background: transparent;
-  color: var(--forest);
-  border: 1.5px solid var(--border-dark);
-  padding: 9px 14px;
-  border-radius: var(--radius-md);
-  font-weight: 600;
-  font-size: 0.75rem;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-family: 'DM Sans', sans-serif;
-}
-
-.btn-details:hover { background: rgba(26,53,40,0.04); border-color: var(--moss); }
-
-/* ================================================
-   GALLERY
-   ================================================ */
-.gallery-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-
-.gal-item {
-  border-radius: var(--radius-lg);
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  border: 1px solid var(--border);
-  background: white;
-  box-shadow: var(--shadow-sm);
-}
-
-.gal-item:hover { transform: translateY(-5px); box-shadow: var(--shadow-lg); }
-
-.gal-img {
-  height: 138px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 2.8rem;
-  position: relative;
-  transition: transform 0.4s ease;
-  overflow: hidden;
-}
-
-.gal-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(26,53,40,0);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  transition: all 0.3s ease;
-  opacity: 0;
-}
-
-.gal-item:hover .gal-overlay { background: rgba(26,53,40,0.45); opacity: 1; }
-
-.gal-overlay-btn {
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  background: rgba(255,255,255,0.9);
-  border: none;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  color: var(--forest);
-  transition: transform 0.2s;
-  transform: translateY(8px);
-}
-
-.gal-item:hover .gal-overlay-btn { transform: translateY(0); }
-
-.gal-heart {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background: rgba(255,255,255,0.95);
-  border-radius: 50%;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  cursor: pointer;
-  border: none;
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
-  color: var(--danger);
-  z-index: 1;
-}
-
-.gal-heart:hover { transform: scale(1.2); }
-
-.gal-info { padding: 14px; }
-.gal-name { font-size: 0.85rem; font-weight: 700; color: var(--forest); }
-.gal-cat {
-  font-size: 0.68rem;
-  color: var(--muted);
-  margin-top: 4px;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.gal-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: 10px;
-}
-
-/* ================================================
-   DONATIONS
-   ================================================ */
-.don-row {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 13px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.don-row:last-child { border-bottom: none; }
-
-.don-av {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.9rem;
-  font-weight: 700;
-  color: white;
-  flex-shrink: 0;
-}
-
-.don-coll { font-weight: 600; color: var(--forest); flex: 1; font-size: 0.88rem; }
-.don-date { font-size: 0.7rem; color: var(--muted); }
-.don-amount { font-weight: 700; color: var(--moss); font-size: 0.9rem; }
-
-.don-status {
-  padding: 3px 10px;
-  border-radius: var(--radius-full);
-  font-size: 0.63rem;
-  font-weight: 700;
-  letter-spacing: 0.03em;
-}
-
-.status-confirmed { background: var(--success-light); color: var(--success); }
-.status-pending { background: var(--warning-light); color: #b45309; }
-
-/* ================================================
-   COUPONS (STYLE TICKET)
-   ================================================ */
-.coupon-card {
-  border-radius: var(--radius-lg);
-  padding: 0;
-  color: white;
-  margin-bottom: 14px;
-  display: flex;
-  overflow: hidden;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  box-shadow: var(--shadow-md);
-  position: relative;
-}
-
-.coupon-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-xl); }
-
-.coupon-left {
-  flex: 1;
-  padding: 22px 24px;
-  background: linear-gradient(135deg, var(--forest), var(--moss));
-  position: relative;
-}
-
-.coupon-left::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  right: -14px;
-  transform: translateY(-50%);
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--bg);
-  z-index: 2;
-}
-
-.coupon-code {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.25rem;
-  font-weight: 800;
-  letter-spacing: 2px;
-  margin-bottom: 6px;
-}
-
-.coupon-desc { font-size: 0.72rem; opacity: 0.6; }
-
-.coupon-dashed {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 1px;
-  border-right: 2px dashed rgba(255,255,255,0.2);
-}
-
-.coupon-right {
-  width: 90px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: linear-gradient(135deg, var(--moss), var(--sage));
-  padding: 16px 12px;
-}
-
-.coupon-pct {
-  font-family: 'Playfair Display', serif;
-  font-size: 2.2rem;
-  font-weight: 900;
-  color: var(--sand-light);
-  line-height: 1;
-}
-
-.coupon-off { font-size: 0.65rem; opacity: 0.7; margin-top: 4px; font-weight: 600; }
-
-.coupon-copy-hint {
-  font-size: 0.65rem;
-  color: rgba(255,255,255,0.45);
-  margin-top: 8px;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* ================================================
-   PROGRESS BAR (COLLECTIONS)
-   ================================================ */
-.prog-bar {
-  height: 8px;
-  background: rgba(26,53,40,0.08);
-  border-radius: var(--radius-full);
-  overflow: hidden;
-  margin: 10px 0;
-  position: relative;
-}
-
-.prog-fill {
-  height: 100%;
-  border-radius: var(--radius-full);
-  background: linear-gradient(90deg, var(--moss), var(--sage-light));
-  position: relative;
-}
-
-.prog-fill::after {
-  content: '';
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 6px;
-  background: rgba(255,255,255,0.5);
-  border-radius: 50%;
-  animation: prog-shimmer 2s ease infinite;
-}
-
-@keyframes prog-shimmer {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
-}
-
-/* ================================================
-   PROFILE
-   ================================================ */
+/* ── PROFILE SECTION ── */
 .profile-hero {
-  background: linear-gradient(135deg, var(--forest) 0%, #2A5240 60%, var(--moss) 100%);
-  border-radius: var(--radius-2xl);
-  padding: 40px;
+  background: linear-gradient(135deg, var(--forest), var(--moss));
+  border-radius: 22px;
+  padding: 36px;
   color: white;
   display: flex;
   align-items: center;
-  gap: 32px;
-  margin-bottom: 28px;
-  position: relative;
-  overflow: hidden;
-}
-
-.profile-hero::before {
-  content: '';
-  position: absolute;
-  right: -80px;
-  top: -80px;
-  width: 280px;
-  height: 280px;
-  border-radius: 50%;
-  background: rgba(122,158,126,0.12);
+  gap: 28px;
+  margin-bottom: 24px;
 }
 
 .profile-avatar-lg {
-  width: 100px;
-  height: 100px;
+  width: 90px; height: 90px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--sage), rgba(255,255,255,0.25));
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: linear-gradient(135deg, var(--sage), rgba(255,255,255,.3));
+  display: flex; align-items: center; justify-content: center;
   font-family: 'Playfair Display', serif;
-  font-size: 2.5rem;
+  font-size: 2.4rem;
   font-weight: 700;
   color: white;
-  border: 3px solid rgba(255,255,255,0.25);
+  border: 3px solid rgba(255,255,255,.3);
   flex-shrink: 0;
-  position: relative;
-  z-index: 1;
 }
-
-.profile-info { position: relative; z-index: 1; }
 
 .profile-info .profile-name {
   font-family: 'Playfair Display', serif;
-  font-size: 1.8rem;
+  font-size: 1.7rem;
   font-weight: 700;
-  line-height: 1.2;
 }
 
-.profile-info .profile-email {
-  font-size: 0.85rem;
-  opacity: 0.55;
-  margin-top: 6px;
-}
-
-.profile-badge {
+.profile-info .profile-email { font-size: .85rem; opacity: .6; margin-top: 4px; }
+.profile-info .profile-badge {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  margin-top: 12px;
-  padding: 5px 14px;
-  background: rgba(255,255,255,0.1);
-  border-radius: var(--radius-full);
-  font-size: 0.73rem;
+  gap: 5px;
+  margin-top: 10px;
+  padding: 4px 12px;
+  background: rgba(255,255,255,.12);
+  border-radius: 50px;
+  font-size: .75rem;
   font-weight: 600;
-  border: 1px solid rgba(255,255,255,0.13);
+  border: 1px solid rgba(255,255,255,.15);
 }
-
-.profile-badge i { color: var(--sand); }
 
 .profile-stats-strip {
   margin-left: auto;
   display: flex;
-  gap: 14px;
-  position: relative;
-  z-index: 1;
+  gap: 20px;
 }
 
 .pstrip-stat {
   text-align: center;
   padding: 14px 18px;
-  background: rgba(255,255,255,0.08);
-  border-radius: var(--radius-lg);
-  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,.09);
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,.1);
 }
 
-.pstrip-val { font-family: 'Playfair Display', serif; font-size: 1.5rem; font-weight: 700; }
-.pstrip-lbl { font-size: 0.63rem; opacity: 0.55; margin-top: 4px; }
-
-/* ================================================
-   BUTTONS
-   ================================================ */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 10px 22px;
-  border-radius: var(--radius-lg);
-  font-size: 0.85rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  border: none;
-  font-family: 'DM Sans', sans-serif;
+.pstrip-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, var(--forest), var(--moss));
-  color: white;
-  box-shadow: 0 2px 8px rgba(26,53,40,0.18);
-}
+.pstrip-lbl { font-size: .68rem; opacity: .55; margin-top: 3px; }
 
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 18px rgba(26,53,40,0.24);
-}
-
-.btn-secondary {
-  background: linear-gradient(135deg, var(--sand), #c4993e);
-  color: var(--forest);
-  box-shadow: 0 2px 8px rgba(201,164,85,0.2);
-}
-
-.btn-secondary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 16px rgba(201,164,85,0.3);
-}
-
-.btn-outline {
-  background: transparent;
-  color: var(--forest);
-  border: 1.5px solid var(--border-dark);
-}
-
-.btn-outline:hover {
-  border-color: var(--moss);
-  background: rgba(58,99,71,0.05);
-  transform: translateY(-1px);
-}
-
-.btn-sm { padding: 6px 14px; font-size: 0.75rem; gap: 6px; border-radius: var(--radius-md); }
-.btn-lg { padding: 13px 28px; font-size: 0.92rem; }
-.btn-full { width: 100%; justify-content: center; }
-
-/* ================================================
-   FORM FIELDS
-   ================================================ */
-.field-group { display: flex; flex-direction: column; gap: 6px; }
-
-.field-group label {
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: var(--forest);
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.field-group input,
-.field-group select,
-.field-group textarea {
-  padding: 12px 16px;
+/* ── FORM FIELDS ── */
+.field-group { display: flex; flex-direction: column; gap: 5px; }
+.field-group label { font-size: .76rem; font-weight: 600; color: var(--forest); }
+.field-group input, .field-group select {
+  padding: 11px 14px;
   border: 1.5px solid var(--border);
-  border-radius: var(--radius-md);
+  border-radius: 10px;
   font-family: 'DM Sans', sans-serif;
-  font-size: 0.85rem;
+  font-size: .86rem;
   outline: none;
   background: var(--bg);
-  color: var(--dark-soft);
-  transition: all 0.2s ease;
+  color: var(--dark);
+  transition: border-color .2s;
 }
+.field-group input:focus, .field-group select:focus { border-color: var(--moss); }
 
-.field-group input:focus,
-.field-group select:focus,
-.field-group textarea:focus {
-  border-color: var(--moss);
-  background: white;
-  box-shadow: 0 0 0 3px rgba(58,99,71,0.1);
-}
+/* ── BTNS ── */
+.btn { padding: 9px 20px; border-radius: 10px; font-size: .82rem; font-weight: 600; cursor: pointer; transition: all .2s; border: none; font-family: 'DM Sans', sans-serif; }
+.btn-primary { background: var(--forest); color: white; }
+.btn-primary:hover { background: var(--moss); }
+.btn-outline { background: transparent; color: var(--forest); border: 1.5px solid var(--border); }
+.btn-outline:hover { border-color: var(--forest); }
+.btn-sm { padding: 7px 16px; border-radius: 8px; font-size: .78rem; }
 
-/* ================================================
-   MODALS
-   ================================================ */
-.modal-overlay {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.65);
-  backdrop-filter: blur(10px);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
-  opacity: 0;
-  visibility: hidden;
-  transition: all 0.3s ease;
-}
-
-.modal-overlay.active { display: flex; opacity: 1; visibility: visible; }
-
-.modal-content {
-  background: white;
-  border-radius: var(--radius-2xl);
-  width: 90%;
-  max-width: 500px;
-  max-height: 88vh;
-  overflow-y: auto;
-  animation: modalIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  box-shadow: var(--shadow-xl);
-}
-
-@keyframes modalIn {
-  from { opacity: 0; transform: translateY(-32px) scale(0.96); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-.modal-header {
-  padding: 24px 28px;
-  border-bottom: 1px solid var(--border);
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  background: linear-gradient(135deg, rgba(26,53,40,0.03), transparent);
-}
-
-.modal-header h3 {
+/* ── SECTION HEADING ── */
+.section-heading {
   font-family: 'Playfair Display', serif;
+  font-size: 1.45rem;
+  font-weight: 700;
   color: var(--forest);
-  font-size: 1.15rem;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  margin-bottom: 6px;
 }
 
-.modal-header h3 i { color: var(--moss); }
+.section-sub { font-size: .84rem; color: var(--muted); margin-bottom: 28px; }
 
-.modal-close {
-  background: rgba(26,53,40,0.06);
-  border: none;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  font-size: 0.9rem;
-  cursor: pointer;
-  color: var(--muted);
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.modal-close:hover { background: rgba(239,68,68,0.1); color: var(--danger); }
-
-.modal-body { padding: 28px; }
-.modal-footer {
-  padding: 20px 28px;
-  border-top: 1px solid var(--border);
-  display: flex;
-  gap: 12px;
-  justify-content: flex-end;
-}
-
-/* ================================================
-   TOAST
-   ================================================ */
+/* ── TOAST ── */
 .toast {
   position: fixed;
-  bottom: 30px;
-  right: 30px;
+  bottom: 28px; right: 28px;
   background: var(--forest);
   color: white;
   padding: 13px 22px;
-  border-radius: var(--radius-lg);
-  font-size: 0.85rem;
+  border-radius: 13px;
+  font-size: .84rem;
   font-weight: 600;
   z-index: 9999;
   transform: translateY(80px);
   opacity: 0;
-  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-  box-shadow: var(--shadow-xl);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  max-width: 340px;
-  border-left: 3px solid var(--sage);
+  transition: all .3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events: none;
+  box-shadow: var(--shadow-lg);
 }
-
 .toast.show { transform: translateY(0); opacity: 1; }
-.toast.error { background: var(--danger); border-left-color: #f87171; }
-.toast.warning { background: var(--warning); color: var(--dark); border-left-color: #fcd34d; }
-.toast.info { background: var(--info); border-left-color: #93c5fd; }
 
-/* ================================================
-   EMPTY STATE & LOADING
-   ================================================ */
-.empty-state {
-  text-align: center;
-  padding: 70px 20px;
-  color: var(--muted);
-}
+/* ── EMPTY STATE ── */
+.empty-state { text-align: center; padding: 56px 0; color: var(--muted); }
+.empty-state .e-icon { font-size: 3.2rem; margin-bottom: 14px; }
+.empty-state p { font-size: .86rem; line-height: 1.6; }
 
-.empty-state .e-icon {
-  font-size: 3.5rem;
-  margin-bottom: 18px;
-  opacity: 0.35;
-}
-
-.empty-state h4 {
-  font-family: 'Playfair Display', serif;
-  color: var(--forest);
-  font-size: 1.15rem;
-  margin-bottom: 8px;
-}
-
-.empty-state p { font-size: 0.85rem; line-height: 1.7; max-width: 340px; margin: 0 auto; }
-
-.loading-spinner { text-align: center; padding: 60px; color: var(--muted); }
-
-.spinner {
-  width: 40px;
-  height: 40px;
-  border: 3px solid var(--border);
-  border-top-color: var(--moss);
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
-  margin: 0 auto 14px;
-}
-
-@keyframes spin { to { transform: rotate(360deg); } }
-
-/* ================================================
-   HOW IT WORKS
-   ================================================ */
-.how-step {
-  display: flex;
-  gap: 16px;
-  align-items: flex-start;
-}
-
-.how-step-icon {
-  width: 42px;
-  height: 42px;
-  border-radius: var(--radius-lg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.15rem;
-  flex-shrink: 0;
-}
-
-.how-step-text strong {
-  display: block;
-  font-weight: 700;
-  color: var(--forest);
-  font-size: 0.9rem;
-  margin-bottom: 3px;
-}
-
-.how-step-text span { font-size: 0.8rem; color: var(--muted); line-height: 1.55; }
-
-/* ================================================
-   FOOTER
-   ================================================ */
+/* ── FOOTER ── */
 footer {
-  background: linear-gradient(135deg, var(--forest), #1A3230);
-  color: rgba(255,255,255,0.4);
-  padding: 40px;
-  margin-top: 0;
+  background: var(--forest);
+  color: rgba(255,255,255,.5);
   text-align: center;
+  padding: 28px 40px;
+  font-size: .78rem;
 }
 
-.footer-logo {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.2rem;
-  font-weight: 800;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  margin-bottom: 10px;
-}
+footer span { color: var(--sage); font-weight: 600; }
 
-.footer-logo i { color: var(--sage); }
-
-.footer-sub { font-size: 0.75rem; color: rgba(255,255,255,0.38); }
-
-.footer-links {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
-.footer-links a {
-  font-size: 0.73rem;
-  color: rgba(255,255,255,0.35);
-  text-decoration: none;
-  transition: color 0.2s;
-}
-
-.footer-links a:hover { color: var(--sage); }
-
-.footer-divider {
-  width: 40px;
-  height: 1px;
-  background: rgba(255,255,255,0.1);
-  margin: 20px auto;
-}
-
-/* ================================================
-   RESPONSIVE
-   ================================================ */
-@media (max-width: 1024px) {
-  .grid-4 { grid-template-columns: repeat(2, 1fr); }
-  .grid-3 { grid-template-columns: repeat(2, 1fr); }
-  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
-  .events-stats { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (max-width: 768px) {
+/* ── RESPONSIVE ── */
+@media (max-width: 900px) {
   .navbar { padding: 0 20px; }
-  .nav-links { display: none; }
-  .nav-hamburger { display: flex; }
-
-  .hero-strip { padding: 44px 20px 70px; }
-  .hero-inner { flex-direction: column; align-items: flex-start; gap: 28px; }
-  .hero-greeting { font-size: 1.8rem; }
-  .hero-stats { flex-wrap: wrap; gap: 10px; width: 100%; }
-  .hero-stat { flex: 1; min-width: calc(50% - 5px); }
-
-  .section-tabs { padding: 0 20px; }
-  .page-section { padding: 36px 20px 80px; }
-
-  .grid-4, .grid-3 { grid-template-columns: 1fr; }
+  .section-tabs { padding: 0 20px; overflow-x: auto; }
+  .page-section { padding: 28px 20px 60px; }
+  .hero-strip { padding: 36px 20px 40px; }
+  .hero-inner { flex-direction: column; gap: 24px; align-items: flex-start; }
+  .hero-stats { flex-wrap: wrap; gap: 12px; }
+  .grid-4 { grid-template-columns: repeat(2, 1fr); }
   .grid-2 { grid-template-columns: 1fr; }
   .grid-3-2 { grid-template-columns: 1fr; }
-  .gallery-grid { grid-template-columns: 1fr; }
-  .events-grid { grid-template-columns: 1fr; }
-  .events-stats { grid-template-columns: repeat(2, 1fr); }
-
-  .profile-hero { flex-direction: column; text-align: center; padding: 28px; }
-  .profile-stats-strip { margin-left: 0; justify-content: center; flex-wrap: wrap; }
-
-  .toast { bottom: 18px; right: 18px; left: 18px; max-width: none; justify-content: center; }
+  .grid-3 { grid-template-columns: repeat(2, 1fr); }
+  .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+  .profile-hero { flex-direction: column; gap: 20px; }
+  .profile-stats-strip { margin-left: 0; }
+  .nav-links { display: none; }
 }
-
-@media (max-width: 480px) {
-  .hero-greeting { font-size: 1.5rem; }
-  .events-stats { grid-template-columns: repeat(2, 1fr); gap: 10px; }
-  .hero-stat { padding: 12px 14px; }
-}
-
-/* ================================================
-   MOBILE MENU
-   ================================================ */
-.mobile-nav {
-  display: none;
-  position: fixed;
-  inset: 0;
-  z-index: 300;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(4px);
-}
-
-.mobile-nav.open { display: block; }
-
-.mobile-nav-panel {
-  position: absolute;
-  right: 0;
-  top: 0;
-  bottom: 0;
-  width: 280px;
-  background: white;
-  padding: 24px 0;
-  overflow-y: auto;
-  animation: slideInRight 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-@keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
-}
-
-.mobile-nav-close {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: var(--muted);
-}
-
-.mobile-nav-logo {
-  padding: 0 24px 20px;
-  font-family: 'Playfair Display', serif;
-  font-size: 1.25rem;
-  font-weight: 800;
-  color: var(--forest);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  border-bottom: 1px solid var(--border);
-  margin-bottom: 12px;
-}
-
-.mobile-nav-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 24px;
-  color: var(--muted);
-  font-size: 0.9rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.mobile-nav-item:hover { color: var(--forest); background: rgba(26,53,40,0.04); }
-.mobile-nav-item.active { color: var(--moss); font-weight: 700; background: rgba(58,99,71,0.06); }
-.mobile-nav-item i { width: 20px; text-align: center; font-size: 1rem; }
-
-/* ================================================
-   UPCOMING EVENTS PREVIEW
-   ================================================ */
-.upcoming-item {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
-}
-
-.upcoming-item:last-child { border-bottom: none; }
-
-.upcoming-date-box {
-  width: 46px;
-  height: 46px;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--forest), var(--moss));
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  color: white;
-}
-
-.upcoming-day { font-family: 'Playfair Display', serif; font-size: 1.1rem; font-weight: 700; line-height: 1; }
-.upcoming-mon { font-size: 0.55rem; text-transform: uppercase; opacity: 0.7; letter-spacing: 0.04em; }
-
-.upcoming-info { flex: 1; min-width: 0; }
-.upcoming-title { font-weight: 700; font-size: 0.85rem; color: var(--forest); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.upcoming-lieu { font-size: 0.72rem; color: var(--muted); margin-top: 2px; }
-
-/* ================================================
-   PARTICIPATION CARDS (modal)
-   ================================================ */
-.part-card {
-  background: var(--bg-secondary);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-xl);
-  padding: 18px 20px;
-  margin-bottom: 14px;
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-}
-
-.part-card::before {
-  content: '';
-  position: absolute;
-  left: 0; top: 0; bottom: 0;
-  width: 4px;
-  background: linear-gradient(180deg, var(--moss), var(--sage));
-  border-radius: 4px 0 0 4px;
-}
-
-.part-card:hover {
-  box-shadow: var(--shadow-md);
-  border-color: rgba(58,99,71,0.2);
-  background: white;
-}
-
-.part-date-box {
-  width: 52px;
-  height: 52px;
-  flex-shrink: 0;
-  border-radius: var(--radius-md);
-  background: linear-gradient(135deg, var(--forest), var(--moss));
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  color: white;
-}
-
-.part-date-day {
-  font-family: 'Playfair Display', serif;
-  font-size: 1.2rem;
-  font-weight: 700;
-  line-height: 1;
-}
-
-.part-date-mon {
-  font-size: 0.55rem;
-  text-transform: uppercase;
-  opacity: 0.75;
-  letter-spacing: 0.04em;
-  margin-top: 2px;
-}
-
-.part-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.part-title {
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--forest);
-  margin-bottom: 6px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.part-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  font-size: 0.75rem;
-  color: var(--muted);
-  margin-bottom: 10px;
-}
-
-.part-meta span {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.part-meta i { color: var(--moss); }
-
-.part-details-row {
-  display: flex;
-  gap: 16px;
-  font-size: 0.78rem;
-}
-
-.part-detail-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 3px 10px;
-  border-radius: var(--radius-full);
-  background: rgba(58,99,71,0.08);
-  color: var(--moss);
-  font-weight: 600;
-}
-
-.part-actions {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  flex-shrink: 0;
-}
-
-.part-empty {
-  text-align: center;
-  padding: 50px 20px;
-  color: var(--muted);
-}
-
-.part-empty-icon {
-  font-size: 3rem;
-  margin-bottom: 14px;
-  opacity: 0.3;
-}
-
-.part-empty h4 {
-  font-family: 'Playfair Display', serif;
-  color: var(--forest);
-  font-size: 1.05rem;
-  margin-bottom: 6px;
-}
-
-.part-empty p {
-  font-size: 0.82rem;
-  line-height: 1.65;
-}
-
-/* Filtres participations */
-.part-filter-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 13px;
-  border-radius: var(--radius-full);
-  font-size: 0.75rem;
-  font-weight: 600;
-  cursor: pointer;
-  border: 1.5px solid var(--border-dark);
-  background: white;
-  color: var(--muted);
-  font-family: 'DM Sans', sans-serif;
-  transition: all 0.2s ease;
-  white-space: nowrap;
-}
-.part-filter-btn:hover {
-  border-color: var(--moss);
-  color: var(--forest);
-  background: rgba(58,99,71,0.05);
-}
-.part-filter-btn.active {
-  background: var(--forest);
-  color: white;
-  border-color: var(--forest);
-  box-shadow: 0 2px 8px rgba(26,53,40,0.2);
-}
-
-/* ================================================
-   SECTION INTRO PILL
-   ================================================ */
-.section-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 12px;
-  background: rgba(58,99,71,0.08);
-  border: 1px solid rgba(58,99,71,0.15);
-  border-radius: var(--radius-full);
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--moss);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-}
-
-/* Animation stagger for cards */
-.stat-card:nth-child(1) { animation-delay: 0.05s; }
-.stat-card:nth-child(2) { animation-delay: 0.1s; }
-.stat-card:nth-child(3) { animation-delay: 0.15s; }
-.stat-card:nth-child(4) { animation-delay: 0.2s; }
-
-@keyframes cardIn {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-.animate-in { animation: cardIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both; }
 </style>
 </head>
 <body>
 
-<!-- ══ MOBILE NAV ══ -->
-<div class="mobile-nav" id="mobileNav" onclick="closeMobileNav(event)">
-  <div class="mobile-nav-panel">
-    <button class="mobile-nav-close" onclick="closeMobileNavDirect()"><i class="fas fa-times"></i></button>
-    <div class="mobile-nav-logo"><i class="fas fa-leaf" style="color:var(--sage)"></i> Loopi</div>
-    <div class="mobile-nav-item active" onclick="showSection('accueil',this);closeMobileNavDirect()"><i class="fas fa-chart-line"></i> Tableau de bord</div>
-    <div class="mobile-nav-item" onclick="showSection('galerie',this);closeMobileNavDirect()"><i class="fas fa-palette"></i> Galerie</div>
-    <div class="mobile-nav-item" onclick="showSection('evenements',this);closeMobileNavDirect()"><i class="fas fa-calendar-alt"></i> Événements</div>
-    <div class="mobile-nav-item" onclick="showSection('collections',this);closeMobileNavDirect()"><i class="fas fa-recycle"></i> Collections</div>
-    <div class="mobile-nav-item" onclick="showSection('dons',this);closeMobileNavDirect()"><i class="fas fa-hand-holding-heart"></i> Dons</div>
-    <div class="mobile-nav-item" onclick="showSection('coupons',this);closeMobileNavDirect()"><i class="fas fa-ticket-alt"></i> Coupons</div>
-    <div class="mobile-nav-item" onclick="showSection('profil',this);closeMobileNavDirect()"><i class="fas fa-user-circle"></i> Profil</div>
-  </div>
-</div>
-
 <!-- ══ NAVBAR ══ -->
 <nav class="navbar">
-  <a href="#" class="nav-logo">
-    <div class="logo-icon"><i class="fas fa-leaf"></i></div>
-    Loopi
-  </a>
+  <a href="#" class="nav-logo"><span class="leaf"></span> Loopi</a>
 
   <ul class="nav-links">
-    <li><a href="#" class="active" onclick="showSection('accueil',this);return false"><i class="fas fa-home"></i> Accueil</a></li>
-    <li><a href="#" onclick="showSection('galerie',this);return false"><i class="fas fa-palette"></i> Galerie</a></li>
-    <li><a href="#" onclick="showSection('evenements',this);return false"><i class="fas fa-calendar-alt"></i> Événements</a></li>
-    <li><a href="#" onclick="showSection('collections',this);return false"><i class="fas fa-recycle"></i> Collections</a></li>
-    <li><a href="#" onclick="showSection('dons',this);return false"><i class="fas fa-hand-holding-heart"></i> Dons</a></li>
-    <li><a href="#" onclick="showSection('coupons',this);return false"><i class="fas fa-ticket-alt"></i> Coupons</a></li>
-    <li><a href="#" onclick="showSection('profil',this);return false"><i class="fas fa-user"></i> Profil</a></li>
+    <li><a href="#" class="active" onclick="showSection('accueil',this)">🏠 Accueil</a></li>
+    <li><a href="#" onclick="showSection('galerie',this)">🎨 Galerie</a></li>
+    <li><a href="#" onclick="showSection('evenements',this)">📅 Événements</a></li>
+    <li><a href="#" onclick="showSection('collections',this)">♻️ Collections</a></li>
+    <li><a href="#" onclick="showSection('dons',this)">🤝 Mes dons</a></li>
+    <li><a href="#" onclick="showSection('leaderboard',this)">🏆 Classement</a></li>
+    <li><a href="#" onclick="showSection('profil',this)">👤 Profil</a></li>
   </ul>
 
   <div class="nav-right">
-    <div class="notif-btn" onclick="showToast('2 nouvelles notifications', 'info')">
-      <i class="fas fa-bell"></i>
-      <span class="notif-dot"></span>
-    </div>
-    <div class="nav-avatar" id="navAvatar" onclick="showSection('profil', document.querySelector('[onclick*=profil]'))">P</div>
-    <button class="btn-donate" onclick="showSection('collections', document.querySelector('[onclick*=collections]'))">
-      <i class="fas fa-leaf"></i> Faire un don
-    </button>
-    <button class="nav-hamburger" onclick="openMobileNav()"><i class="fas fa-bars"></i></button>
+    <div class="notif-btn" onclick="showToast('2 nouvelles notifications')">🔔<span class="notif-dot"></span></div>
+    <div class="nav-avatar" onclick="showSection('profil', document.querySelector('[onclick*=profil]'))">T</div>
+    <button class="btn-donate" onclick="showSection('collections', document.querySelector('[onclick*=collections]'))">♻️ Faire un don</button>
   </div>
 </nav>
 
 <!-- ══ HERO STRIP ══ -->
 <div class="hero-strip">
-  <div class="hero-bg-pattern"></div>
   <div class="hero-inner">
-    <div class="hero-left">
-      <div class="hero-tag"><i class="fas fa-leaf"></i> Espace Participant</div>
-      <div class="hero-greeting" id="heroGreeting">Bonjour, <em>Participant</em> <i class="fas fa-hand-peace"></i></div>
-      <div class="hero-sub" id="heroSub">Voici un aperçu de votre activité sur Loopi</div>
+    <div>
+      <div class="hero-greeting">Bonjour, Test 👋</div>
+      <div class="hero-sub">Voici un aperçu de votre activité sur Loopi · Avril 2026</div>
     </div>
-    <div class="hero-stats" id="heroStats">
-      <div class="hero-stat">
-        <div class="hero-stat-val" id="heroFavCount">8</div>
-        <div class="hero-stat-lbl"><i class="fas fa-heart"></i> Favoris</div>
+    <div class="hero-stats">
+      <div class="hero-stat" style="cursor:pointer" onclick="showSection('galerie',null)">
+        <div class="hero-stat-val">8</div>
+        <div class="hero-stat-lbl">Favoris</div>
       </div>
-      <div class="hero-stat">
-        <div class="hero-stat-val" id="heroKgCount">32.8</div>
-        <div class="hero-stat-lbl"><i class="fas fa-weight-hanging"></i> kg donnés</div>
+      <div class="hero-stat" style="cursor:pointer" onclick="showSection('dons',null)">
+        <div class="hero-stat-val">32.8 kg</div>
+        <div class="hero-stat-lbl">Donnés</div>
       </div>
-      <div class="hero-stat">
-        <div class="hero-stat-val" id="heroEventsCount">2</div>
-        <div class="hero-stat-lbl"><i class="fas fa-calendar-check"></i> Événements</div>
+      <div class="hero-stat" style="cursor:pointer" onclick="showSection('evenements',null)">
+        <div class="hero-stat-val">2</div>
+        <div class="hero-stat-lbl">Événements</div>
       </div>
-      <div class="hero-stat">
-        <div class="hero-stat-val" id="heroCouponsCount">2</div>
-        <div class="hero-stat-lbl"><i class="fas fa-tag"></i> Coupons</div>
+      <div class="hero-stat" style="cursor:pointer" onclick="showSection('leaderboard',null)">
+        <div class="hero-stat-val" id="heroMyRank">--</div>
+        <div class="hero-stat-lbl">Rang Global</div>
       </div>
     </div>
-  </div>
-  <!-- Wave divider -->
-  <div class="hero-wave">
-    <svg viewBox="0 0 1440 48" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,48 L0,28 C180,48 360,8 540,20 C720,32 900,48 1080,38 C1260,28 1350,14 1440,20 L1440,48 Z" fill="#F4F2ED"/>
-    </svg>
   </div>
 </div>
 
-<!-- ══ SECTION TABS ══ -->
-<div class="section-tabs-wrap">
-  <div class="section-tabs">
-    <button class="stab active" onclick="showSection('accueil',this)"><i class="fas fa-chart-line"></i> Tableau de bord</button>
-    <button class="stab" onclick="showSection('galerie',this)"><i class="fas fa-palette"></i> Galerie</button>
-    <button class="stab" onclick="showSection('evenements',this)"><i class="fas fa-calendar-alt"></i> Événements</button>
-    <button class="stab" onclick="showSection('collections',this)"><i class="fas fa-recycle"></i> Collections</button>
-    <button class="stab" onclick="showSection('dons',this)"><i class="fas fa-hand-holding-heart"></i> Dons</button>
-    <button class="stab" onclick="showSection('coupons',this)"><i class="fas fa-ticket-alt"></i> Coupons</button>
-    <button class="stab" onclick="showSection('profil',this)"><i class="fas fa-user-circle"></i> Profil</button>
-  </div>
+<!-- ══ SECTION TABS (mobile-friendly) ══ -->
+<div class="section-tabs">
+  <button class="stab active" onclick="showSection('accueil',this)">🏠 Tableau de bord</button>
+  <button class="stab" onclick="showSection('galerie',this)">🎨 Galerie</button>
+  <button class="stab" onclick="showSection('evenements',this)">📅 Événements</button>
+  <button class="stab" onclick="showSection('collections',this)">♻️ Collections</button>
+  <button class="stab" onclick="showSection('dons',this)">🤝 Dons</button>
+  <button class="stab" onclick="showSection('leaderboard',this)">🏆 Classement</button>
+  <button class="stab" onclick="showSection('profil',this)">👤 Profil</button>
 </div>
 
-<!-- ════════════════════════════════════════ -->
-<!-- ACCUEIL / DASHBOARD                     -->
-<!-- ════════════════════════════════════════ -->
+<!-- ══════════════════════════════ -->
+<!-- ACCUEIL -->
+<!-- ══════════════════════════════ -->
 <section id="sec-accueil" class="page-section active">
-  <div class="section-header">
-    <div class="section-pill"><i class="fas fa-chart-pie"></i> Vue d'ensemble</div>
-    <div class="section-heading">Tableau de bord</div>
-    <div class="section-sub">Vos statistiques, galerie récente et prochains événements</div>
-  </div>
+  <div class="section-heading">Vue d'ensemble</div>
+  <div class="section-sub">Vos statistiques, galerie récente et prochains événements</div>
 
+  <!-- Stats row -->
   <div class="grid-4">
-    <div class="stat-card animate-in">
-      <div class="stat-card-inner">
-        <div class="stat-icon" style="background:rgba(176,90,47,0.1)"><i class="fas fa-heart" style="color:var(--rust)"></i></div>
-        <div class="stat-val" id="dashboardFavCount">8</div>
-        <div class="stat-lbl">Œuvres en favoris</div>
-        <div class="stat-trend trend-up"><i class="fas fa-arrow-up"></i> 2 cette semaine</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(61,107,79,.1)">❤️</div>
+      <div class="stat-val">8</div>
+      <div class="stat-lbl">Œuvres en favoris</div>
+      <div class="stat-trend trend-up">↑ 2 cette semaine</div>
     </div>
-    <div class="stat-card animate-in">
-      <div class="stat-card-inner">
-        <div class="stat-icon" style="background:rgba(201,164,85,0.12)"><i class="fas fa-recycle" style="color:var(--sand)"></i></div>
-        <div class="stat-val" id="dashboardKgCount">32.8</div>
-        <div class="stat-lbl">kg donnés au total</div>
-        <div class="stat-trend trend-up"><i class="fas fa-arrow-up"></i> 24.6 kg ce mois</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(201,169,110,.12)">🤝</div>
+      <div class="stat-val">32,8</div>
+      <div class="stat-lbl">kg donnés au total</div>
+      <div class="stat-trend trend-up">↑ 24.6 kg ce mois</div>
     </div>
-    <div class="stat-card animate-in">
-      <div class="stat-card-inner">
-        <div class="stat-icon" style="background:rgba(58,99,71,0.1)"><i class="fas fa-calendar-check" style="color:var(--moss)"></i></div>
-        <div class="stat-val" id="dashboardEventsCount">2</div>
-        <div class="stat-lbl">Événements rejoints</div>
-        <div class="stat-trend trend-neutral"><i class="fas fa-arrow-right"></i> Prochain: 15 juin</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(176,90,47,.1)">📅</div>
+      <div class="stat-val">2</div>
+      <div class="stat-lbl">Événements rejoints</div>
+      <div class="stat-trend trend-neu">→ Prochain: 15 juin</div>
     </div>
-    <div class="stat-card animate-in">
-      <div class="stat-card-inner">
-        <div class="stat-icon" style="background:rgba(59,130,246,0.1)"><i class="fas fa-ticket-alt" style="color:var(--info)"></i></div>
-        <div class="stat-val" id="dashboardCouponsCount">2</div>
-        <div class="stat-lbl">Coupons disponibles</div>
-        <div class="stat-trend trend-up"><i class="fas fa-tag"></i> ECO10 · GREEN15</div>
-      </div>
+    <div class="stat-card">
+      <div class="stat-icon" style="background:rgba(30,58,47,.07)">🎟️</div>
+      <div class="stat-val">2</div>
+      <div class="stat-lbl">Coupons disponibles</div>
+      <div class="stat-trend trend-up">ECO10 · GREEN15</div>
     </div>
   </div>
 
+  <!-- Gallery + Profile quick -->
   <div class="grid-3-2">
     <div class="card">
-      <div class="card-title">
-        <span><i class="fas fa-palette" style="color:var(--moss);margin-right:8px"></i>Galerie récente</span>
-        <a href="#" onclick="showSection('galerie',null);return false">Tout voir <i class="fas fa-arrow-right"></i></a>
-      </div>
-      <div class="gallery-grid" id="recentGallery">
-        <div class="loading-spinner"><div class="spinner"></div></div>
+      <div class="card-title">Galerie récente <a href="#" onclick="showSection('galerie',null)">Tout voir →</a></div>
+      <div class="gallery-grid">
+        <div class="gal-item">
+          <div class="gal-img" style="background:linear-gradient(135deg,#d4e8d4,#a8c8a8)">🪑<button class="gal-heart" onclick="toggleHeart(this)">❤️</button></div>
+          <div class="gal-info"><div class="gal-name">Chaise Artisanale</div><div class="gal-cat">Mobilier · Métal</div></div>
+        </div>
+        <div class="gal-item">
+          <div class="gal-img" style="background:linear-gradient(135deg,#e0f0f4,#a0c8d8)">🫙<button class="gal-heart" onclick="toggleHeart(this)">🤍</button></div>
+          <div class="gal-info"><div class="gal-name">Glass Artwork</div><div class="gal-cat">Installations · Verre</div></div>
+        </div>
+        <div class="gal-item">
+          <div class="gal-img" style="background:linear-gradient(135deg,#f0e8d4,#d8c090)">🍄<button class="gal-heart" onclick="toggleHeart(this)">🤍</button></div>
+          <div class="gal-info"><div class="gal-name">Mushrooms Sculpture</div><div class="gal-cat">Décoratif · Cuivre</div></div>
+        </div>
+        <div class="gal-item">
+          <div class="gal-img" style="background:linear-gradient(135deg,#ece4d8,#c8b898)">🪵<button class="gal-heart" onclick="toggleHeart(this)">❤️</button></div>
+          <div class="gal-info"><div class="gal-name">3D Mosaic</div><div class="gal-cat">Art mural · Bois</div></div>
+        </div>
+        <div class="gal-item">
+          <div class="gal-img" style="background:linear-gradient(135deg,#e8e0f0,#c0b0e0)">🐟<button class="gal-heart" onclick="toggleHeart(this)">🤍</button></div>
+          <div class="gal-info"><div class="gal-name">Tin Fish</div><div class="gal-cat">Décoratif · Étain</div></div>
+        </div>
+        <div class="gal-item">
+          <div class="gal-img" style="background:linear-gradient(135deg,#f0f4e0,#c8d8a0)">🎓<button class="gal-heart" onclick="toggleHeart(this)">🤍</button></div>
+          <div class="gal-info"><div class="gal-name">Esprit Étudiant</div><div class="gal-cat">Décoratif · Mixte</div></div>
+        </div>
       </div>
     </div>
 
     <div style="display:flex;flex-direction:column;gap:20px">
+      <!-- Profile quick -->
+      <div class="card" style="text-align:center;padding:28px 24px">
+        <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--sage),var(--moss));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:white;margin:0 auto 12px;border:3px solid var(--bg)">T</div>
+        <div style="font-family:'Playfair Display',serif;font-size:1.05rem;font-weight:700;color:var(--forest)">Test Participant</div>
+        <div style="font-size:.75rem;color:var(--muted);margin-top:2px">participant@loopi.tn</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0;margin-top:18px;border-top:1px solid var(--border);padding-top:14px">
+          <div style="text-align:center;padding:0 6px;border-right:1px solid var(--border);cursor:pointer" onclick="showSection('galerie',null)"><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest)">8</div><div style="font-size:.65rem;color:var(--muted)">Favoris</div></div>
+          <div style="text-align:center;padding:0 6px;border-right:1px solid var(--border);cursor:pointer" onclick="showSection('dons',null)"><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest)">3</div><div style="font-size:.65rem;color:var(--muted)">Dons</div></div>
+          <div style="text-align:center;padding:0 6px;cursor:pointer" onclick="showSection('evenements',null)"><div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest)">2</div><div style="font-size:.65rem;color:var(--muted)">Événements</div></div>
+        </div>
+      </div>
+      <!-- Coupons -->
       <div class="card">
-        <div class="card-title"><span><i class="fas fa-calendar-week" style="color:var(--moss);margin-right:8px"></i>Prochains événements</span></div>
-        <div id="upcomingEventsPreview"></div>
-      </div>
-      <div class="card">
-        <div class="card-title"><span><i class="fas fa-user-circle" style="color:var(--moss);margin-right:8px"></i>Mon profil</span></div>
-        <div style="text-align:center;padding:8px 0">
-          <div style="width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--sage),var(--moss));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:1.6rem;font-weight:700;color:white;margin:0 auto 14px;border:3px solid var(--bg);box-shadow:var(--shadow-md)" id="profileAvatar">P</div>
-          <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--forest)" id="profileName">Participant</div>
-          <div style="font-size:0.75rem;color:var(--muted);margin-top:4px" id="profileEmail">participant@loopi.tn</div>
-          <div style="margin-top:8px;display:inline-flex;align-items:center;gap:5px;padding:3px 10px;background:rgba(58,99,71,0.08);border-radius:var(--radius-full);font-size:0.68rem;font-weight:600;color:var(--moss)"><i class="fas fa-leaf"></i> Participant actif</div>
-          <br>
-          <button class="btn btn-outline btn-sm" style="margin-top:14px" onclick="showSection('profil',null)">
-            <i class="fas fa-edit"></i> Modifier mon profil
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════ -->
-<!-- GALERIE                                 -->
-<!-- ════════════════════════════════════════ -->
-<section id="sec-galerie" class="page-section">
-  <div class="section-header">
-    <div class="section-pill"><i class="fas fa-star"></i> Art recyclé</div>
-    <div class="section-heading"><i class="fas fa-palette"></i> Galerie d'Art</div>
-    <div class="section-sub">Toutes les œuvres créées par nos artistes partenaires</div>
-  </div>
-
-  <div class="card" style="margin-bottom:28px;padding:18px">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <div style="position:relative;flex:1;min-width:200px">
-        <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.85rem"></i>
-        <input type="text" id="gallerySearch" placeholder="Rechercher une œuvre…" oninput="filterGallery()"
-          style="padding:10px 12px 10px 40px;border:1.5px solid var(--border);border-radius:var(--radius-full);width:100%;font-family:'DM Sans';font-size:0.84rem;outline:none;background:var(--bg);transition:all .2s"
-          onfocus="this.style.borderColor='var(--moss)';this.style.background='white'"
-          onblur="this.style.borderColor='';this.style.background=''">
-      </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn btn-primary btn-sm" onclick="filterGalleryByCat('all')"><i class="fas fa-th-large"></i> Tous</button>
-        <button class="btn btn-outline btn-sm" onclick="filterGalleryByCat('Mobilier')"><i class="fas fa-chair"></i> Mobilier</button>
-        <button class="btn btn-outline btn-sm" onclick="filterGalleryByCat('Installations')"><i class="fas fa-cubes"></i> Installations</button>
-        <button class="btn btn-outline btn-sm" onclick="filterGalleryByCat('Décoratif')"><i class="fas fa-gem"></i> Décoratif</button>
-        <button class="btn btn-outline btn-sm" onclick="filterGalleryByCat('Mural')"><i class="fas fa-image"></i> Art mural</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="grid-3" id="galleryContainer"></div>
-</section>
-
-<!-- ════════════════════════════════════════ -->
-<!-- ÉVÉNEMENTS                              -->
-<!-- ════════════════════════════════════════ -->
-<section id="sec-evenements" class="page-section">
-  <div class="section-header" style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 15px;">
-    <div>
-      <div class="section-pill"><i class="fas fa-calendar"></i> Collectes & ateliers</div>
-      <div class="section-heading"><i class="fas fa-calendar-alt"></i> Événements</div>
-      <div class="section-sub">Participez à des événements de collecte et soutenez les artistes recycleurs</div>
-    </div>
-    <button class="btn btn-primary" onclick="openManageParticipationsModal()"><i class="fas fa-list-check"></i> Mes participations</button>
-  </div>
-
-  <div class="events-stats">
-    <div class="event-stat">
-      <div class="event-stat-icon" style="background:rgba(58,99,71,0.1)"><i class="fas fa-calendar" style="color:var(--moss)"></i></div>
-      <div class="event-stat-value" id="event-count-total">0</div>
-      <div class="event-stat-label">Disponibles</div>
-    </div>
-    <div class="event-stat">
-      <div class="event-stat-icon" style="background:rgba(16,185,129,0.1)"><i class="fas fa-user-check" style="color:var(--success)"></i></div>
-      <div class="event-stat-value" id="event-joined-count">0</div>
-      <div class="event-stat-label">Rejoints</div>
-    </div>
-    <div class="event-stat">
-      <div class="event-stat-icon" style="background:rgba(201,164,85,0.12)"><i class="fas fa-weight-hanging" style="color:var(--sand)"></i></div>
-      <div class="event-stat-value" id="event-kg-total">0</div>
-      <div class="event-stat-label">kg collectés</div>
-    </div>
-    <div class="event-stat">
-      <div class="event-stat-icon" style="background:rgba(59,130,246,0.1)"><i class="fas fa-ticket-alt" style="color:var(--info)"></i></div>
-      <div class="event-stat-value" id="event-coupons-count">0</div>
-      <div class="event-stat-label">Coupons gagnés</div>
-    </div>
-  </div>
-
-  <div id="eventsContainer" class="events-grid">
-    <div class="loading-spinner"><div class="spinner"></div>Chargement des événements…</div>
-  </div>
-  <div id="eventsEmpty" class="empty-state" style="display:none">
-    <div class="e-icon"><i class="fas fa-calendar-times"></i></div>
-    <h4>Aucun événement disponible</h4>
-    <p>Revenez bientôt pour découvrir les prochains événements de collecte!</p>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════ -->
-<!-- COLLECTIONS                             -->
-<!-- ════════════════════════════════════════ -->
-<section id="sec-collections" class="page-section">
-  <div class="section-header">
-    <div class="section-pill"><i class="fas fa-recycle"></i> Contributions actives</div>
-    <div class="section-heading"><i class="fas fa-recycle"></i> Collections de matériaux</div>
-    <div class="section-sub">Contribuez à des collections en cours et soutenez la création artistique recyclée</div>
-  </div>
-
-  <div class="grid-2" id="collectionsContainer">
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
-        <div style="width:44px;height:44px;border-radius:var(--radius-md);background:rgba(58,99,71,0.1);display:flex;align-items:center;justify-content:center;font-size:1.2rem"><i class="fas fa-wine-bottle" style="color:var(--moss)"></i></div>
-        <div>
-          <div class="card-title" style="margin-bottom:2px">Piece Mario — Verre</div>
-          <div style="font-size:0.72rem;color:var(--muted)">Collecte en cours</div>
-        </div>
-      </div>
-      <div class="prog-bar"><div class="prog-fill" style="width:20%"></div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;margin:10px 0 18px">
-        <span style="color:var(--forest);font-weight:700">24.6 <span style="color:var(--muted);font-weight:400">/ 123 kg</span></span>
-        <span style="color:var(--moss);font-weight:600">20%</span>
-      </div>
-      <button class="btn btn-primary btn-full" onclick="showToast('Formulaire de don — Piece Mario', 'info')">
-        <i class="fas fa-plus-circle"></i> Donner du verre
-      </button>
-    </div>
-    <div class="card">
-      <div style="display:flex;align-items:center;gap:12px;margin-bottom:18px">
-        <div style="width:44px;height:44px;border-radius:var(--radius-md);background:rgba(201,164,85,0.12);display:flex;align-items:center;justify-content:center;font-size:1.2rem"><i class="fas fa-microchip" style="color:var(--sand)"></i></div>
-        <div>
-          <div class="card-title" style="margin-bottom:2px">PIECE — Métal</div>
-          <div style="font-size:0.72rem;color:var(--muted)">Collecte en cours</div>
-        </div>
-      </div>
-      <div class="prog-bar"><div class="prog-fill" style="width:1%"></div></div>
-      <div style="display:flex;justify-content:space-between;align-items:center;font-size:0.78rem;margin:10px 0 18px">
-        <span style="color:var(--forest);font-weight:700">0 <span style="color:var(--muted);font-weight:400">/ 1267 kg</span></span>
-        <span style="color:var(--moss);font-weight:600">&lt;1%</span>
-      </div>
-      <button class="btn btn-primary btn-full" onclick="showToast('Formulaire de don — PIECE Métal', 'info')">
-        <i class="fas fa-plus-circle"></i> Donner du métal
-      </button>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════ -->
-<!-- DONS                                    -->
-<!-- ════════════════════════════════════════ -->
-<section id="sec-dons" class="page-section">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px;flex-wrap:wrap;gap:16px">
-    <div>
-      <div class="section-pill"><i class="fas fa-history"></i> Historique</div>
-      <div class="section-heading"><i class="fas fa-hand-holding-heart"></i> Mes Dons</div>
-      <div class="section-sub">Historique de vos contributions de matériaux</div>
-    </div>
-    <button class="btn btn-primary" onclick="showToast('Ouverture du formulaire de don', 'info')">
-      <i class="fas fa-plus"></i> Nouveau don
-    </button>
-  </div>
-
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title"><span><i class="fas fa-history" style="color:var(--moss);margin-right:8px"></i>Historique des dons</span></div>
-      <div id="donationsHistory">
-        <div class="don-row">
-          <div class="don-av" style="background:linear-gradient(135deg,var(--moss),var(--forest))"><i class="fas fa-leaf"></i></div>
-          <div>
-            <div class="don-coll">Piece Mario</div>
-            <div class="don-date"><i class="fas fa-calendar" style="opacity:.5"></i> 12 jan. 2025</div>
-          </div>
-          <span class="don-amount">24.6 kg</span>
-          <span class="don-status status-confirmed">Confirmé</span>
-        </div>
-        <div class="don-row">
-          <div class="don-av" style="background:linear-gradient(135deg,var(--sand),#a08040)"><i class="fas fa-wine-bottle"></i></div>
-          <div>
-            <div class="don-coll">Collection Verre</div>
-            <div class="don-date"><i class="fas fa-calendar" style="opacity:.5"></i> 5 jan. 2025</div>
-          </div>
-          <span class="don-amount">5.8 kg</span>
-          <span class="don-status status-confirmed">Confirmé</span>
-        </div>
-        <div class="don-row">
-          <div class="don-av" style="background:linear-gradient(135deg,#7a6a5a,#5a4a3d)"><i class="fas fa-wine-bottle"></i></div>
-          <div>
-            <div class="don-coll">Collection Verre</div>
-            <div class="don-date"><i class="fas fa-calendar" style="opacity:.5"></i> 28 déc. 2024</div>
-          </div>
-          <span class="don-amount">2.4 kg</span>
-          <span class="don-status status-confirmed">Confirmé</span>
-        </div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="card-title"><span><i class="fas fa-lightbulb" style="color:var(--sand);margin-right:8px"></i>Comment ça marche ?</span></div>
-      <div style="display:flex;flex-direction:column;gap:22px">
-        <div class="how-step">
-          <div class="how-step-icon" style="background:rgba(58,99,71,0.1)"><i class="fas fa-recycle" style="color:var(--moss)"></i></div>
-          <div class="how-step-text">
-            <strong>Apportez vos matériaux</strong>
-            <span>Déposez vos matériaux recyclables lors d'un événement ou directement dans un centre Loopi.</span>
-          </div>
-        </div>
-        <div class="how-step">
-          <div class="how-step-icon" style="background:rgba(201,164,85,0.12)"><i class="fas fa-check-circle" style="color:var(--sand)"></i></div>
-          <div class="how-step-text">
-            <strong>Votre don est confirmé</strong>
-            <span>Après pesage et validation, votre contribution est enregistrée automatiquement.</span>
-          </div>
-        </div>
-        <div class="how-step">
-          <div class="how-step-icon" style="background:rgba(176,90,47,0.1)"><i class="fas fa-ticket-alt" style="color:var(--rust)"></i></div>
-          <div class="how-step-text">
-            <strong>Recevez un coupon</strong>
-            <span>Chaque donation confirmée génère un coupon de réduction utilisable dans la boutique Loopi.</span>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ════════════════════════════════════════ -->
-<!-- COUPONS                                 -->
-<!-- ════════════════════════════════════════ -->
-<section id="sec-coupons" class="page-section">
-  <div class="section-header">
-    <div class="section-pill"><i class="fas fa-percentage"></i> Réductions</div>
-    <div class="section-heading"><i class="fas fa-ticket-alt"></i> Mes Coupons</div>
-    <div class="section-sub">Réductions gagnées grâce à vos donations de matériaux recyclés</div>
-  </div>
-
-  <div class="grid-2">
-    <div id="couponsList">
-      <div class="coupon-card" onclick="copyCouponCode('ECO10')">
-        <div class="coupon-left">
-          <div class="coupon-code"><i class="fas fa-tag" style="font-size:0.9rem;opacity:.7"></i> ECO10</div>
-          <div class="coupon-desc"><i class="fas fa-clock" style="margin-right:4px"></i>Expire le 10 mars 2026</div>
-          <div class="coupon-copy-hint"><i class="fas fa-copy"></i> Cliquer pour copier</div>
-        </div>
-        <div class="coupon-right">
+        <div class="card-title">Mes coupons <a href="#" onclick="showSection('coupons',null)">Voir →</a></div>
+        <div class="coupon-card">
+          <div><div class="coupon-code">ECO10</div><div class="coupon-disc">Expire le 10 mars · min. 0 TND</div></div>
           <div class="coupon-pct">10%</div>
-          <div class="coupon-off">DE REMISE</div>
         </div>
-      </div>
-      <div class="coupon-card" onclick="copyCouponCode('GREEN15')" style="--coupon-grad: linear-gradient(135deg,#6B4F1A,#B8870A)">
-        <div class="coupon-left" style="background:linear-gradient(135deg,#7A5A1A,#B8870A)">
-          <div class="coupon-code"><i class="fas fa-tag" style="font-size:0.9rem;opacity:.7"></i> GREEN15</div>
-          <div class="coupon-desc"><i class="fas fa-clock" style="margin-right:4px"></i>Expire le 9 avril 2026</div>
-          <div class="coupon-copy-hint"><i class="fas fa-copy"></i> Cliquer pour copier</div>
-        </div>
-        <div class="coupon-right" style="background:linear-gradient(135deg,#B8870A,#D4A820)">
+        <div class="coupon-card" style="background:linear-gradient(135deg,#8B6914,#c9a030)">
+          <div><div class="coupon-code">GREEN15</div><div class="coupon-disc">Expire le 9 avr · min. 0 TND</div></div>
           <div class="coupon-pct">15%</div>
-          <div class="coupon-off">DE REMISE</div>
         </div>
       </div>
     </div>
+  </div>
+
+  <!-- Events + Dons -->
+  <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span><i class="fas fa-gift" style="color:var(--moss);margin-right:8px"></i>Comment gagner des coupons ?</span></div>
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="how-step">
-          <div class="how-step-icon" style="background:rgba(58,99,71,0.1)"><i class="fas fa-gift" style="color:var(--moss)"></i></div>
-          <div class="how-step-text">
-            <strong>Donations automatiques</strong>
-            <span>Chaque donation confirmée génère automatiquement un coupon de réduction.</span>
-          </div>
+      <div class="card-title">Prochains événements <a href="#" onclick="showSection('evenements',null)">Voir tout →</a></div>
+      <div class="event-item">
+        <div class="ev-date"><div class="ev-day">15</div><div class="ev-mon">Juin</div></div>
+        <div class="ev-info"><div class="ev-title">Nettoyage de Plage</div><div class="ev-loc">📍 Plage Sousse · Cap. 50</div></div>
+        <span class="ev-badge badge-inscrit">Inscrit ✓</span>
+      </div>
+      <div class="event-item">
+        <div class="ev-date"><div class="ev-day">20</div><div class="ev-mon">Juin</div></div>
+        <div class="ev-info"><div class="ev-title">Atelier Recyclage</div><div class="ev-loc">📍 Centre Tunis · Cap. 30</div></div>
+        <span class="ev-badge badge-inscrit">Inscrit ✓</span>
+      </div>
+      <div class="event-item">
+        <div class="ev-date" style="background:rgba(30,58,47,.12)"><div class="ev-day" style="color:var(--forest)">12</div><div class="ev-mon" style="color:var(--muted)">Juil</div></div>
+        <div class="ev-info"><div class="ev-title">Collecte Métal</div><div class="ev-loc">📍 Tunis · Cap. 40</div></div>
+        <span class="ev-badge badge-dispo">Disponible</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Historique des dons <a href="#" onclick="showSection('dons',null)">Voir tout →</a></div>
+      <div class="don-row">
+        <div class="don-av" style="background:linear-gradient(135deg,#5a8a7a,#3d6b5a)">P</div>
+        <div class="don-coll">Piece Mario<br><span style="font-weight:400;color:var(--muted)">Verre · Fév 2026</span></div>
+        <span class="don-amount">24.6 kg</span>
+        <span class="don-status status-conf">✓ Confirmé</span>
+      </div>
+      <div class="don-row">
+        <div class="don-av" style="background:linear-gradient(135deg,#8a7a5a,#6b5a3d)">M</div>
+        <div class="don-coll">Collection Verre<br><span style="font-weight:400;color:var(--muted)">Verre · Fév 2026</span></div>
+        <span class="don-amount">5.8 kg</span>
+        <span class="don-status status-conf">✓ Confirmé</span>
+      </div>
+      <div class="don-row">
+        <div class="don-av" style="background:linear-gradient(135deg,#7a6a5a,#5a4a3d)">V</div>
+        <div class="don-coll">Collection Verre<br><span style="font-weight:400;color:var(--muted)">Verre · Fév 2026</span></div>
+        <span class="don-amount">2.4 kg</span>
+        <span class="don-status status-conf">✓ Confirmé</span>
+      </div>
+      <div style="margin-top:16px;padding-top:14px;border-top:1px solid var(--border)">
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:6px">Progression — Piece Mario</div>
+        <div class="prog-bar"><div class="prog-fill" style="width:20%"></div></div>
+        <div style="display:flex;justify-content:space-between;font-size:.7rem;color:var(--muted)"><span>24.6 kg</span><span>Objectif: 123 kg</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ -->
+<!-- GALERIE -->
+<!-- ══════════════════════════════ -->
+<section id="sec-galerie" class="page-section">
+  <div class="section-heading">Galerie d'Art</div>
+  <div class="section-sub">Toutes les œuvres créées par nos artistes partenaires</div>
+
+  <!-- Filters -->
+  <div class="card" style="margin-bottom:24px;padding:16px 20px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <input type="text" placeholder="🔍 Rechercher une œuvre…" style="padding:8px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;background:var(--bg);width:220px;margin-right:8px">
+      <button class="btn btn-primary btn-sm" onclick="filterGal(this,'Tous')">Tous (6)</button>
+      <button class="btn btn-outline btn-sm" onclick="filterGal(this,'Mobilier')">Mobilier (1)</button>
+      <button class="btn btn-outline btn-sm" onclick="filterGal(this,'Installations')">Installations (1)</button>
+      <button class="btn btn-outline btn-sm" onclick="filterGal(this,'Décoratif')">Objets décoratifs (3)</button>
+      <button class="btn btn-outline btn-sm" onclick="filterGal(this,'Mural')">Art mural (1)</button>
+    </div>
+  </div>
+
+  <div class="grid-3">
+    <div class="card" style="padding:0;overflow:hidden;cursor:pointer" data-cat="Mobilier" onclick="showToast('Ouverture — Chaise Artisanale')">
+      <div style="height:200px;background:linear-gradient(135deg,#d4e8d4,#a8c8a8);display:flex;align-items:center;justify-content:center;font-size:5rem">🪑</div>
+      <div style="padding:16px 18px">
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--forest)">Chaise Artisanale</div>
+        <div style="font-size:.75rem;color:var(--muted);margin:4px 0 12px">Mobilier artistique · Métal recyclé</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="event.stopPropagation();showToast('Ajouté aux favoris ❤️')">♥ Favoris</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();showToast('Ajouter un avis')">★ Avis</button>
         </div>
-        <div class="how-step">
-          <div class="how-step-icon" style="background:rgba(201,164,85,0.12)"><i class="fas fa-chart-line" style="color:var(--sand)"></i></div>
-          <div class="how-step-text">
-            <strong>Paliers progressifs</strong>
-            <span>Plus vous donnez de matériaux, plus le pourcentage de réduction augmente.</span>
-          </div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;cursor:pointer" data-cat="Installations">
+      <div style="height:200px;background:linear-gradient(135deg,#e0f0f4,#a0c8d8);display:flex;align-items:center;justify-content:center;font-size:5rem">🫙</div>
+      <div style="padding:16px 18px">
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--forest)">Glass Artwork</div>
+        <div style="font-size:.75rem;color:var(--muted);margin:4px 0 12px">Installations artistiques · Verre récupéré</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="showToast('Ajouté aux favoris ❤️')">♥ Favoris</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Ajouter un avis')">★ Avis</button>
         </div>
-        <div class="how-step">
-          <div class="how-step-icon" style="background:rgba(176,90,47,0.1)"><i class="fas fa-calendar-alt" style="color:var(--rust)"></i></div>
-          <div class="how-step-text">
-            <strong>Événements bonifiés</strong>
-            <span>Participez aux événements de collecte pour accumuler des réductions bonus.</span>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;cursor:pointer" data-cat="Décoratif">
+      <div style="height:200px;background:linear-gradient(135deg,#f0e8d4,#d8c090);display:flex;align-items:center;justify-content:center;font-size:5rem">🍄</div>
+      <div style="padding:16px 18px">
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--forest)">Mushrooms Sculpture</div>
+        <div style="font-size:.75rem;color:var(--muted);margin:4px 0 12px">Objets décoratifs · Cuivre & Bois</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="showToast('Ajouté aux favoris ❤️')">♥ Favoris</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Ajouter un avis')">★ Avis</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;cursor:pointer" data-cat="Mural">
+      <div style="height:200px;background:linear-gradient(135deg,#ece4d8,#c8b898);display:flex;align-items:center;justify-content:center;font-size:5rem">🪵</div>
+      <div style="padding:16px 18px">
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--forest)">3D Mosaic</div>
+        <div style="font-size:.75rem;color:var(--muted);margin:4px 0 12px">Art mural · Bois · Métal · Pierre</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="showToast('Ajouté aux favoris ❤️')">♥ Favoris</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Ajouter un avis')">★ Avis</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;cursor:pointer" data-cat="Décoratif">
+      <div style="height:200px;background:linear-gradient(135deg,#e8e0f0,#c0b0e0);display:flex;align-items:center;justify-content:center;font-size:5rem">🐟</div>
+      <div style="padding:16px 18px">
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--forest)">Tin Fish</div>
+        <div style="font-size:.75rem;color:var(--muted);margin:4px 0 12px">Objets décoratifs · Métal recyclé</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="showToast('Ajouté aux favoris ❤️')">♥ Favoris</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Ajouter un avis')">★ Avis</button>
+        </div>
+      </div>
+    </div>
+    <div class="card" style="padding:0;overflow:hidden;cursor:pointer" data-cat="Décoratif">
+      <div style="height:200px;background:linear-gradient(135deg,#f0f4e0,#c8d8a0);display:flex;align-items:center;justify-content:center;font-size:5rem">🎓</div>
+      <div style="padding:16px 18px">
+        <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--forest)">Esprit Étudiant</div>
+        <div style="font-size:.75rem;color:var(--muted);margin:4px 0 12px">Objets décoratifs · Art contemporain</div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary btn-sm" onclick="showToast('Ajouté aux favoris ❤️')">♥ Favoris</button>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Ajouter un avis')">★ Avis</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ -->
+<!-- ÉVÉNEMENTS -->
+<!-- ══════════════════════════════ -->
+<section id="sec-evenements" class="page-section">
+  <div class="section-heading">Événements</div>
+  <div class="section-sub">Participez et collectez des matériaux recyclables pour soutenir les artistes</div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">Événements disponibles</div>
+      <div class="event-item" style="flex-direction:column;gap:10px;align-items:flex-start">
+        <div style="display:flex;gap:14px;width:100%;align-items:center">
+          <div class="ev-date"><div class="ev-day">15</div><div class="ev-mon">Juin</div></div>
+          <div class="ev-info" style="flex:1"><div class="ev-title">Nettoyage de Plage</div><div class="ev-loc">📍 Plage Sousse · 50 places · 9h00</div></div>
+          <span class="ev-badge badge-inscrit">Inscrit ✓</span>
+        </div>
+        <div style="width:100%;padding-left:60px">
+          <div class="prog-bar"><div class="prog-fill" style="width:60%"></div></div>
+          <div style="font-size:.7rem;color:var(--muted)">30/50 participants</div>
+        </div>
+      </div>
+      <div class="event-item" style="flex-direction:column;gap:10px;align-items:flex-start">
+        <div style="display:flex;gap:14px;width:100%;align-items:center">
+          <div class="ev-date"><div class="ev-day">20</div><div class="ev-mon">Juin</div></div>
+          <div class="ev-info" style="flex:1"><div class="ev-title">Atelier Recyclage</div><div class="ev-loc">📍 Centre Tunis · 30 places · 14h00</div></div>
+          <span class="ev-badge badge-inscrit">Inscrit ✓</span>
+        </div>
+        <div style="width:100%;padding-left:60px">
+          <div class="prog-bar"><div class="prog-fill" style="width:40%"></div></div>
+          <div style="font-size:.7rem;color:var(--muted)">12/30 participants</div>
+        </div>
+      </div>
+      <div class="event-item" style="align-items:center">
+        <div class="ev-date" style="background:rgba(30,58,47,.12)"><div class="ev-day" style="color:var(--forest)">12</div><div class="ev-mon" style="color:var(--muted)">Juil</div></div>
+        <div class="ev-info" style="flex:1"><div class="ev-title">Collecte de Métal</div><div class="ev-loc">📍 Tunis Ville · 40 places</div></div>
+        <button class="btn btn-primary btn-sm" onclick="showToast('Inscription confirmée! 🎉')">S'inscrire</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ma participation</div>
+      <div style="text-align:center;padding:20px 0">
+        <div style="font-family:'Playfair Display',serif;font-size:3rem;font-weight:700;color:var(--forest)">2</div>
+        <div style="font-size:.84rem;color:var(--muted)">événements rejoints</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px">
+          <div style="background:var(--bg);border-radius:14px;padding:16px;text-align:center">
+            <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--forest)">32</div>
+            <div style="font-size:.72rem;color:var(--muted)">kg collectés</div>
+          </div>
+          <div style="background:var(--bg);border-radius:14px;padding:16px;text-align:center">
+            <div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--moss)">2</div>
+            <div style="font-size:.72rem;color:var(--muted)">coupons gagnés</div>
           </div>
         </div>
       </div>
@@ -2352,88 +903,193 @@ footer {
   </div>
 </section>
 
-<!-- ════════════════════════════════════════ -->
-<!-- PROFIL                                  -->
-<!-- ════════════════════════════════════════ -->
-<section id="sec-profil" class="page-section">
-  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:36px;flex-wrap:wrap;gap:16px">
-    <div>
-      <div class="section-pill"><i class="fas fa-user"></i> Compte</div>
-      <div class="section-heading"><i class="fas fa-user-circle"></i> Mon Profil</div>
-      <div class="section-sub">Gérez vos informations personnelles et préférences</div>
-    </div>
-    <button class="btn btn-primary" onclick="saveProfile()">
-      <i class="fas fa-save"></i> Sauvegarder
-    </button>
+<!-- ══════════════════════════════ -->
+<!-- COLLECTIONS -->
+<!-- ══════════════════════════════ -->
+<section id="sec-collections" class="page-section">
+  <div class="section-heading">Collections de matériaux</div>
+  <div class="section-sub">Contribuez à des collections en cours et soutenez la création artistique recyclée</div>
+
+  <!-- WEATHER API INJECTION -->
+  <div id="weatherDisplay" style="margin-bottom: 20px; padding: 12px 20px; background: rgba(30,58,47,0.06); border: 1px solid var(--border); border-radius: 12px; font-weight: 600; color: var(--forest); display: none;">
+    Chargement de la météo...
   </div>
 
-  <div class="profile-hero">
-    <div class="profile-avatar-lg" id="profileAvatarLarge">P</div>
-    <div class="profile-info">
-      <div class="profile-name" id="profileNameLarge">Participant Test</div>
-      <div class="profile-email" id="profileEmailLarge">participant@loopi.tn</div>
-      <div class="profile-badge"><i class="fas fa-leaf"></i> Participant actif</div>
+  <!-- Search + filter bar -->
+  <div class="card" style="margin-bottom:24px;padding:14px 18px">
+    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <input id="partCollSearch" type="text" placeholder="🔍 Rechercher une collection…" oninput="filterPartCollections()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;background:var(--bg);width:240px">
+      <select id="partCollMaterial" onchange="filterPartCollections()" style="padding:9px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.84rem;outline:none;background:var(--bg);cursor:pointer">
+        <option value="">♻️ Tous les matériaux</option>
+        <option>Verre</option><option>Métal</option><option>Plastique</option><option>Bois</option><option>Papier</option><option>Autre</option>
+      </select>
+      <span id="partCollCount" style="margin-left:auto;font-size:.78rem;color:var(--muted)"></span>
     </div>
-    <div class="profile-stats-strip" id="profileStatsStrip">
+  </div>
+
+  <!-- Dynamic grid -->
+  <div id="partCollGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:20px">
+    <div id="partCollLoading" style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted)">
+      <div style="font-size:2rem;margin-bottom:10px">⏳</div>
+      <div>Chargement des collections…</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ -->
+<!-- DONS -->
+<!-- ══════════════════════════════ -->
+<section id="sec-dons" class="page-section">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px">
+    <div>
+      <div class="section-heading">Mes Dons</div>
+      <div class="section-sub" style="margin-bottom:0">Historique de vos contributions de matériaux</div>
+    </div>
+    <button class="btn btn-primary" onclick="showSection('collections', document.querySelector('[onclick*=collections]'))">♻️ Nouvelle donation</button>
+  </div>
+
+  <div id="donsContainer">
+    <div style="text-align:center;padding:60px 0;color:var(--muted)" id="donsLoading">
+      <div style="font-size:2rem;margin-bottom:10px">⏳</div>
+      <div>Chargement de l’historique…</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ -->
+<!-- LEADERBOARD -->
+<!-- ══════════════════════════════ -->
+<section id="sec-leaderboard" class="page-section">
+  <div class="section-heading">Classement Global (Algorithme d'Urgence)</div>
+  <div class="section-sub">Aidez les collections prioritaires pour maximiser vos points d'expérience (XP) !</div>
+
+  <div class="grid-2">
+    <div>
+      <div class="card" style="margin-bottom:20px;background:linear-gradient(135deg,rgba(15,28,21,0.8),rgba(30,58,47,0.6));border:1px solid rgba(255,255,255,0.1)">
+        <div class="card-title" style="color:var(--sand)">🔥 Comment fonctionne l'XP ?</div>
+        <div style="font-size:0.85rem;color:rgba(255,255,255,0.85);line-height:1.6">
+          Tous les matériaux ne se valent pas ! Notre algorithme scanne la base de données <strong style="color:var(--sand)">en temps réel</strong> pour déterminer les pénuries des différentes collections.<br><br>
+          Si la plateforme manque cruellement de <strong style="color:var(--sand)">Verre</strong> (ex: les organisateurs en demandent beaucoup mais peu de dons sont effectués), les dons en Verre voient leur récompense multipliée par <strong style="color:var(--sand)">3x</strong> ! En aidant intelligemment, vous montez plus vite en grade :
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:15px">
+          <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;text-align:center"><div style="font-weight:bold;color:white">0 - 499</div><div style="font-size:0.75rem;color:var(--muted)">🌱 Eco-Novice</div></div>
+          <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;text-align:center"><div style="font-weight:bold;color:white">500 - 1999</div><div style="font-size:0.75rem;color:var(--muted)">🌿 Recycleur Actif</div></div>
+          <div style="background:rgba(255,255,255,0.05);padding:10px;border-radius:8px;text-align:center"><div style="font-weight:bold;color:white">2000 - 4999</div><div style="font-size:0.75rem;color:var(--muted)">🌳 Héros de la Planète</div></div>
+          <div style="background:linear-gradient(135deg,#c9a030,#8B6914);padding:10px;border-radius:8px;text-align:center"><div style="font-weight:bold;color:white;text-shadow:0 1px 2px rgba(0,0,0,0.5)">5000+</div><div style="font-size:0.75rem;color:rgba(255,255,255,0.8)">🌎 Gardien de la Terre</div></div>
+        </div>
+      </div>
+      
+      <div class="card" style="text-align:center">
+        <div style="font-size:0.85rem;color:var(--muted);margin-bottom:5px">Mon Niveau Actuel</div>
+        <div id="myCurrentRankTitle" style="font-family:'Playfair Display',serif;font-size:1.8rem;font-weight:bold;color:var(--forest)">--</div>
+        <div style="font-size:1.2rem;color:var(--sand);font-weight:bold;margin-top:5px;margin-bottom:15px;" id="myCurrentXp">-- XP</div>
+        
+        <a href="/participant/certificate/pdf" target="_blank" class="btn btn-primary" style="display:inline-block; text-decoration:none; width: 100%;">🏅 Voir mon Certificat Web</a>
+        <div style="font-size:0.7rem; color:var(--muted); margin-top:8px;">*Généré avec EndroidQrCodeBundle</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title" style="display:flex;justify-content:space-between">
+        <span>🏆 Top Recycleurs</span>
+        <button class="btn btn-sm" style="background:rgba(255,255,255,0.1);color:white;border:none;cursor:pointer" onclick="loadLeaderboard()">🔄 Actualiser</button>
+      </div>
+      
+      <div id="leaderboardContainer" style="display:flex;flex-direction:column;gap:10px;margin-top:10px">
+        <div style="text-align:center;padding:30px;color:var(--muted)">Chargement du classement...</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════ -->
+<!-- PROFIL -->
+<!-- ══════════════════════════════ -->
+<section id="sec-profil" class="page-section">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:28px">
+    <div>
+      <div class="section-heading">Mon Profil</div>
+      <div class="section-sub" style="margin-bottom:0">Gérez vos informations personnelles et préférences</div>
+    </div>
+    <button class="btn btn-primary" onclick="showToast('Profil sauvegardé ✓')">Sauvegarder</button>
+  </div>
+
+  <!-- Profile hero -->
+  <div class="profile-hero">
+    <div class="profile-avatar-lg">T</div>
+    <div class="profile-info">
+      <div class="profile-name">Test Participant</div>
+      <div class="profile-email">participant@loopi.tn</div>
+      <div class="profile-badge">♻️ Participant actif</div>
+    </div>
+    <div class="profile-stats-strip">
       <div class="pstrip-stat">
         <div class="pstrip-val">8</div>
         <div class="pstrip-lbl">Favoris</div>
       </div>
       <div class="pstrip-stat">
-        <div class="pstrip-val">32.8</div>
-        <div class="pstrip-lbl">kg donnés</div>
+        <div class="pstrip-val">3</div>
+        <div class="pstrip-lbl">Donations</div>
       </div>
       <div class="pstrip-stat">
         <div class="pstrip-val">2</div>
         <div class="pstrip-lbl">Événements</div>
+      </div>
+      <div class="pstrip-stat">
+        <div class="pstrip-val">2</div>
+        <div class="pstrip-lbl">Coupons</div>
       </div>
     </div>
   </div>
 
   <div class="grid-2">
     <div class="card">
-      <div class="card-title"><span><i class="fas fa-user" style="color:var(--moss);margin-right:8px"></i>Informations personnelles</span></div>
-      <div style="display:flex;flex-direction:column;gap:18px">
-        <div class="field-group">
-          <label><i class="fas fa-user"></i> Nom complet</label>
-          <input type="text" id="profileFullname" value="Test Participant">
+      <div class="card-title">Informations personnelles</div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+          <div class="field-group">
+            <label>Nom</label>
+            <input value="Participant">
+          </div>
+          <div class="field-group">
+            <label>Prénom</label>
+            <input value="Test">
+          </div>
         </div>
         <div class="field-group">
-          <label><i class="fas fa-envelope"></i> Email</label>
-          <input type="email" id="profileEmailInput" value="participant@loopi.tn">
+          <label>Email</label>
+          <input value="participant@loopi.tn">
         </div>
         <div class="field-group">
-          <label><i class="fas fa-lock"></i> Nouveau mot de passe</label>
-          <input type="password" id="profilePassword" placeholder="Laisser vide pour ne pas changer">
+          <label>Nouveau mot de passe</label>
+          <input type="password" placeholder="••••••••">
         </div>
         <div class="field-group">
-          <label><i class="fas fa-venus-mars"></i> Genre</label>
-          <select id="profileGender">
-            <option value="">Non précisé</option>
-            <option value="Masculin">Masculin</option>
-            <option value="Féminin">Féminin</option>
+          <label>Genre</label>
+          <select>
+            <option>Féminin</option>
+            <option>Masculin</option>
+            <option>Non précisé</option>
           </select>
         </div>
       </div>
     </div>
 
-    <div class="card">
-      <div class="card-title"><span><i class="fas fa-camera" style="color:var(--moss);margin-right:8px"></i>Photo de profil</span></div>
-      <div style="text-align:center;padding:12px 0">
-        <div style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--sage),var(--moss));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:700;color:white;margin:0 auto 20px;border:4px solid var(--bg);box-shadow:var(--shadow-md)" id="profileAvatarEdit">P</div>
-        <button class="btn btn-outline" onclick="showToast('Fonctionnalité à venir', 'info')">
-          <i class="fas fa-upload"></i> Changer la photo
-        </button>
-      </div>
-      <div style="margin-top:24px;padding-top:20px;border-top:1px solid var(--border)">
-        <div style="font-size:0.78rem;font-weight:600;color:var(--forest);margin-bottom:14px"><i class="fas fa-shield-alt" style="color:var(--moss);margin-right:6px"></i>Sécurité du compte</div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border)">
-          <span style="font-size:0.8rem;color:var(--muted)"><i class="fas fa-check-circle" style="color:var(--success);margin-right:6px"></i>Email vérifié</span>
-          <span style="font-size:0.7rem;font-weight:600;color:var(--success)">Actif</span>
+    <div style="display:flex;flex-direction:column;gap:20px">
+      <div class="card">
+        <div class="card-title">Photo de profil</div>
+        <div style="text-align:center;padding:12px 0">
+          <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--sage),var(--moss));display:flex;align-items:center;justify-content:center;font-family:'Playfair Display',serif;font-size:2.2rem;font-weight:700;color:white;margin:0 auto 16px;border:4px solid var(--bg)">T</div>
+          <button class="btn btn-outline btn-sm" onclick="showToast('Sélection de photo')">Changer la photo</button>
         </div>
-        <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0">
-          <span style="font-size:0.8rem;color:var(--muted)"><i class="fas fa-key" style="color:var(--sand);margin-right:6px"></i>Double authentification</span>
-          <span style="font-size:0.7rem;font-weight:600;color:var(--muted)">Désactivé</span>
+      </div>
+      <div class="card">
+        <div class="card-title">Statistiques du compte</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div style="background:var(--bg);border-radius:12px;padding:14px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--forest)">8</div><div style="font-size:.72rem;color:var(--muted)">Favoris</div></div>
+          <div style="background:var(--bg);border-radius:12px;padding:14px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--moss)">3</div><div style="font-size:.72rem;color:var(--muted)">Donations</div></div>
+          <div style="background:var(--bg);border-radius:12px;padding:14px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--rust)">2</div><div style="font-size:.72rem;color:var(--muted)">Événements</div></div>
+          <div style="background:var(--bg);border-radius:12px;padding:14px;text-align:center"><div style="font-family:'Playfair Display',serif;font-size:1.5rem;font-weight:700;color:var(--sand)">2</div><div style="font-size:.72rem;color:var(--muted)">Coupons</div></div>
         </div>
       </div>
     </div>
@@ -2442,217 +1098,83 @@ footer {
 
 <!-- ══ FOOTER ══ -->
 <footer>
-  <div class="footer-logo"><i class="fas fa-leaf"></i> Loopi</div>
-  <div class="footer-sub">Art recyclé, futur durable · Tunis, Tunisie</div>
-  <div class="footer-divider"></div>
-  <div class="footer-links">
-    <a href="#">À propos</a>
-    <a href="#">Nos artistes</a>
-    <a href="#">Contact</a>
-    <a href="#">Politique de confidentialité</a>
-    <a href="#">Conditions d'utilisation</a>
-  </div>
-  <div style="margin-top:20px;font-size:0.72rem;color:rgba(255,255,255,0.25)">© 2026 Loopi. Tous droits réservés.</div>
+  © 2026 <span>Loopi</span> · Art recyclé, futur durable · Tunis, Tunisie
 </footer>
 
 <div class="toast" id="toast"></div>
 
-<!-- Subscription Modal -->
-<div class="modal-overlay" id="subscribeModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3><i class="fas fa-calendar-plus"></i> Inscription à l'événement</h3>
-      <button class="modal-close" onclick="closeSubscribeModal()"><i class="fas fa-times"></i></button>
+<!-- ═══ DONATE MODAL ═══ -->
+<div id="donateModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);backdrop-filter:blur(6px);z-index:3000;align-items:center;justify-content:center" onclick="if(event.target===this)closeDonateModal()">
+  <div style="background:white;border-radius:22px;width:420px;max-width:92vw;padding:30px;box-shadow:0 20px 60px rgba(30,58,47,.18);animation:fadeUp .25s ease">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+      <div style="font-family:'Playfair Display',serif;font-size:1.2rem;font-weight:700;color:var(--forest)">♻️ Faire un don</div>
+      <button onclick="closeDonateModal()" style="background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--muted)">&#x2715;</button>
     </div>
-    <div class="modal-body">
-      <p id="modalEventTitle" style="margin-bottom:20px;font-weight:600;padding:12px 16px;background:var(--bg);border-radius:var(--radius-md);font-size:0.9rem;color:var(--forest)"></p>
-      <div style="display:flex;flex-direction:column;gap:16px">
-        <div class="field-group">
-          <label><i class="fas fa-phone"></i> Numéro de contact *</label>
-          <input type="tel" id="subscribeContact" placeholder="Votre numéro de téléphone">
-        </div>
-        <div class="field-group">
-          <label><i class="fas fa-birthday-cake"></i> Âge</label>
-          <input type="number" id="subscribeAge" placeholder="Votre âge">
-        </div>
+
+    <div id="donateCollName" style="font-weight:700;color:var(--forest);font-size:.95rem;margin-bottom:6px"></div>
+    <div id="donateCollMat" style="font-size:.78rem;color:var(--muted);margin-bottom:16px"></div>
+
+    <!-- Progress bar -->
+    <div style="background:rgba(30,58,47,.07);border-radius:6px;height:8px;overflow:hidden;margin-bottom:6px">
+      <div id="donateProgBar" style="height:100%;border-radius:6px;background:linear-gradient(to right,var(--moss),var(--sage));transition:width .4s ease"></div>
+    </div>
+    <div id="donateProgNums" style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:20px"></div>
+
+    <!-- Amount input -->
+    <div class="field-group" style="margin-bottom:6px">
+      <label style="font-size:.8rem;font-weight:600;color:var(--forest)">Montant à donner <span style="color:var(--rust)">*</span></label>
+      <div style="position:relative;margin-top:6px">
+        <input id="donateAmount" type="number" min="0.01" step="0.01" placeholder="ex: 5.5"
+          oninput="this.value=this.value.replace(/[^0-9.]/g,'')"
+          style="width:100%;padding:12px 50px 12px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:1rem;outline:none;background:var(--bg);color:var(--dark)">
+        <span id="donateUnit" style="position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:.85rem;color:var(--muted);font-weight:600"></span>
       </div>
+      <div id="donateError" style="color:var(--rust);font-size:.74rem;margin-top:4px;display:none"></div>
     </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeSubscribeModal()"><i class="fas fa-times"></i> Annuler</button>
-      <button class="btn btn-primary" onclick="confirmSubscription()"><i class="fas fa-check"></i> Confirmer</button>
+
+    <div style="display:flex;gap:10px;margin-top:22px">
+      <button onclick="closeDonateModal()" style="flex:1;padding:11px;border-radius:10px;border:1.5px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:600;cursor:pointer;color:var(--forest)">Annuler</button>
+      <button id="donateSubmitBtn" onclick="submitDonate()" style="flex:2;padding:11px;border-radius:10px;border:none;background:var(--forest);color:white;font-family:'DM Sans',sans-serif;font-size:.86rem;font-weight:600;cursor:pointer;transition:background .2s">Confirmer le don</button>
     </div>
   </div>
 </div>
 
-<!-- Event Details Modal -->
-<div class="modal-overlay" id="eventDetailModal">
-  <div class="modal-content" style="max-width:550px">
-    <div class="modal-header">
-      <h3><i class="fas fa-calendar-alt"></i> Détails de l'événement</h3>
-      <button class="modal-close" onclick="closeEventDetailModal()"><i class="fas fa-times"></i></button>
+<!-- ═══ BADGE CELEBRATION MODAL ═══ -->
+<style>
+  @keyframes popIn { 
+    0% { transform: scale(0.6) translateY(40px); opacity: 0; }
+    60% { transform: scale(1.1); opacity: 1; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  @keyframes floatBadge {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+</style>
+<div id="badgeModal" style="display:none;position:fixed;inset:0;background:rgba(15,28,21,0.85);backdrop-filter:blur(10px);z-index:4000;align-items:center;justify-content:center" onclick="if(event.target===this)closeBadgeModal()">
+  <div style="background:var(--forest);border-radius:30px;width:480px;max-width:92vw;padding:40px;text-align:center;box-shadow:0 30px 80px rgba(0,0,0,.4);animation:popIn 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);position:relative;overflow:hidden">
+    <!-- Confetti / Deco -->
+    <div style="position:absolute;top:-50px;left:-50px;width:150px;height:150px;background:radial-gradient(circle,rgba(255,255,255,0.2) 0%,transparent 70%)"></div>
+    <div style="position:absolute;bottom:-50px;right:-50px;width:150px;height:150px;background:radial-gradient(circle,rgba(93,168,122,0.4) 0%,transparent 70%)"></div>
+
+    <div style="font-family:'Playfair Display',serif;font-size:2.4rem;font-weight:900;color:white;margin-bottom:10px;text-shadow:0 4px 10px rgba(0,0,0,0.3)">Félicitations !</div>
+    <div style="font-size:1.05rem;color:rgba(255,255,255,0.85);margin-bottom:30px">
+      Vous avez débloqué <span id="badgeCountText" style="font-weight:700;color:var(--sand)">un nouveau badge</span> !
     </div>
-    <div class="modal-body" id="eventDetailBody"></div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeEventDetailModal()"><i class="fas fa-arrow-left"></i> Fermer</button>
-      <button class="btn btn-primary" id="detailSubscribeBtn" onclick="subscribeFromDetail()"><i class="fas fa-calendar-plus"></i> S'inscrire</button>
-    </div>
-  </div>
+    
+    <div id="badgesContainer" style="display:flex;justify-content:center;gap:25px;margin-bottom:35px;flex-wrap:wrap">
+      <!-- Badges will be injected here -->
+      <!-- AI MESSAGE INJECTION -->
+  <div id="celebrationAiContainer" style="margin-top:15px; padding:12px; background:rgba(30,58,47,0.05); border-radius:10px; font-style:italic; color:var(--forest); font-size:0.9rem; display:none;"></div>
+  
 </div>
 
-<!-- Manage Participations Modal -->
-<div class="modal-overlay" id="manageParticipationsModal">
-  <div class="modal-content" style="max-width:720px; width:95%;">
-
-    <!-- Header dégradé -->
-    <div class="modal-header" style="background:linear-gradient(135deg,var(--forest),var(--moss));border-radius:var(--radius-2xl) var(--radius-2xl) 0 0;padding:24px 28px 20px;">
-      <div>
-        <h3 style="color:white;font-size:1.2rem;"><i class="fas fa-calendar-check"></i> Mes participations</h3>
-        <p style="color:rgba(255,255,255,0.55);font-size:0.75rem;margin-top:4px;font-weight:400;">Gérez et filtrez vos inscriptions aux événements Loopi</p>
-      </div>
-      <button class="modal-close" onclick="closeManageParticipationsModal()" style="background:rgba(255,255,255,0.12);color:white;border:1px solid rgba(255,255,255,0.15)"><i class="fas fa-times"></i></button>
-    </div>
-
-    <!-- Barre recherche + filtres -->
-    <div style="padding:16px 24px;background:var(--bg-secondary);border-bottom:1px solid var(--border);display:flex;flex-direction:column;gap:12px;">
-
-      <!-- Recherche -->
-      <div style="position:relative;">
-        <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.85rem;pointer-events:none"></i>
-        <input type="text" id="partSearch" placeholder="Rechercher un événement, un lieu…"
-          oninput="filterParticipations()"
-          style="width:100%;padding:10px 14px 10px 40px;border:1.5px solid var(--border);border-radius:var(--radius-full);font-family:'DM Sans',sans-serif;font-size:0.84rem;outline:none;background:white;transition:all .2s;color:var(--dark-soft)"
-          onfocus="this.style.borderColor='var(--moss)';this.style.boxShadow='0 0 0 3px rgba(58,99,71,0.1)'"
-          onblur="this.style.borderColor='';this.style.boxShadow=''">
-      </div>
-
-      <!-- Filtres -->
-      <div style="display:flex;flex-wrap:wrap;gap:8px;align-items:center;">
-        <!-- Statut -->
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="part-filter-btn active" data-filter="status" data-value="all" onclick="setPartFilter('status','all',this)">
-            <i class="fas fa-th-large"></i> Tous
-          </button>
-          <button class="part-filter-btn" data-filter="status" data-value="upcoming" onclick="setPartFilter('status','upcoming',this)">
-            <i class="fas fa-clock"></i> À venir
-          </button>
-          <button class="part-filter-btn" data-filter="status" data-value="past" onclick="setPartFilter('status','past',this)">
-            <i class="fas fa-history"></i> Passés
-          </button>
-        </div>
-        <div style="width:1px;height:24px;background:var(--border);margin:0 4px;"></div>
-        <!-- Tri date -->
-        <div style="display:flex;gap:6px;flex-wrap:wrap;">
-          <button class="part-filter-btn active" data-filter="sort" data-value="asc" onclick="setPartFilter('sort','asc',this)">
-            <i class="fas fa-sort-amount-up"></i> Date ↑
-          </button>
-          <button class="part-filter-btn" data-filter="sort" data-value="desc" onclick="setPartFilter('sort','desc',this)">
-            <i class="fas fa-sort-amount-down"></i> Date ↓
-          </button>
-        </div>
-        <div style="width:1px;height:24px;background:var(--border);margin:0 4px;"></div>
-        <!-- Reset -->
-        <button class="part-filter-btn" style="color:var(--rust);border-color:var(--rust);" onclick="resetPartFilters()">
-          <i class="fas fa-times-circle"></i> Réinitialiser
-        </button>
-      </div>
-    </div>
-
-    <!-- Compteur résultats -->
-    <div style="padding:10px 24px 0;background:white;display:flex;justify-content:space-between;align-items:center;">
-      <span id="partCount" style="font-size:0.78rem;color:var(--muted);font-weight:500;"></span>
-      <span style="font-size:0.7rem;color:var(--muted);"><i class="fas fa-info-circle" style="margin-right:4px;color:var(--sage)"></i>Cliquer sur Modifier pour mettre à jour</span>
-    </div>
-
-    <!-- Liste -->
-    <div class="modal-body" style="max-height:55vh;overflow-y:auto;padding:14px 24px 10px;">
-      <div id="participationsListContainer">
-        <div class="loading-spinner"><div class="spinner"></div>Chargement de vos participations…</div>
-      </div>
-    </div>
-
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeManageParticipationsModal()"><i class="fas fa-times"></i> Fermer</button>
-    </div>
-  </div>
-</div>
-
-<!-- Edit Participation Modal -->
-<div class="modal-overlay" id="editParticipationModal">
-  <div class="modal-content" style="max-width:400px; width: 95%;">
-    <div class="modal-header">
-      <h3><i class="fas fa-edit"></i> Modifier ma participation</h3>
-      <button class="modal-close" onclick="closeEditParticipationModal()"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="modal-body">
-      <p style="margin-bottom:15px;color:var(--muted)">Mettez à jour vos informations pour l'événement <strong id="editPartEventName" style="color:var(--text)"></strong>.</p>
-      <div class="form-container">
-        <div class="field-group">
-          <label><i class="fas fa-phone"></i> Contact</label>
-          <input type="tel" id="editPartContact" class="form-control" placeholder="Votre numéro de téléphone">
-        </div>
-        <div class="field-group">
-          <label><i class="fas fa-birthday-cake"></i> Âge</label>
-          <input type="number" id="editPartAge" class="form-control" placeholder="Votre âge">
-        </div>
-      </div>
-    </div>
-    <div class="modal-footer">
-      <button class="btn btn-outline" onclick="closeEditParticipationModal()"><i class="fas fa-times"></i> Annuler</button>
-      <button class="btn btn-primary" onclick="confirmEditParticipation()"><i class="fas fa-save"></i> Enregistrer</button>
-    </div>
+    <button class="btn btn-g" style="padding:14px 35px;font-size:1.1rem;border-radius:50px;box-shadow:0 10px 20px rgba(93,168,122,0.3)" onclick="closeBadgeModal()">Génial ! 🎉</button>
   </div>
 </div>
 
 <script>
-// ===== GLOBAL VARIABLES =====
-let eventsList = [];
-let currentSubscribingEvent = null;
-let currentDetailEvent = null;
-let galleryItems = [];
-
-// ===== MOBILE NAV =====
-function openMobileNav() { document.getElementById('mobileNav').classList.add('open'); }
-function closeMobileNavDirect() { document.getElementById('mobileNav').classList.remove('open'); }
-function closeMobileNav(e) { if (e.target === e.currentTarget) closeMobileNavDirect(); }
-
-// ===== UTILITY FUNCTIONS =====
-function showToast(message, type = 'success') {
-  const toast = document.getElementById('toast');
-  let icon = '';
-  switch(type) {
-    case 'success': icon = '<i class="fas fa-check-circle"></i> '; break;
-    case 'error': icon = '<i class="fas fa-exclamation-circle"></i> '; break;
-    case 'warning': icon = '<i class="fas fa-exclamation-triangle"></i> '; break;
-    default: icon = '<i class="fas fa-info-circle"></i> ';
-  }
-  toast.innerHTML = icon + message;
-  toast.className = 'toast ' + (type === 'error' ? 'error' : type === 'warning' ? 'warning' : type === 'info' ? 'info' : '');
-  toast.classList.add('show');
-  setTimeout(() => toast.classList.remove('show'), 3200);
-}
-
-function formatDate(dateString) {
-  if (!dateString) return '-';
-  return new Date(dateString).toLocaleDateString('fr-FR');
-}
-
-function getMonthName(month) {
-  return ['Jan','Fév','Mar','Avr','Mai','Juin','Juil','Aoû','Sep','Oct','Nov','Déc'][month];
-}
-
-function escapeHtml(text) {
-  if (!text) return '';
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
-
-function copyCouponCode(code) {
-  navigator.clipboard.writeText(code).catch(() => {});
-  showToast(`Code <strong>${code}</strong> copié dans le presse-papier !`, 'success');
-}
-
-// ===== SECTION SWITCHING =====
+// ── Section switching ──
 function showSection(name, triggerEl) {
   document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
   document.getElementById('sec-' + name).classList.add('active');
@@ -2663,583 +1185,441 @@ function showSection(name, triggerEl) {
   if (navLink) navLink.classList.add('active');
   if (stab) stab.classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
-  if (name === 'evenements') loadParticipantEvents();
-  else if (name === 'galerie') renderGallery();
+  if (name === 'collections') loadParticipantCollections();
+  if (name === 'dons') loadDonationHistory();
+  if (name === 'leaderboard') loadLeaderboard();
 }
 
-// ===== LOAD PARTICIPANT EVENTS =====
-async function loadParticipantEvents() {
-  const container = document.getElementById('eventsContainer');
-  const emptyDiv = document.getElementById('eventsEmpty');
-  if (!container) return;
+// ── Toast ──
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background = isError ? '#B05A2F' : 'var(--forest)';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── Badge Celebration ──
+function triggerBadgeCelebration(badgesArray) {
+  const cont = document.getElementById('badgesContainer');
+  cont.innerHTML = '';
+  document.getElementById('badgeCountText').textContent = badgesArray.length > 1 ? badgesArray.length + ' nouveaux badges' : 'un nouveau badge';
+
+  badgesArray.forEach((b, i) => {
+    // Add delay for each badge animation
+    const delay = i * 0.15;
+    const badgeNameSafe = b.replace(/\s+/g,'_').toLowerCase();
+    cont.innerHTML += `
+      <div style="display:flex;flex-direction:column;align-items:center;animation:floatBadge 3s ease-in-out infinite;animation-delay:${delay}s">
+        <div style="width:110px;height:110px;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.3);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:12px;box-shadow:0 10px 25px rgba(0,0,0,0.2)">
+          <img src="/images/${badgeNameSafe}.png" alt="${b}" style="max-width:70%;max-height:70%" onerror="this.outerHTML='<span style=\\'font-size:3.5rem\\'>🎖️</span>'">
+        </div>
+        <div style="font-family:'Playfair Display',serif;font-weight:700;font-size:1.1rem;color:white;text-shadow:0 2px 4px rgba(0,0,0,0.3)">${b}</div>
+      </div>
+    `;
+  });
+  
+  document.getElementById('badgeModal').style.display = 'flex';
+}
+
+function closeBadgeModal() {
+  document.getElementById('badgeModal').style.display = 'none';
+  // If we want to automatically refresh history when badge closes
+  if (document.getElementById('sec-dons').classList.contains('active')) {
+    loadDonationHistory();
+  }
+}
+
+
+// ── Heart toggle ──
+function toggleHeart(btn) {
+  btn.textContent = btn.textContent === '🤍' ? '❤️' : '🤍';
+}
+
+// ── Gallery filter ──
+function filterGal(btn, cat) {
+  document.querySelectorAll('#sec-galerie .grid-3 .card[data-cat]').forEach(card => {
+    card.style.display = (cat === 'Tous' || card.dataset.cat === cat) ? '' : 'none';
+  });
+  btn.closest('.card').querySelectorAll('button').forEach(b => {
+    b.className = 'btn btn-outline btn-sm';
+  });
+  btn.className = 'btn btn-primary btn-sm';
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ── PARTICIPANT COLLECTIONS ──
+// ─────────────────────────────────────────────────────────────────
+let _partAllColl = [];
+
+async function loadParticipantCollections() {
+  const grid = document.getElementById('partCollGrid');
+  const loader = document.getElementById('partCollLoading');
+  loader.style.display = 'block';
+  grid.querySelectorAll('.part-coll-card').forEach(c => c.remove());
+
   try {
-    container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div>Chargement des événements…</div>';
-    const response = await fetch('/api/events', { credentials: 'include', headers: { 'Accept': 'application/json' } });
-    if (!response.ok) throw new Error(`HTTP ${response.status}`);
-    const data = await response.json();
-    const events = data.events || data || [];
-    eventsList = events;
-    if (!Array.isArray(events) || events.length === 0) {
-      container.style.display = 'none';
-      if (emptyDiv) emptyDiv.style.display = 'block';
+    const res  = await fetch('/api/participant/collections?status=active');
+    const json = await res.json();
+    _partAllColl = json.data || [];
+    
+    if (json.weather) {
+        const wDiv = document.getElementById('weatherDisplay');
+        if (wDiv) {
+            wDiv.style.display = 'block';
+            wDiv.innerHTML = '⛅ <strong>' + json.weather + '</strong> — Sortez recycler en toute sérénité !';
+        }
+    }
+    
+    renderPartCollections(_partAllColl);
+  } catch {
+    loader.innerHTML = '<div style="font-size:1.5rem">⚠️</div><div>Erreur de chargement.</div>';
+  }
+}
+
+function filterPartCollections() {
+  const s = (document.getElementById('partCollSearch')?.value || '').toLowerCase();
+  const m = document.getElementById('partCollMaterial')?.value || '';
+  const filtered = _partAllColl.filter(c => {
+    if (s && !c.title.toLowerCase().includes(s) && !c.materialType.toLowerCase().includes(s)) return false;
+    if (m && c.materialType !== m) return false;
+    return true;
+  });
+  renderPartCollections(filtered);
+}
+
+function renderPartCollections(list) {
+  const grid   = document.getElementById('partCollGrid');
+  const loader = document.getElementById('partCollLoading');
+  grid.querySelectorAll('.part-coll-card').forEach(c => c.remove());
+  loader.style.display = 'none';
+  document.getElementById('partCollCount').textContent = list.length + ' collection(s)';
+
+  if (list.length === 0) {
+    const el = document.createElement('div');
+    el.className = 'part-coll-card';
+    el.style.cssText = 'grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted)';
+    el.innerHTML = '<div style="font-size:3rem;margin-bottom:12px">📭</div><p>Aucune collection active pour le moment.</p>';
+    grid.appendChild(el);
+    return;
+  }
+
+  const sortedList = [...list].sort((a, b) => {
+    const aFin = a.currentAmount >= a.goalAmount;
+    const bFin = b.currentAmount >= b.goalAmount;
+    if (aFin !== bFin) return aFin ? 1 : -1;
+    return b.currentAmount - a.currentAmount;
+  });
+
+  sortedList.forEach(c => {
+    const pct = Math.min(c.progress || (c.currentAmount/c.goalAmount*100), 100);
+    const isFinished = c.currentAmount >= c.goalAmount;
+    const card = document.createElement('div');
+    card.className = 'part-coll-card card';
+    card.style.padding = '0';
+    card.style.overflow = 'hidden';
+    if (isFinished) {
+      card.style.filter = 'grayscale(80%) opacity(0.85)';
+    }
+
+    const imgHtml = c.imageUrl
+      ? `<div style="height:160px;overflow:hidden"><img src="${c.imageUrl}" style="width:100%;height:100%;object-fit:cover"></div>`
+      : `<div style="height:100px;background:linear-gradient(135deg,var(--forest),var(--moss));display:flex;align-items:center;justify-content:center;font-size:3rem">♻️</div>`;
+
+    card.innerHTML = `
+      ${imgHtml}
+      <div style="padding:18px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:6px">
+          <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--forest)">${escH(c.title)}</div>
+          <span style="padding:3px 10px;border-radius:50px;font-size:.65rem;font-weight:700;background:rgba(61,107,79,.1);color:var(--moss)">${escH(c.materialType)}</span>
+        </div>
+        <div style="font-size:.75rem;color:var(--muted);margin-bottom:10px">👤 ${escH(c.organisateur || 'Organisateur')}</div>
+        <div style="background:rgba(30,58,47,.07);border-radius:5px;height:7px;overflow:hidden;margin-bottom:5px">
+          <div style="height:100%;width:${pct}%;background:linear-gradient(to right,var(--moss),var(--sage));border-radius:5px;transition:width .5s ease"></div>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:.72rem;color:var(--muted);margin-bottom:14px">
+          <span style="font-weight:600;color:var(--moss)">${c.currentAmount.toFixed(1)} ${escH(c.unit)}</span>
+          <span>${pct.toFixed(1)}% — Objectif: ${c.goalAmount} ${escH(c.unit)}</span>
+        </div>
+        ${isFinished 
+          ? `<button disabled style="width:100%;padding:10px;border-radius:10px;border:none;background:var(--muted);color:white;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:600;cursor:not-allowed">Objectif atteint 🎉</button>`
+          : `<button onclick='openDonateModal(${JSON.stringify(c).replace(/'/g, "&apos;")})' style="width:100%;padding:10px;border-radius:10px;border:none;background:var(--forest);color:white;font-family:'DM Sans',sans-serif;font-size:.84rem;font-weight:600;cursor:pointer;transition:background .2s" onmouseover="this.style.background='var(--moss)'" onmouseout="this.style.background='var(--forest)'">♻️ Faire un don</button>`
+        }
+      </div>`;
+    grid.appendChild(card);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ── DONATE MODAL ──
+// ─────────────────────────────────────────────────────────────────
+let _donateCollId = null;
+
+function openDonateModal(c) {
+  _donateCollId = c.id;
+  const pct = Math.min(c.progress, 100);
+  document.getElementById('donateCollName').textContent = c.title;
+  document.getElementById('donateCollMat').textContent  = c.materialType + ' · ' + c.donationsCount + ' donation(s)';
+  document.getElementById('donateProgBar').style.width  = pct + '%';
+  document.getElementById('donateProgNums').innerHTML   =
+    `<span style="font-weight:600;color:var(--moss)">${c.currentAmount.toFixed(1)} ${escH(c.unit)}</span><span>Objectif: ${c.goalAmount} ${escH(c.unit)}</span>`;
+  document.getElementById('donateUnit').textContent  = c.unit;
+  document.getElementById('donateAmount').value      = '';
+  document.getElementById('donateError').style.display = 'none';
+  document.getElementById('donateModal').style.display = 'flex';
+  setTimeout(() => document.getElementById('donateAmount').focus(), 80);
+}
+
+function closeDonateModal() {
+  document.getElementById('donateModal').style.display = 'none';
+  _donateCollId = null;
+}
+
+async function submitDonate() {
+  const amountVal = document.getElementById('donateAmount').value.trim();
+  const errEl = document.getElementById('donateError');
+  errEl.style.display = 'none';
+
+  if (!amountVal || isNaN(amountVal) || parseFloat(amountVal) <= 0) {
+    errEl.textContent = 'Veuillez entrer un montant valide et positif.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('donateSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Envoi en cours…';
+
+  try {
+    const res = await fetch('/api/participant/donate/' + _donateCollId, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: parseFloat(amountVal) })
+    });
+    const json = await res.json();
+
+    if (json.success) {
+      closeDonateModal();
+      
+      if (json.ai_message) {
+          // Show AI message ABOVE the other toasts (bottom:100px to not overlap)
+          setTimeout(() => {
+              const toast = document.createElement('div');
+              toast.style.cssText = 'position:fixed;bottom:90px;right:24px;background:#1E3A2F;color:white;padding:14px 18px;border-radius:12px;box-shadow:0 8px 24px rgba(0,0,0,0.2);z-index:9999;font-size:0.85rem;max-width:300px;text-align:left;line-height:1.5;';
+              toast.innerHTML = '<div style="font-size:0.7rem;color:rgba(255,255,255,0.55);margin-bottom:5px;">🤖 IA Gemini</div>' + json.ai_message;
+              document.body.appendChild(toast);
+              setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.5s'; setTimeout(() => toast.remove(), 500); }, 6000);
+          }, 1500);
+      }
+
+      if (json.badges && json.badges.length > 0) {
+          setTimeout(() => { triggerBadgeCelebration(json.badges); }, 300);
+      } else {
+          showToast('✅ Don de ' + amountVal + ' enregistré avec succès!');
+      }
+      if (json.xp_awarded && json.multiplier) {
+          let multiplierHtml = json.multiplier > 1 ? ` (+ Bonus x${json.multiplier})` : '';
+          setTimeout(() => showToast(`⚡ ${json.xp_awarded} XP gagnés${multiplierHtml} !`), 3000);
+      }
+      
+      // Update the card in-place
+      const updated = json.collection;
+      const idx = _partAllColl.findIndex(c => c.id === updated.id);
+      if (idx !== -1) _partAllColl[idx] = updated;
+      renderPartCollections(_partAllColl.filter(c => {
+        const s = (document.getElementById('partCollSearch')?.value || '').toLowerCase();
+        const m = document.getElementById('partCollMaterial')?.value || '';
+        if (s && !c.title.toLowerCase().includes(s) && !c.materialType.toLowerCase().includes(s)) return false;
+        if (m && c.materialType !== m) return false;
+        return true;
+      }));
+    } else {
+      const msg = json.errors?.amount || json.message || 'Erreur inconnue.';
+      errEl.textContent = msg;
+      errEl.style.display = 'block';
+    }
+  } catch(err) {
+    errEl.textContent = 'Erreur réseau: ' + err.message;
+    errEl.style.display = 'block';
+    console.error('Donation error:', err);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Confirmer le don';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeDonateModal();
+});
+
+// ─────────────────────────────────────────────────────────────────
+// ── LEADERBOARD ──
+// ─────────────────────────────────────────────────────────────────
+async function loadLeaderboard() {
+  const cont = document.getElementById('leaderboardContainer');
+  cont.innerHTML = '<div style="text-align:center;padding:30px;color:var(--muted)">Chargement...</div>';
+
+  try {
+    const res = await fetch('/api/participant/leaderboard');
+    const json = await res.json();
+    if (!json.success) {
+      cont.innerHTML = `<div style="color:var(--rust)">⚠️ ${json.message}</div>`;
       return;
     }
-    container.style.display = 'grid';
-    if (emptyDiv) emptyDiv.style.display = 'none';
-    const totalEvents = events.length;
-    const registeredEvents = events.filter(e => e.is_registered === true).length;
-    const kgEstimate = registeredEvents * 15;
-    document.getElementById('event-count-total').textContent = totalEvents;
-    document.getElementById('event-joined-count').textContent = registeredEvents;
-    document.getElementById('event-kg-total').textContent = kgEstimate;
-    document.getElementById('event-coupons-count').textContent = Math.floor(registeredEvents / 2) + 1;
-    container.innerHTML = events.map(event => renderEventCard(event)).join('');
-    updateUpcomingEventsPreview(events.filter(e => !e.is_registered).slice(0, 3));
-  } catch (error) {
-    console.error('Erreur:', error);
-    container.innerHTML = '<div class="empty-state"><div class="e-icon"><i class="fas fa-exclamation-triangle"></i></div><h4>Erreur de chargement</h4><p>Impossible de charger les événements.</p></div>';
-  }
-}
 
-function renderEventCard(event) {
-  const eventDate = new Date(event.date_evenement + 'T' + (event.heure_evenement || '00:00'));
-  const day = eventDate.getDate();
-  const month = getMonthName(eventDate.getMonth());
-  const participantsCount = event.participants_count || 0;
-  const capacity = event.capacite_max || 0;
-  const fillPercent = capacity > 0 ? (participantsCount / capacity) * 100 : 0;
-  const placesLeft = capacity - participantsCount;
-  const isFull = placesLeft <= 0;
-  let statusClass = 'sbadge-available';
-  let statusText = 'Disponible';
-  let buttonDisabled = '';
-  if (event.is_registered) { statusClass = 'sbadge-registered'; statusText = '✓ Inscrit'; buttonDisabled = 'disabled'; }
-  else if (isFull) { statusClass = 'sbadge-pending'; statusText = 'Complet'; buttonDisabled = 'disabled'; }
-  const imageUrl = event.image_evenement ? `/uploads/events/${event.image_evenement}` : null;
-  return `
-    <div class="event-card" onclick="viewEventDetail(${event.id})">
-      <div class="event-image">
-        ${imageUrl ? `<img src="${imageUrl}" alt="${escapeHtml(event.titre)}">` : `<div class="event-image-placeholder"><i class="fas fa-calendar-alt"></i></div>`}
-        <div class="event-status-badge"><span class="sbadge ${statusClass}">${statusText}</span></div>
-        <div class="event-date-badge">
-          <div class="event-date-day">${day}</div>
-          <div class="event-date-month">${month}</div>
-        </div>
-      </div>
-      <div class="event-body">
-        <div class="event-title">${escapeHtml(event.titre)}</div>
-        <div class="event-lieu"><i class="fas fa-map-marker-alt"></i> ${escapeHtml(event.lieu)}</div>
-        <div class="event-progress">
-          <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(fillPercent, 100)}%"></div></div>
-          <div class="progress-stats">
-            <span><i class="fas fa-users"></i> ${participantsCount} inscrits</span>
-            <span><i class="fas fa-chair"></i> ${capacity} places</span>
+    // Update global stat
+    document.getElementById('heroMyRank').textContent = json.myRank ? `#${json.myRank}` : '--';
+    
+    // Update Personal Section
+    document.getElementById('myCurrentXp').textContent = `${json.myXp} XP`;
+    let myTitle = 'Eco-Novice';
+    if (json.myXp >= 5000) myTitle = 'Gardien de la Terre';
+    else if (json.myXp >= 2000) myTitle = 'Héros de la Planète';
+    else if (json.myXp >= 500) myTitle = 'Recycleur Actif';
+    document.getElementById('myCurrentRankTitle').textContent = myTitle;
+
+    // Render list
+    cont.innerHTML = '';
+    if (json.data.length === 0) {
+      cont.innerHTML = '<div style="text-align:center;color:var(--muted)">Aucun participant classé.</div>';
+    }
+    
+    json.data.forEach(u => {
+      let medal = `<div style="width:30px;font-weight:bold;color:var(--muted)">#${u.rank}</div>`;
+      if (u.rank === 1) medal = `<div style="width:30px;font-size:1.3rem">🥇</div>`;
+      if (u.rank === 2) medal = `<div style="width:30px;font-size:1.3rem">🥈</div>`;
+      if (u.rank === 3) medal = `<div style="width:30px;font-size:1.3rem">🥉</div>`;
+
+      let bgColor = u.isMe ? 'rgba(93,168,122,0.15)' : 'var(--card)';
+      let border = u.isMe ? '1px solid var(--moss)' : '1px solid var(--border)';
+      
+      let titleBadge = '';
+      if (u.title === 'Gardien de la Terre') titleBadge = 'background:linear-gradient(135deg,#c9a030,#8B6914);color:white;';
+      else if (u.title === 'Héros de la Planète') titleBadge = 'background:rgba(93,168,122,0.2);color:var(--forest);';
+      else if (u.title === 'Recycleur Actif') titleBadge = 'background:var(--bg);color:var(--moss);font-weight:600;';
+      else titleBadge = 'background:var(--bg);color:var(--muted);';
+
+      cont.innerHTML += `
+        <div style="display:flex;align-items:center;padding:12px 18px;background:${bgColor};border:${border};border-radius:12px">
+          ${medal}
+          <div style="width:40px;height:40px;border-radius:50%;background:rgba(30,58,47,0.1);color:var(--forest);display:flex;align-items:center;justify-content:center;font-weight:bold;margin:0 15px 0 5px">${u.name.charAt(0).toUpperCase()}</div>
+          <div style="flex:1">
+            <div style="font-weight:bold;color:${u.isMe ? 'var(--forest)' : 'var(--dark)'}">${u.name} ${u.isMe ? '(Moi)' : ''}</div>
+            <div style="font-size:0.75rem;padding:2px 8px;border-radius:4px;display:inline-block;margin-top:4px;${titleBadge}">${u.title}</div>
           </div>
+          <div style="font-family:'Playfair Display',serif;font-weight:bold;font-size:1.2rem;color:var(--forest)">${u.xp} XP</div>
         </div>
-        <div class="event-details-mini">
-          <span><i class="fas fa-calendar-day"></i> ${eventDate.toLocaleDateString('fr-FR')}</span>
-          <span><i class="fas fa-clock"></i> ${event.heure_evenement || '00:00'}</span>
-        </div>
-        <div class="event-actions">
-          <button class="btn-subscribe" onclick="event.stopPropagation();openSubscribeModal(${event.id},'${escapeHtml(event.titre).replace(/'/g,"\\'")}');" ${buttonDisabled}>
-            <i class="fas ${event.is_registered ? 'fa-check-circle' : (isFull ? 'fa-ban' : 'fa-calendar-plus')}"></i>
-            ${event.is_registered ? 'Déjà inscrit' : (isFull ? 'Complet' : "S'inscrire")}
-          </button>
-          <button class="btn-details" onclick="event.stopPropagation();viewEventDetail(${event.id})">
-            <i class="fas fa-info-circle"></i> Détails
-          </button>
-        </div>
-      </div>
-    </div>
-  `;
-}
-
-function updateUpcomingEventsPreview(events) {
-  const container = document.getElementById('upcomingEventsPreview');
-  if (!container) return;
-  if (!events || events.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:24px;color:var(--muted);font-size:0.82rem"><i class="fas fa-calendar-check" style="font-size:2rem;opacity:.3;display:block;margin-bottom:10px"></i>Aucun événement à venir</div>';
-    return;
-  }
-  container.innerHTML = events.map(event => {
-    const d = new Date(event.date_evenement + 'T00:00');
-    return `
-      <div class="upcoming-item">
-        <div class="upcoming-date-box">
-          <div class="upcoming-day">${d.getDate()}</div>
-          <div class="upcoming-mon">${getMonthName(d.getMonth())}</div>
-        </div>
-        <div class="upcoming-info">
-          <div class="upcoming-title">${escapeHtml(event.titre)}</div>
-          <div class="upcoming-lieu"><i class="fas fa-map-marker-alt" style="margin-right:4px"></i>${escapeHtml(event.lieu)}</div>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-async function viewEventDetail(eventId) {
-  const event = eventsList.find(e => e.id === eventId);
-  if (!event) return;
-  currentDetailEvent = event;
-  const capacity = event.capacite_max || 0;
-  const participantsCount = event.participants_count || 0;
-  const fillPercent = capacity > 0 ? Math.round((participantsCount / capacity) * 100) : 0;
-  const placesLeft = capacity - participantsCount;
-  const isFull = placesLeft <= 0;
-  const eventDate = new Date(event.date_evenement + 'T' + (event.heure_evenement || '00:00'));
-  document.getElementById('eventDetailBody').innerHTML = `
-    <div style="background:linear-gradient(135deg,var(--forest),var(--moss));border-radius:var(--radius-lg);padding:20px;color:white;margin-bottom:20px">
-      <div style="font-family:'Playfair Display',serif;font-size:1.25rem;font-weight:700;margin-bottom:6px">${escapeHtml(event.titre)}</div>
-      <div style="font-size:0.8rem;opacity:.65"><i class="fas fa-map-marker-alt" style="margin-right:5px"></i>${escapeHtml(event.lieu)}</div>
-    </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px">
-      <div style="padding:14px;background:var(--bg);border-radius:var(--radius-md)">
-        <div style="font-size:0.7rem;color:var(--muted);font-weight:600;margin-bottom:4px"><i class="fas fa-calendar-day" style="margin-right:4px"></i>DATE</div>
-        <div style="font-weight:700;color:var(--forest)">${eventDate.toLocaleDateString('fr-FR')}</div>
-      </div>
-      <div style="padding:14px;background:var(--bg);border-radius:var(--radius-md)">
-        <div style="font-size:0.7rem;color:var(--muted);font-weight:600;margin-bottom:4px"><i class="fas fa-clock" style="margin-right:4px"></i>HEURE</div>
-        <div style="font-weight:700;color:var(--forest)">${event.heure_evenement || '–'}</div>
-      </div>
-    </div>
-    <div style="margin-bottom:18px">
-      <div style="font-size:0.75rem;font-weight:600;color:var(--forest);margin-bottom:8px"><i class="fas fa-users" style="margin-right:5px;color:var(--moss)"></i>Capacité</div>
-      <div class="progress-bar"><div class="progress-fill" style="width:${Math.min(fillPercent,100)}%"></div></div>
-      <div style="display:flex;justify-content:space-between;font-size:0.72rem;color:var(--muted);margin-top:6px">
-        <span>${participantsCount} inscrits</span>
-        <span>${isFull ? '<span style="color:var(--danger)">Complet</span>' : `${placesLeft} places restantes`}</span>
-      </div>
-    </div>
-    ${event.description ? `<div style="font-size:0.85rem;color:var(--muted);line-height:1.65;padding:14px;background:var(--bg);border-radius:var(--radius-md)">${escapeHtml(event.description)}</div>` : ''}
-  `;
-  const subscribeBtn = document.getElementById('detailSubscribeBtn');
-  if (event.is_registered) { subscribeBtn.disabled = true; subscribeBtn.innerHTML = '<i class="fas fa-check-circle"></i> Déjà inscrit'; subscribeBtn.style.opacity = '0.5'; }
-  else if (isFull) { subscribeBtn.disabled = true; subscribeBtn.innerHTML = '<i class="fas fa-ban"></i> Complet'; subscribeBtn.style.opacity = '0.5'; }
-  else { subscribeBtn.disabled = false; subscribeBtn.innerHTML = '<i class="fas fa-calendar-plus"></i> S\'inscrire'; subscribeBtn.style.opacity = '1'; }
-  document.getElementById('eventDetailModal').classList.add('active');
-}
-
-function closeEventDetailModal() { document.getElementById('eventDetailModal').classList.remove('active'); currentDetailEvent = null; }
-
-function subscribeFromDetail() {
-  if (currentDetailEvent && !currentDetailEvent.is_registered) {
-    closeEventDetailModal();
-    openSubscribeModal(currentDetailEvent.id, currentDetailEvent.titre);
-  }
-}
-
-function openSubscribeModal(eventId, eventTitle) {
-  currentSubscribingEvent = { id: eventId, title: eventTitle };
-  document.getElementById('modalEventTitle').innerHTML = `<i class="fas fa-calendar-alt" style="color:var(--moss);margin-right:6px"></i>${eventTitle}`;
-  document.getElementById('subscribeContact').value = '';
-  document.getElementById('subscribeAge').value = '';
-  document.getElementById('subscribeModal').classList.add('active');
-}
-
-function closeSubscribeModal() { document.getElementById('subscribeModal').classList.remove('active'); currentSubscribingEvent = null; }
-
-async function confirmSubscription() {
-  if (!currentSubscribingEvent) return;
-  const contact = document.getElementById('subscribeContact').value.trim();
-  const age = parseInt(document.getElementById('subscribeAge').value);
-  if (!contact) { showToast('Veuillez entrer un numéro de contact', 'warning'); return; }
-  try {
-    const response = await fetch(`/api/events/${currentSubscribingEvent.id}/subscribe`, {
-      method: 'POST',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ contact, age: age || null })
+      `;
     });
-    const result = await response.json();
-    if (response.ok && result.success) {
-      showToast(`Inscription confirmée pour ${currentSubscribingEvent.title}! 🎉`);
-      closeSubscribeModal();
-      await loadParticipantEvents();
-      loadUserStats();
-    } else {
-      showToast(result.message || 'Erreur lors de l\'inscription', 'error');
-    }
-  } catch (error) {
-    showToast('Erreur de connexion', 'error');
+
+  } catch(e) {
+    cont.innerHTML = '<div style="color:var(--rust)">Erreur de chargement.</div>';
   }
 }
 
-// ===== GALLERY =====
-function initGallery() {
-  galleryItems = [
-    { name: 'Chaise Artisanale', cat: 'Mobilier', icon: '<i class="fas fa-chair"></i>', color: '#d4e8d4', color2: '#b8d8b8' },
-    { name: 'Glass Artwork', cat: 'Installations', icon: '<i class="fas fa-cube"></i>', color: '#d8eef4', color2: '#b8dde8' },
-    { name: 'Mushrooms Sculpture', cat: 'Décoratif', icon: '<i class="fas fa-tree"></i>', color: '#f0e8d4', color2: '#e0d4b8' },
-    { name: '3D Mosaic', cat: 'Mural', icon: '<i class="fas fa-puzzle-piece"></i>', color: '#ece4d8', color2: '#ddd4c4' },
-    { name: 'Tin Fish', cat: 'Décoratif', icon: '<i class="fas fa-fish"></i>', color: '#e8e0f0', color2: '#d8d0e4' },
-    { name: 'Esprit Étudiant', cat: 'Décoratif', icon: '<i class="fas fa-graduation-cap"></i>', color: '#f0f4e0', color2: '#e0e8cc' }
-  ];
-  renderGallery();
-}
-
-function renderGallery(filterCat = 'all') {
-  const container = document.getElementById('galleryContainer');
-  if (!container) return;
-  const filtered = filterCat === 'all' ? galleryItems : galleryItems.filter(i => i.cat === filterCat);
-  container.innerHTML = filtered.map(item => `
-    <div class="gal-item" data-cat="${item.cat}">
-      <div class="gal-img" style="background:linear-gradient(135deg,${item.color},${item.color2});font-size:2.8rem">
-        ${item.icon}
-        <div class="gal-overlay">
-          <button class="gal-overlay-btn" onclick="event.stopPropagation();showToast('${item.name} — Vue agrandie', 'info')" title="Voir"><i class="fas fa-expand-alt"></i></button>
-          <button class="gal-overlay-btn" onclick="event.stopPropagation();showToast('Avis ajouté ⭐', 'success')" title="Avis"><i class="fas fa-star"></i></button>
-        </div>
-        <button class="gal-heart" onclick="event.stopPropagation();toggleFavorite(this,'${item.name}')"><i class="far fa-heart"></i></button>
-      </div>
-      <div class="gal-info">
-        <div class="gal-name">${escapeHtml(item.name)}</div>
-        <div class="gal-cat"><i class="fas fa-tag"></i> ${item.cat}</div>
-        <div class="gal-actions">
-          <button class="btn btn-outline btn-sm" onclick="showToast('Ajouté aux favoris ❤️')"><i class="far fa-heart"></i> Favoris</button>
-          <button class="btn btn-outline btn-sm" onclick="showToast('Laisser un avis')"><i class="far fa-star"></i> Avis</button>
-        </div>
-      </div>
-    </div>
-  `).join('');
-
-  const recentContainer = document.getElementById('recentGallery');
-  if (recentContainer) {
-    recentContainer.innerHTML = galleryItems.slice(0, 3).map(item => `
-      <div class="gal-item" style="cursor:pointer" onclick="showSection('galerie',null)">
-        <div class="gal-img" style="background:linear-gradient(135deg,${item.color},${item.color2});height:90px;font-size:2rem">${item.icon}</div>
-        <div class="gal-info">
-          <div class="gal-name" style="font-size:0.78rem">${escapeHtml(item.name)}</div>
-          <div class="gal-cat" style="font-size:0.65rem">${item.cat}</div>
-        </div>
-      </div>
-    `).join('');
-  }
-}
-
-function filterGallery() {
-  const searchTerm = document.getElementById('gallerySearch')?.value.toLowerCase() || '';
-  const filtered = galleryItems.filter(i => i.name.toLowerCase().includes(searchTerm));
-  const container = document.getElementById('galleryContainer');
-  if (container) container.innerHTML = filtered.map(item => `
-    <div class="gal-item" data-cat="${item.cat}">
-      <div class="gal-img" style="background:linear-gradient(135deg,${item.color},${item.color2});font-size:2.8rem">
-        ${item.icon}
-        <button class="gal-heart" onclick="event.stopPropagation();toggleFavorite(this,'${item.name}')"><i class="far fa-heart"></i></button>
-      </div>
-      <div class="gal-info">
-        <div class="gal-name">${escapeHtml(item.name)}</div>
-        <div class="gal-cat"><i class="fas fa-tag"></i> ${item.cat}</div>
-      </div>
-    </div>
-  `).join('');
-}
-
-function filterGalleryByCat(cat) {
-  document.querySelectorAll('#sec-galerie .btn').forEach(btn => {
-    const isTous = btn.textContent.includes('Tous');
-    if ((cat === 'all' && isTous) || btn.textContent.includes(cat)) {
-      btn.className = 'btn btn-primary btn-sm';
-    } else {
-      btn.className = 'btn btn-outline btn-sm';
-    }
-  });
-  renderGallery(cat);
-}
-
-function toggleFavorite(btn, itemName) {
-  const icon = btn.querySelector('i');
-  if (icon.classList.contains('far')) {
-    icon.classList.replace('far', 'fas');
-    showToast(`${itemName} ajouté aux favoris ❤️`, 'success');
-  } else {
-    icon.classList.replace('fas', 'far');
-    showToast(`${itemName} retiré des favoris`, 'info');
-  }
-// ===== MANAGE PARTICIPATIONS =====
-let currentEditingParticipationId = null;
-let allMyParticipations = []; // cache des données brutes
-let partFilters = { status: 'all', sort: 'asc' };
-
-function openManageParticipationsModal() {
-  document.getElementById('manageParticipationsModal').classList.add('active');
-  loadMyParticipations();
-}
-
-function closeManageParticipationsModal() {
-  document.getElementById('manageParticipationsModal').classList.remove('active');
-}
-
-function setPartFilter(type, value, btn) {
-  partFilters[type] = value;
-  // Mettre à jour les boutons actifs du même groupe
-  document.querySelectorAll(`.part-filter-btn[data-filter="${type}"]`).forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  filterParticipations();
-}
-
-function resetPartFilters() {
-  partFilters = { status: 'all', sort: 'asc' };
-  document.querySelectorAll('.part-filter-btn').forEach(b => b.classList.remove('active'));
-  document.querySelectorAll('.part-filter-btn[data-value="all"], .part-filter-btn[data-value="asc"]').forEach(b => b.classList.add('active'));
-  const searchInput = document.getElementById('partSearch');
-  if (searchInput) searchInput.value = '';
-  filterParticipations();
-}
-
-function filterParticipations() {
-  const search = (document.getElementById('partSearch')?.value || '').toLowerCase().trim();
-  const now = new Date();
-
-  let filtered = allMyParticipations.filter(event => {
-    // Filtre recherche
-    const matchSearch = !search
-      || (event.titre || '').toLowerCase().includes(search)
-      || (event.lieu || '').toLowerCase().includes(search)
-      || (event.contact || '').toLowerCase().includes(search);
-
-    // Filtre statut
-    const d = event.date_evenement ? new Date(event.date_evenement) : null;
-    let matchStatus = true;
-    if (partFilters.status === 'upcoming') matchStatus = d ? d >= now : false;
-    if (partFilters.status === 'past')     matchStatus = d ? d < now  : false;
-
-    return matchSearch && matchStatus;
-  });
-
-  // Tri par date
-  filtered.sort((a, b) => {
-    const da = a.date_evenement ? new Date(a.date_evenement) : new Date(0);
-    const db = b.date_evenement ? new Date(b.date_evenement) : new Date(0);
-    return partFilters.sort === 'asc' ? da - db : db - da;
-  });
-
-  renderParticipations(filtered, allMyParticipations.length);
-}
-
-function renderParticipations(events, total) {
-  const container = document.getElementById('participationsListContainer');
-  const countEl   = document.getElementById('partCount');
-  const now = new Date();
-
-  if (countEl) {
-    const txt = events.length === total
-      ? `${total} participation${total > 1 ? 's' : ''}`
-      : `${events.length} résultat${events.length > 1 ? 's' : ''} sur ${total}`;
-    countEl.textContent = txt;
-  }
-
-  if (events.length === 0) {
-    container.innerHTML = `
-      <div class="part-empty">
-        <div class="part-empty-icon"><i class="fas fa-search"></i></div>
-        <h4>Aucun résultat</h4>
-        <p>Aucune participation ne correspond à vos critères de recherche.<br>Essayez de modifier vos filtres.</p>
-      </div>`;
-    return;
-  }
-
-  container.innerHTML = events.map(event => {
-    const d       = event.date_evenement ? new Date(event.date_evenement) : null;
-    const isPast  = d ? d < now : false;
-    const day     = d ? d.getDate() : '—';
-    const mon     = d ? ['Jan','Fév','Mar','Avr','Mai','Jun','Jul','Aoû','Sep','Oct','Nov','Déc'][d.getMonth()] : '';
-    const dateStr = d ? d.toLocaleDateString('fr-FR', { weekday:'long', year:'numeric', month:'long', day:'numeric' }) : '-';
-
-    const safeTitle     = escapeHtml(event.titre);
-    const safeLieu      = escapeHtml(event.lieu || '-');
-    const safeContact   = escapeHtml(event.contact || '-');
-    const safeAge       = event.age || '-';
-    const safeTitleJs   = safeTitle.replace(/'/g, "\\'");
-    const safeContactJs = escapeHtml(event.contact || '').replace(/'/g, "\\'");
-
-    const statusBadge = isPast
-      ? `<span class="sbadge" style="background:rgba(107,116,104,0.12);color:var(--muted);font-size:0.63rem;padding:3px 10px;"><i class="fas fa-check-double" style="margin-right:4px"></i>Terminé</span>`
-      : `<span class="sbadge sbadge-registered" style="font-size:0.63rem;padding:3px 10px;"><i class="fas fa-clock" style="margin-right:4px"></i>À venir</span>`;
-
-    const dateBoxStyle = isPast
-      ? `background:linear-gradient(135deg,var(--muted),var(--muted-light));`
-      : `background:linear-gradient(135deg,var(--forest),var(--moss));`;
-
-    return `
-      <div class="part-card" style="${isPast ? 'opacity:0.82' : ''}">
-        <div class="part-date-box" style="${dateBoxStyle}">
-          <div class="part-date-day">${day}</div>
-          <div class="part-date-mon">${mon}</div>
-        </div>
-        <div class="part-info">
-          <div class="part-title">${safeTitle}</div>
-          <div class="part-meta">
-            <span><i class="fas fa-calendar-alt"></i> ${dateStr}</span>
-            <span><i class="fas fa-map-marker-alt"></i> ${safeLieu}</span>
-          </div>
-          <div class="part-details-row">
-            <span class="part-detail-chip"><i class="fas fa-phone"></i> ${safeContact}</span>
-            ${safeAge !== '-' ? `<span class="part-detail-chip"><i class="fas fa-birthday-cake"></i> ${safeAge} ans</span>` : ''}
-            ${statusBadge}
-          </div>
-        </div>
-        <div class="part-actions">
-          ${!isPast ? `<button class="btn btn-primary btn-sm" onclick="openEditParticipationModal(${event.id},'${safeTitleJs}','${safeContactJs}','${safeAge}')">
-            <i class="fas fa-edit"></i> Modifier
-          </button>` : `<button class="btn btn-outline btn-sm" disabled style="opacity:0.45;cursor:not-allowed;">
-            <i class="fas fa-edit"></i> Modifier
-          </button>`}
-          <button class="btn btn-outline btn-sm" style="color:var(--danger);border-color:var(--danger);" onclick="cancelParticipation(${event.id})">
-            <i class="fas fa-trash-alt"></i> Annuler
-          </button>
-        </div>
-      </div>`;
-  }).join('');
-}
-
-async function loadMyParticipations() {
-  const container = document.getElementById('participationsListContainer');
-  const countEl   = document.getElementById('partCount');
-  container.innerHTML = '<div class="loading-spinner"><div class="spinner"></div>Chargement…</div>';
-  if (countEl) countEl.textContent = '';
+// ─────────────────────────────────────────────────────────────────
+// ── DONATION HISTORY ──
+// ─────────────────────────────────────────────────────────────────
+async function loadDonationHistory() {
+  const cont = document.getElementById('donsContainer');
+  cont.innerHTML = '<div style="text-align:center;padding:60px 0;color:var(--muted)"><div style="font-size:2rem">⏳</div><div>Chargement…</div></div>';
 
   try {
-    const response = await fetch('/api/my-events', { credentials: 'include', headers: { 'Accept': 'application/json' } });
-    if (!response.ok) throw new Error('Erreur réseau');
-    const data = await response.json();
-    allMyParticipations = data.events || [];
+    const res  = await fetch('/api/participant/donations');
+    const json = await res.json();
+    if (!json.success) {
+      cont.innerHTML = '<div class="card" style="text-align:center;padding:40px;color:red">⚠️ ' + (json.message || 'Erreur inconnue') + '</div>';
+      return;
+    }
+    const donations = json.data || [];
 
-    if (allMyParticipations.length === 0) {
-      if (countEl) countEl.textContent = 'Aucune participation';
-      container.innerHTML = `
-        <div class="part-empty">
-          <div class="part-empty-icon"><i class="fas fa-calendar-times"></i></div>
-          <h4>Aucune participation</h4>
-          <p>Vous n'êtes inscrit à aucun événement pour le moment.<br>Explorez les événements disponibles et rejoignez-en un !</p>
+    if (donations.length === 0) {
+      cont.innerHTML = `
+        <div class="card" style="text-align:center;padding:50px">
+          <div style="font-size:3rem;margin-bottom:14px">🤍</div>
+          <div style="font-family:'Playfair Display',serif;font-size:1.1rem;font-weight:700;color:var(--forest);margin-bottom:8px">Pas encore de dons</div>
+          <div style="font-size:.85rem;color:var(--muted);margin-bottom:20px">Visitez les collections actives et faites votre première contribution!</div>
+          <button class="btn btn-primary" onclick="showSection('collections', document.querySelector('[onclick*=collections]'))">♻️ Voir les collections</button>
         </div>`;
       return;
     }
 
-    // Réinitialiser les filtres visuels
-    resetPartFilters();
+    // Group by collection for summaries
+    const totals = {};
+    donations.forEach(d => {
+      if (d.collectionId) {
+        totals[d.collectionId] = totals[d.collectionId] || { title: d.collection, unit: d.unit, total: 0 };
+        totals[d.collectionId].total += parseFloat(d.amount);
+      }
+    });
 
-  } catch (error) {
-    console.error('Erreur:', error);
-    if (countEl) countEl.textContent = '';
-    container.innerHTML = `
-      <div style="text-align:center;padding:40px;color:var(--danger);">
-        <i class="fas fa-exclamation-triangle" style="font-size:2rem;margin-bottom:12px;display:block;opacity:.7"></i>
-        Erreur lors du chargement de vos participations.
+    const statusColors = { 'confirmé': '#3D9B5A', 'en_attente': '#9a7040', 'annulé': '#B05A2F' };
+    const statusLabels = { 'confirmé': '✓ Confirmé', 'en_attente': '⏳ En attente', 'annulé': '✗ Annulé' };
+    const colours = ['linear-gradient(135deg,var(--moss),var(--forest))','linear-gradient(135deg,var(--sand),#a08040)','linear-gradient(135deg,#7a6a5a,#5a4a3d)','linear-gradient(135deg,var(--sage),var(--moss))'];
+
+    let badgesHtml = '';
+    if (json.badges && json.badges.length > 0) {
+      badgesHtml = '<div class="card" style="margin-bottom:20px"><div class="card-title">🏆 Mes Badges Débloqués</div><div style="display:flex;gap:15px;flex-wrap:wrap;padding:10px 0">';
+      json.badges.forEach(b => {
+        // Use lowercase filenames matching those uploaded by user
+        let safeBadgeName = b.replace(/\s+/g,'_').toLowerCase();
+        badgesHtml += `<div style="text-align:center;padding:12px;background:var(--surface);border:1px solid var(--border);border-radius:12px;width:120px;transition:transform .2s" onmouseover="this.style.transform='translateY(-3px)'" onmouseout="this.style.transform='translateY(0)'">
+          <div style="font-size:2.5rem;margin-bottom:10px;height:50px;display:flex;align-items:center;justify-content:center"><img src="/images/${safeBadgeName}.png" alt="${b}" style="max-height:100%;max-width:100%" onerror="this.outerHTML='🎖️'"></div>
+          <div style="font-size:0.75rem;font-weight:bold;color:var(--forest)">${escH(b)}</div>
+        </div>`;
+      });
+      badgesHtml += '</div></div>';
+    }
+
+    cont.innerHTML = badgesHtml + `
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Historique complet</div>
+          <div id="donsList"></div>
+        </div>
+        <div class="card">
+          <div class="card-title">Résumé par collection</div>
+          <div id="donsSummary"></div>
+        </div>
       </div>`;
-  }
-}
 
-function openEditParticipationModal(eventId, eventName, contact, age) {
-  currentEditingParticipationId = eventId;
-  document.getElementById('editPartEventName').textContent = eventName;
-  document.getElementById('editPartContact').value = contact !== '-' ? contact : '';
-  document.getElementById('editPartAge').value = age !== '-' ? age : '';
-  document.getElementById('editParticipationModal').classList.add('active');
-}
-
-function closeEditParticipationModal() {
-  document.getElementById('editParticipationModal').classList.remove('active');
-  currentEditingParticipationId = null;
-}
-
-async function confirmEditParticipation() {
-  const contact = document.getElementById('editPartContact').value.trim();
-  const age = document.getElementById('editPartAge').value.trim();
-  if (!contact) {
-    showToast('Le contact est requis', 'error');
-    return;
-  }
-  
-  try {
-    const response = await fetch(`/api/events/${currentEditingParticipationId}/subscribe`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ contact, age })
+    const listEl = document.getElementById('donsList');
+    donations.forEach((d, i) => {
+      const col = colours[i % colours.length];
+      const statusC = statusColors[d.status] || '#888';
+      const statusL = statusLabels[d.status] || d.status;
+      const initial = (d.collection || 'D')[0].toUpperCase();
+      listEl.innerHTML += `
+        <div class="don-row">
+          <div class="don-av" style="background:${col}">${initial}</div>
+          <div style="flex:1">
+            <div class="don-coll">${escH(d.collection || 'Collection supprimée')}</div>
+            <div style="font-size:.7rem;color:var(--muted)">${escH(d.materialType || '')} · ${escH(d.date || '')}</div>
+          </div>
+          <span class="don-amount">${parseFloat(d.amount).toFixed(1)} ${escH(d.unit || '')}</span>
+          <span class="don-status" style="background:${statusC}20;color:${statusC}">${statusL}</span>
+        </div>`;
     });
-    const result = await response.json();
-    if (result.success) {
-      showToast('Participation mise à jour avec succès', 'success');
-      closeEditParticipationModal();
-      loadMyParticipations(); // Reload the list
-      loadParticipantEvents(); // Reload the main grid if needed
-    } else {
-      showToast(result.message || 'Erreur lors de la mise à jour', 'error');
-    }
-  } catch (error) {
-    console.error('Erreur:', error);
-    showToast('Erreur serveur', 'error');
-  }
-}
 
-async function cancelParticipation(eventId) {
-  if (!confirm('Êtes-vous sûr de vouloir annuler votre participation à cet événement ?')) return;
-  
-  try {
-    const response = await fetch(`/api/events/${eventId}/subscribe`, {
-      method: 'DELETE',
-      headers: { 'Accept': 'application/json' }
+    const sumEl = document.getElementById('donsSummary');
+    Object.values(totals).forEach(t => {
+      sumEl.innerHTML += `
+        <div style="padding:12px 0;border-bottom:1px solid var(--border)";>
+          <div style="font-weight:600;color:var(--forest);font-size:.87rem;margin-bottom:4px">${escH(t.title)}</div>
+          <div style="font-size:.8rem;color:var(--moss);font-weight:700">${t.total.toFixed(2)} ${escH(t.unit || '')}</div>
+        </div>`;
     });
-    const result = await response.json();
-    if (result.success) {
-      showToast('Participation annulée avec succès', 'success');
-      loadMyParticipations();
-      loadParticipantEvents(); // Reload main grid to update buttons
-      loadUserStats(); // Update counters
-    } else {
-      showToast(result.message || 'Erreur lors de l\'annulation', 'error');
-    }
-  } catch (error) {
-    console.error('Erreur:', error);
-    showToast('Erreur serveur', 'error');
+
+  } catch {
+    cont.innerHTML = '<div class="card" style="text-align:center;padding:40px">⚠️ Erreur de chargement de l\'historique.</div>';
   }
 }
+
+// ── HTML escape ──
+function escH(s) {
+  return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
-
-// ===== USER STATS =====
-async function loadUserStats() {
-  try {
-    const response = await fetch('/api/my-events', { credentials: 'include', headers: { 'Accept': 'application/json' } });
-    if (response.ok) {
-      const data = await response.json();
-      const myEvents = data.events || data || [];
-      const registeredCount = Array.isArray(myEvents) ? myEvents.length : 0;
-      const kgEstimate = registeredCount * 15;
-      const couponsCount = Math.floor(registeredCount / 2) + 1;
-      document.getElementById('heroEventsCount').textContent = registeredCount;
-      document.getElementById('heroKgCount').textContent = kgEstimate;
-      document.getElementById('dashboardEventsCount').textContent = registeredCount;
-      document.getElementById('dashboardKgCount').textContent = kgEstimate;
-      document.getElementById('dashboardCouponsCount').textContent = couponsCount;
-      document.getElementById('event-coupons-count').textContent = couponsCount;
-      document.getElementById('heroCouponsCount').textContent = couponsCount;
-    }
-  } catch (error) { console.error('Erreur chargement stats:', error); }
-}
-
-function saveProfile() { showToast('Profil sauvegardé avec succès!', 'success'); }
-
-// ===== INIT =====
-document.addEventListener('DOMContentLoaded', function() {
-  const userName = 'Participant Test';
-  const firstName = userName.split(' ')[0];
-  document.getElementById('heroGreeting').innerHTML = `Bonjour, <em>${firstName}</em> <i class="fas fa-hand-peace"></i>`;
-  document.getElementById('profileName').innerHTML = userName;
-  document.getElementById('profileNameLarge').innerHTML = userName;
-  ['profileAvatar','profileAvatarLarge','profileAvatarEdit','navAvatar'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) el.innerHTML = userName.charAt(0);
-  });
-  initGallery();
-  loadParticipantEvents();
-  loadUserStats();
-});
-
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') {
-    document.querySelectorAll('.modal-overlay.active').forEach(m => m.classList.remove('active'));
-    closeMobileNavDirect();
-  }
-});
 </script>
+
 </body>
 </html>
