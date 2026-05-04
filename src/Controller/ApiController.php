@@ -2566,9 +2566,6 @@ SVG;
 
         return new JsonResponse(['success' => true, 'message' => 'Avis supprimé']);
     }
-<<<<<<< HEAD
-}
-=======
 
     // ══════════════════════════════════════════════════════════════════════
     // ─── SHARED COLLECTION HELPERS ────────────────────────────────────────
@@ -2616,28 +2613,23 @@ SVG;
         $materialType = trim($data['materialType'] ?? '');
         $goalAmount   = $data['goalAmount'] ?? '';
         $unit         = trim($data['unit'] ?? '');
+        $status       = trim($data['status'] ?? 'actif');
+        $description  = trim($data['description'] ?? '');
 
         if (!$title) {
             $errors['title'] = 'Le titre est requis.';
-        } elseif (strlen($title) < 5) {
-            $errors['title'] = 'Le titre doit contenir au moins 5 caractères.';
-        } elseif (strlen($title) > 255) {
-            $errors['title'] = 'Le titre ne peut pas dépasser 255 caractères.';
-        } elseif ($doctrine) {
-            $existing = $doctrine->getRepository(Collection::class)->findOneBy(['title' => $title]);
-            if ($existing && $existing->getId() !== $excludeId) {
-                $errors['title'] = 'Une collection avec ce nom existe déjà. Veuillez la changer.';
-            }
+        } elseif (strlen($title) < 3) {
+            $errors['title'] = 'Le titre doit contenir au moins 3 caractères.';
         }
 
         if (!$materialType) {
             $errors['materialType'] = 'Le type de matériau est requis.';
         }
 
-        if ($goalAmount === '' || $goalAmount === null) {
-            $errors['goalAmount'] = "L'objectif est requis.";
+        if (!$goalAmount) {
+            $errors['goalAmount'] = 'L\'objectif est requis.';
         } elseif (!is_numeric($goalAmount) || (float)$goalAmount <= 0) {
-            $errors['goalAmount'] = "L'objectif doit être un nombre positif.";
+            $errors['goalAmount'] = 'L\'objectif doit être un nombre positif.';
         }
 
         if (!$unit) {
@@ -3132,4 +3124,3 @@ SVG;
         return new JsonResponse(['success' => true, 'message' => 'Collection supprimée.']);
     }
 }
->>>>>>> collection
