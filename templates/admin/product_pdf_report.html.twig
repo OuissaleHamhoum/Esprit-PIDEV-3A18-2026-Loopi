@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #1A2218; line-height: 1.5; padding: 0; margin: 0; background: #FFF; }
+        .page { padding: 40px; }
+        .header { border-bottom: 3px solid #1E3A2F; padding-bottom: 20px; margin-bottom: 30px; display: table; width: 100%; }
+        .header-left { display: table-cell; vertical-align: middle; }
+        .header-right { display: table-cell; vertical-align: middle; text-align: right; }
+        .logo { font-size: 28px; font-weight: bold; color: #1E3A2F; letter-spacing: -1px; }
+        .report-title { font-size: 14px; color: #C9A96E; text-transform: uppercase; letter-spacing: 3px; font-weight: bold; }
+        
+        .product-grid { display: table; width: 100%; border-spacing: 0; margin-bottom: 30px; }
+        .product-image-cell { display: table-cell; width: 250px; vertical-align: top; padding-right: 30px; }
+        .product-info-cell { display: table-cell; vertical-align: top; }
+        
+        .product-img { width: 100%; border-radius: 12px; border: 1px solid #EEE; }
+        .no-image { width: 100%; height: 200px; background: #F7F5F0; border-radius: 12px; display: table; text-align: center; }
+        .no-image span { display: table-cell; vertical-align: middle; color: #AAA; font-size: 12px; }
+
+        h1 { font-size: 24px; color: #1E3A2F; margin: 0 0 10px 0; }
+        .category-badge { display: inline-block; background: #F4F1EB; color: #3D6B4F; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; margin-bottom: 15px; }
+        
+        .stats-row { display: table; width: 100%; margin-bottom: 25px; border-spacing: 10px 0; margin-left: -10px; }
+        .stat-card { display: table-cell; background: #FDFCF9; border: 1px solid #EAEAEA; padding: 15px; border-radius: 10px; text-align: center; width: 33%; }
+        .stat-label { font-size: 10px; color: #6B7468; text-transform: uppercase; margin-bottom: 5px; }
+        .stat-value { font-size: 18px; font-weight: bold; color: #1E3A2F; }
+        .stat-value.gold { color: #C9A96E; }
+
+        .section { margin-bottom: 30px; }
+        .section-title { font-size: 16px; font-weight: bold; color: #1E3A2F; border-bottom: 1px solid #EEE; padding-bottom: 8px; margin-bottom: 15px; }
+        .description { color: #444; font-size: 13px; text-align: justify; }
+
+        .details-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .details-table td { padding: 8px 0; border-bottom: 1px solid #F0F0F0; }
+        .details-label { font-weight: bold; color: #6B7468; width: 150px; }
+
+        .feedback-list { margin-top: 20px; }
+        .feedback-item { padding: 12px; border-bottom: 1px solid #F0F0F0; font-size: 12px; }
+        .feedback-header { font-weight: bold; color: #1E3A2F; margin-bottom: 4px; }
+        .feedback-note { color: #F59E0B; margin-left: 10px; }
+        .feedback-comment { color: #666; font-style: italic; }
+
+        .footer { position: fixed; bottom: 30px; left: 40px; right: 40px; border-top: 1px solid #EEE; padding-top: 15px; text-align: center; font-size: 10px; color: #999; }
+    </style>
+</head>
+<body>
+    <div class="page">
+        <div class="header">
+            <div class="header-left">
+                <div class="logo">Loopi</div>
+                <div class="report-title">Rapport Produit Détaillé</div>
+            </div>
+            <div class="header-right">
+                <div style="font-size: 12px; color: #666;">Date: {{ date|date('d/m/Y') }}</div>
+                <div style="font-size: 12px; color: #666;">Ref: #{{ product.id }}</div>
+            </div>
+        </div>
+
+        <div class="product-grid">
+            <div class="product-image-cell">
+                {% if product.imageProduit %}
+                    {# Assuming public path for wkhtmltopdf access #}
+                    <img src="http://localhost:8000/uploads/{{ product.imageProduit }}" class="product-img">
+                {% else %}
+                    <div class="no-image"><span>Aucune image disponible</span></div>
+                {% endif %}
+            </div>
+            <div class="product-info-cell">
+                <div class="category-badge">{{ product.category ? product.category.nomCat : 'Sans catégorie' }}</div>
+                <h1>{{ product.nomProduit }}</h1>
+                
+                <table class="details-table">
+                    <tr>
+                        <td class="details-label">Organisateur:</td>
+                        <td>{{ product.user ? product.user.nom ~ ' ' ~ product.user.prenom : 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="details-label">Date de création:</td>
+                        <td>{{ product.createdAt ? product.createdAt|date('d/m/Y') : 'N/A' }}</td>
+                    </tr>
+                    <tr>
+                        <td class="details-label">Statut actuel:</td>
+                        <td style="color: {{ product.status == 'publié' ? '#10B981' : '#DC3545' }}; font-weight: bold;">
+                            {{ product.status|upper }}
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-label">Note Moyenne</div>
+                <div class="stat-value gold">{{ avgRating }}/5 ★</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Favoris</div>
+                <div class="stat-value">{{ favorisCount }} ♥</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Avis</div>
+                <div class="stat-value">{{ feedbacks|length }}</div>
+            </div>
+        </div>
+
+        <div class="section">
+            <div class="section-title">Description du Produit</div>
+            <div class="description">
+                {{ product.description|nl2br }}
+            </div>
+        </div>
+
+        {% if feedbacks|length > 0 %}
+        <div class="section">
+            <div class="section-title">Derniers Avis Participants</div>
+            <div class="feedback-list">
+                {% for f in feedbacks|slice(0, 5) %}
+                <div class="feedback-item">
+                    <div class="feedback-header">
+                        {{ f.user ? f.user.nom ~ ' ' ~ f.user.prenom : 'Anonyme' }}
+                        <span class="feedback-note">{{ f.note }}/5 ★</span>
+                    </div>
+                    <div class="feedback-comment">"{{ f.commentaire }}"</div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="footer">
+            Loopi Platform Administration — Document Confidentiel — © {{ "now"|date("Y") }} Loopi
+        </div>
+    </div>
+</body>
+</html>

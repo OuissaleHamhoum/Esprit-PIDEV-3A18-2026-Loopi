@@ -1,24 +1,83 @@
 <!-- ─── PAGE: FEEDBACKS ─── -->
-  <div id="page-feedbacks" style="display:none">
-    <div class="blk">
-      <div class="blk-title">Avis & Feedbacks <span class="sub" id="feedbacksSummary">Modération des commentaires</span></div>
-      <div class="alert alert-info">ℹ️ Les avis avec des mots inappropriés sont automatiquement signalés.</div>
-      <div class="search-bar">
-        <input id="feedbackSearch" class="search-input" placeholder="🔍 Rechercher par produit ou utilisateur…">
-        <select id="feedbackRatingFilter" class="filter">
-          <option value="">Toutes les notes</option>
-          <option value="5">⭐⭐⭐⭐⭐ (5)</option>
-          <option value="4">⭐⭐⭐⭐ (4)</option>
-          <option value="3">⭐⭐⭐ (3)</option>
-          <option value="2">⭐⭐ (2)</option>
-          <option value="1">⭐ (1)</option>
-        </select>
-        <button class="btn btn-ghost btn-sm" onclick="refreshFeedbacksTable()">🔄 Actualiser</button>
+<div id="page-feedbacks" style="display:none">
+  <div class="blk">
+    <div class="blk-title" style="display:flex; justify-content:space-between; align-items:center">
+      <div>
+        Avis & Feedbacks 
+        <span class="sub" id="feedbacksSummary">Modération et gestion de la communauté</span>
       </div>
+      <button class="btn btn-loopi btn-sm" onclick="refreshFeedbacksTable()">
+        <span style="margin-right:6px">🔄</span> Actualiser la liste
+      </button>
+    </div>
+
+    <div class="alert alert-info" style="margin: 20px 0">
+      <span style="font-size:1.2rem">ℹ️</span>
+      <div>
+        <strong>Modération intelligente active :</strong> 
+        Les avis contenant des termes inappropriés sont automatiquement détectés et signalés pour examen.
+      </div>
+    </div>
+
+    <div class="search-bar" style="background:rgba(30,58,47,0.03); padding:18px; border-radius:14px; margin-bottom:24px">
+      <div style="flex:1; position:relative">
+        <span style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted)">🔍</span>
+        <input id="feedbackSearch" class="search-input" placeholder="Filtrer par produit, utilisateur ou contenu..." style="padding-left:36px; background:white">
+      </div>
+      
+      <select id="feedbackRatingFilter" class="filter" style="min-width:200px; background:white">
+        <option value="">⭐ Toutes les notes</option>
+        <option value="5">⭐⭐⭐⭐⭐ (5/5)</option>
+        <option value="4">⭐⭐⭐⭐ (4/5)</option>
+        <option value="3">⭐⭐⭐ (3/5)</option>
+        <option value="2">⭐⭐ (2/5)</option>
+        <option value="1">⭐ (1/5)</option>
+      </select>
+    </div>
+
+    <div style="overflow-x:auto">
       <table class="tbl">
-        <thead><tr><th>Produit</th><th>Utilisateur</th><th>Note</th><th>Commentaire</th><th>Date</th><th>Actions</th></tr></thead>
+        <thead>
+          <tr>
+            <th>Produit</th>
+            <th>Utilisateur</th>
+            <th>Note</th>
+            <th style="width:40%">Commentaire</th>
+            <th>Date</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
         <tbody id="feedbacksTableBody"></tbody>
       </table>
-      <div id="feedbacksEmptyState" style="display:none;padding:18px;color:var(--muted)">Aucun avis trouvé.</div>
+    </div>
+
+    <div id="feedbacksEmptyState" style="display:none; text-align:center; padding:60px 20px;">
+      <div style="font-size:3rem; margin-bottom:12px">📭</div>
+      <div style="color:var(--text); font-weight:600; font-size:1.1rem">Aucun avis correspondant</div>
+      <div style="color:var(--muted); font-size:0.9rem">Essayez de modifier vos filtres ou effectuez une nouvelle recherche.</div>
     </div>
   </div>
+</div>
+
+<style>
+.btn-report-pdf {
+    background: rgba(201, 169, 110, 0.1);
+    color: var(--sand);
+    border: 1px solid rgba(201, 169, 110, 0.3);
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+}
+.btn-report-pdf:hover {
+    background: var(--sand);
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(201, 169, 110, 0.25);
+}
+</style>

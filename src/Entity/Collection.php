@@ -18,16 +18,16 @@ class Collection
     #[ORM\Column(length: 255)]
     private ?string $title = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(name: 'material_type', length: 255)]
     private ?string $materialType = null;
 
-    #[ORM\Column(length: 255)]
+    #[ORM\Column(name: 'image_collection', length: 255)]
     private ?string $imageCollection = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2)]
+    #[ORM\Column(name: 'goal_amount', type: Types::DECIMAL, precision: 10, scale: 2)]
     private ?string $goalAmount = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => '0'])]
+    #[ORM\Column(name: 'current_amount', type: Types::DECIMAL, precision: 10, scale: 2, options: ['default' => '0'])]
     private ?string $currentAmount = '0';
 
     #[ORM\Column(length: 50)]
@@ -40,10 +40,10 @@ class Collection
     #[ORM\JoinColumn(name: 'id_user', referencedColumnName: 'id')]
     private ?User $user = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
 
     public function getId(): ?int

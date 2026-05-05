@@ -15,13 +15,13 @@ class Produit
     #[ORM\Column(name: 'id_produit')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 200)]
+    #[ORM\Column(name: 'nom_produit', length: 200)]
     private ?string $nomProduit = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
 
-    #[ORM\Column(length: 255, nullable: true)]
+    #[ORM\Column(name: 'image_produit', length: 255, nullable: true)]
     private ?string $imageProduit = null;
 
     #[ORM\ManyToOne]
@@ -32,11 +32,14 @@ class Produit
     #[ORM\JoinColumn(name: 'id_user', nullable: true, referencedColumnName: 'id')]
     private ?User $user = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'updated_at', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\Column(name: 'status', type: 'string', length: 20, nullable: true, options: ['default' => 'publié'])]
+    private ?string $status = 'publié';
 
     public function getId(): ?int
     {
@@ -117,6 +120,17 @@ class Produit
     public function setUpdatedAt(?\DateTimeInterface $updatedAt): static
     {
         $this->updatedAt = $updatedAt;
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(?string $status): static
+    {
+        $this->status = $status;
         return $this;
     }
 }

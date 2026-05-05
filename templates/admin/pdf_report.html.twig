@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: 'Helvetica', 'Arial', sans-serif; color: #333; line-height: 1.6; padding: 40px; }
+        .header { text-align: center; border-bottom: 2px solid #1E3A2F; padding-bottom: 20px; margin-bottom: 30px; }
+        .logo { font-size: 24px; font-weight: bold; color: #1E3A2F; }
+        .report-title { font-size: 20px; color: #C9A96E; margin-top: 10px; text-transform: uppercase; letter-spacing: 2px; }
+        .section { margin-bottom: 25px; background: #FAFAF7; padding: 20px; border-radius: 10px; border: 1px solid #EAEAEA; }
+        .section-title { font-weight: bold; color: #1E3A2F; margin-bottom: 10px; border-bottom: 1px solid #DDD; padding-bottom: 5px; }
+        .field { margin-bottom: 8px; }
+        .label { font-weight: bold; color: #6B7468; width: 120px; display: inline-block; }
+        .value { color: #111; }
+        .note { color: #F59E0B; font-weight: bold; font-size: 1.2em; }
+        .comment-box { background: #FFF; border-left: 4px solid #C9A96E; padding: 15px; margin-top: 10px; font-style: italic; }
+        .footer { text-align: center; margin-top: 50px; font-size: 10px; color: #999; border-top: 1px solid #EEE; padding-top: 10px; }
+        .flagged { color: #DC3545; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">Loopi — Plateforme de Recyclage</div>
+        <div class="report-title">Rapport d'Avis Participant</div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Informations Générales</div>
+        <div class="field"><span class="label">ID Avis:</span> <span class="value">#{{ feedback.id }}</span></div>
+        <div class="field"><span class="label">Date:</span> <span class="value">{{ feedback.dateCommentaire|date('d/m/Y H:i') }}</span></div>
+        <div class="field"><span class="label">Statut:</span> <span class="value {% if feedback.status == 'flagged' %}flagged{% endif %}">{{ feedback.status|upper }}</span></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Détails de l'Avis</div>
+        <div class="field"><span class="label">Utilisateur:</span> <span class="value">{{ feedback.user ? feedback.user.nom ~ ' ' ~ feedback.user.prenom : 'Anonyme' }}</span></div>
+        <div class="field"><span class="label">Produit:</span> <span class="value">{{ feedback.produit ? feedback.produit.nomProduit : 'N/A' }}</span></div>
+        <div class="field"><span class="label">Note:</span> <span class="note">{{ feedback.note }}/5 ⭐</span></div>
+    </div>
+
+    <div class="section">
+        <div class="section-title">Commentaire</div>
+        <div class="comment-box">
+            {{ feedback.commentaire|raw }}
+        </div>
+    </div>
+
+    <div class="footer">
+        Document généré automatiquement par le système Loopi le {{ date|date('d/m/Y à H:i') }}<br>
+        © {{ "now"|date("Y") }} Loopi - Tous droits réservés.
+    </div>
+</body>
+</html>

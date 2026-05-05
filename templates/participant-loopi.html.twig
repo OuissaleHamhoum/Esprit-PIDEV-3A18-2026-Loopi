@@ -4086,7 +4086,7 @@ function createGalleryCard(product, compact = false) {
   card.dataset.description = product.description || '';
   card.dataset.image = product.imageProduit || '';
   
-  const imageUrl = product.imageProduit ? `/uploads/products/${product.imageProduit}` : null;
+  const imageUrl = product.imageProduit ? `/uploads/${product.imageProduit}` : null;
   const imageHtml = imageUrl 
     ? `<div style="${compact ? 'height:120px' : 'height:200px'};overflow:hidden;background:var(--bg)"><img src="${imageUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML='<div style=\\'height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg);color:var(--muted)\\'>🎨</div>'"></div>`
     : `<div style="${compact ? 'height:120px' : 'height:200px'};display:flex;align-items:center;justify-content:center;font-size:3rem;background:linear-gradient(135deg,var(--forest),var(--moss));color:white">🎨</div>`;
@@ -4360,7 +4360,7 @@ async function loadRecommendations() {
       
       // Split recommendations: personalized vs top rated
       const forYou = recommendations.slice(0, 4);
-      const topRated = recommendations.slice(0, 8);
+      const topRated = recommendations.filter(p => p.noteMoyenne > 3.5).slice(0, 8);
       
       // Render "Pour vous"
       if (containerForYou) {
@@ -4399,7 +4399,7 @@ async function loadRecommendations() {
 
 function renderRecomCard(p, showRating = false) {
   const isFavorite = _userFavorites.some(fav => fav.id === p.id);
-  const imageUrl = p.imageProduit ? `/uploads/products/${p.imageProduit}` : null;
+  const imageUrl = p.imageProduit ? `/uploads/${p.imageProduit}` : null;
   
   return `
     <div class="card" style="padding:0;overflow:hidden;cursor:pointer;border-radius:var(--radius-lg);transition:transform .2s, box-shadow .2s" onclick="showProductDetails(${p.id})">

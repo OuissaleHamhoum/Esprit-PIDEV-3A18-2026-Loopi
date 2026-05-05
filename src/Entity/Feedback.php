@@ -25,16 +25,30 @@ class Feedback
     #[ORM\Column(length: 255)]
     private ?string $commentaire = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'date_commentaire', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateCommentaire = null;
 
     #[ORM\ManyToOne]
     #[ORM\JoinColumn(name: 'id_produit', referencedColumnName: 'id_produit')]
     private ?Produit $produit = null;
 
+    #[ORM\Column(length: 20, options: ['default' => 'published'])]
+    private ?string $status = 'published';
+
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): static
+    {
+        $this->status = $status;
+        return $this;
     }
 
     public function getUser(): ?User

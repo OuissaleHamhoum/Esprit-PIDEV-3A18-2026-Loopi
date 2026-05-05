@@ -22,6 +22,8 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Psr\Cache\CacheItemPoolInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Knp\Snappy\Pdf;
+use App\Service\BadWordFilterService;
 
 #[Route('/api')]
 class ApiController extends AbstractController
@@ -2289,6 +2291,39 @@ SVG;
         return new JsonResponse(['success' => true, 'data' => $data]);
     }
 
+    #[Route('/admin/products/{id}/report', name: 'api_admin_product_report', methods: ['GET'])]
+    public function generateProductReport(int $id, ManagerRegistry $doctrine, Pdf $pdf): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $product = $doctrine->getRepository(Produit::class)->find($id);
+        if (!$product) {
+            return new JsonResponse(['success' => false, 'message' => 'Produit non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Calculate stats
+        $feedbacks = $doctrine->getRepository(Feedback::class)->findBy(['produit' => $product]);
+        $avgRating = count($feedbacks) > 0 ? array_sum(array_map(fn($f) => $f->getNote(), $feedbacks)) / count($feedbacks) : 0;
+        $favorisCount = count($doctrine->getRepository(Favoris::class)->findBy(['produit' => $product]));
+
+        $html = $this->renderView('admin/product_pdf_report.html.twig', [
+            'product' => $product,
+            'avgRating' => round($avgRating, 1),
+            'favorisCount' => $favorisCount,
+            'feedbacks' => $feedbacks,
+            'date' => new \DateTime()
+        ]);
+
+        return new Response(
+            $pdf->getOutputFromHtml($html),
+            200,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="rapport_produit_' . $id . '.pdf"'
+            ]
+        );
+    }
+
     #[Route('/admin/products/{id}', name: 'api_admin_products_delete', methods: ['DELETE'])]
     public function deleteAdminProduct(int $id, ManagerRegistry $doctrine): JsonResponse
     {
@@ -2514,6 +2549,148 @@ SVG;
         return new JsonResponse(['success' => true, 'data' => array_slice($data, 0, 8)]);
     }
 
+    // ─── ORGANISATEUR PRODUITS ───
+
+    #[Route('/organisateur/produits', name: 'api_org_produits_list', methods: ['GET'])]
+    public function getOrgProduits(ManagerRegistry $doctrine): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) return new JsonResponse(['success' => false, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
+
+        $produits = $doctrine->getRepository(Produit::class)->findBy(['user' => $user]);
+        $data = [];
+        foreach ($produits as $p) {
+            $feedbacks = $doctrine->getRepository(Feedback::class)->findBy(['produit' => $p]);
+            $avgRating = count($feedbacks) > 0 ? array_sum(array_map(fn($f) => $f->getNote(), $feedbacks)) / count($feedbacks) : 0;
+            $favoritesCount = count($doctrine->getRepository(Favoris::class)->findBy(['produit' => $p]));
+
+            $data[] = [
+                'id' => $p->getId(),
+                'nomProduit' => $p->getNomProduit(),
+                'description' => $p->getDescription(),
+                'imageProduit' => $p->getImageProduit(),
+                'category' => $p->getCategory() ? ['id' => $p->getCategory()->getId(), 'nom' => $p->getCategory()->getNomCat()] : null,
+                'createdAt' => $p->getCreatedAt()?->format('Y-m-d'),
+                'favoris' => $favoritesCount,
+                'noteMoyenne' => round($avgRating, 1),
+                'totalFeedbacks' => count($feedbacks),
+                'status' => $p->getStatus()
+            ];
+        }
+        return new JsonResponse(['success' => true, 'data' => $data]);
+    }
+
+    #[Route('/organisateur/produits', name: 'api_org_produits_create', methods: ['POST'])]
+    public function createOrgProduit(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) return new JsonResponse(['success' => false, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
+
+        $nom = $request->request->get('nomProduit');
+        $description = $request->request->get('description');
+        $catId = $request->request->get('categoryId');
+        $imageFile = $request->files->get('image');
+
+        if (!$nom || !$catId) {
+            return new JsonResponse(['success' => false, 'message' => 'Nom et catégorie requis'], Response::HTTP_BAD_REQUEST);
+        }
+
+        $em = $doctrine->getManager();
+        $produit = new Produit();
+        $produit->setNomProduit($nom);
+        $produit->setDescription($description);
+        $produit->setUser($user);
+        $produit->setCreatedAt(new \DateTime());
+        $produit->setUpdatedAt(new \DateTime());
+        $produit->setStatus('published');
+
+        $category = $doctrine->getRepository(CategoryProduit::class)->find($catId);
+        if ($category) $produit->setCategory($category);
+
+        if ($imageFile) {
+            $filename = uniqid() . '_' . $imageFile->getClientOriginalName();
+            $imageFile->move($this->getParameter('kernel.project_dir') . '/public/uploads', $filename);
+            $produit->setImageProduit($filename);
+        }
+
+        $em->persist($produit);
+        $em->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Produit créé avec succès']);
+    }
+
+    #[Route('/organisateur/produits/{id}', name: 'api_org_produits_update', methods: ['POST'])]
+    public function updateOrgProduit(int $id, Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) return new JsonResponse(['success' => false, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
+
+        $produit = $doctrine->getRepository(Produit::class)->find($id);
+        if (!$produit || $produit->getUser() !== $user) {
+            return new JsonResponse(['success' => false, 'message' => 'Produit introuvable'], Response::HTTP_NOT_FOUND);
+        }
+
+        $nom = $request->request->get('nomProduit');
+        $description = $request->request->get('description');
+        $catId = $request->request->get('categoryId');
+        $imageFile = $request->files->get('image');
+
+        if ($nom) $produit->setNomProduit($nom);
+        if ($description !== null) $produit->setDescription($description);
+        if ($catId) {
+            $category = $doctrine->getRepository(CategoryProduit::class)->find($catId);
+            if ($category) $produit->setCategory($category);
+        }
+
+        if ($imageFile) {
+            $filename = uniqid() . '_' . $imageFile->getClientOriginalName();
+            $imageFile->move($this->getParameter('kernel.project_dir') . '/public/uploads', $filename);
+            $produit->setImageProduit($filename);
+        }
+
+        $produit->setUpdatedAt(new \DateTime());
+        $doctrine->getManager()->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Produit mis à jour']);
+    }
+
+    #[Route('/organisateur/produits/{id}', name: 'api_org_produits_delete', methods: ['DELETE'])]
+    public function deleteOrgProduit(int $id, ManagerRegistry $doctrine): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) return new JsonResponse(['success' => false, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
+
+        $produit = $doctrine->getRepository(Produit::class)->find($id);
+        if (!$produit || $produit->getUser() !== $user) {
+            return new JsonResponse(['success' => false, 'message' => 'Produit introuvable'], Response::HTTP_NOT_FOUND);
+        }
+
+        $em = $doctrine->getManager();
+        
+        // Remove related feedbacks and favorites first
+        $feedbacks = $doctrine->getRepository(Feedback::class)->findBy(['produit' => $produit]);
+        foreach ($feedbacks as $f) $em->remove($f);
+        
+        $favorites = $doctrine->getRepository(Favoris::class)->findBy(['produit' => $produit]);
+        foreach ($favorites as $fav) $em->remove($fav);
+
+        $em->remove($produit);
+        $em->flush();
+
+        return new JsonResponse(['success' => true, 'message' => 'Produit supprimé']);
+    }
+
+    #[Route('/categories', name: 'api_categories_list', methods: ['GET'])]
+    public function getCategories(ManagerRegistry $doctrine): JsonResponse
+    {
+        $categories = $doctrine->getRepository(CategoryProduit::class)->findAll();
+        $data = [];
+        foreach ($categories as $c) {
+            $data[] = ['id' => $c->getId(), 'nom' => $c->getNomCat()];
+        }
+        return new JsonResponse(['success' => true, 'data' => $data]);
+    }
+
     // ─── ADMIN COLLECTIONS ───
 
     #[Route('/admin/collections', name: 'api_admin_collections', methods: ['GET'])]
@@ -2715,10 +2892,78 @@ SVG;
         return new JsonResponse(['success' => true, 'message' => 'Coupon supprimé']);
     }
 
+    #[Route('/admin/analysis/gallery', name: 'api_admin_gallery_analysis', methods: ['GET'])]
+    public function getAdminGalleryAnalysis(ManagerRegistry $doctrine): JsonResponse
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        // 1. Products by Category
+        $categories = $doctrine->getRepository(CategoryProduit::class)->findAll();
+        $productsByCategory = [];
+        foreach ($categories as $cat) {
+            $count = count($doctrine->getRepository(Produit::class)->findBy(['category' => $cat]));
+            $productsByCategory[] = ['label' => $cat->getNomCat(), 'count' => $count];
+        }
+
+        // 2. Organizers by Gender
+        $organizers = $doctrine->getRepository(User::class)->findBy(['role' => 'organisateur']);
+        $genderStats = ['Masculin' => 0, 'Féminin' => 0, 'Autre' => 0];
+        foreach ($organizers as $org) {
+            $genre = $org->getGenre() ? $org->getGenre()->getSexe() : 'Autre';
+            if (isset($genderStats[$genre])) $genderStats[$genre]++;
+            else $genderStats['Autre']++;
+        }
+        $organizersByGender = [];
+        foreach ($genderStats as $label => $count) {
+            $organizersByGender[] = ['label' => $label, 'count' => $count];
+        }
+
+        // 3. Participant Activity (Top commenters)
+        $feedbacks = $doctrine->getRepository(Feedback::class)->findAll();
+        $userActivity = [];
+        foreach ($feedbacks as $f) {
+            if (!$f->getUser()) continue;
+            $uid = $f->getUser()->getId();
+            $name = $f->getUser()->getPrenom() . ' ' . substr($f->getUser()->getNom(), 0, 1) . '.';
+            if (!isset($userActivity[$uid])) {
+                $userActivity[$uid] = ['label' => $name, 'count' => 0];
+            }
+            $userActivity[$uid]['count']++;
+        }
+        usort($userActivity, fn($a, $b) => $b['count'] <=> $a['count']);
+        $participantActivity = array_slice($userActivity, 0, 8);
+
+        // 4. Feedback Quality (Normal vs Reported - simulated using ratings)
+        $totalFeedbacks = count($feedbacks);
+        $reportedCount = 0;
+        foreach ($feedbacks as $f) {
+            if ($f->getNote() <= 1) $reportedCount++;
+        }
+        $normalCount = $totalFeedbacks - $reportedCount;
+        $feedbackQuality = [
+            ['label' => 'Normaux', 'count' => $normalCount],
+            ['label' => 'Signalés', 'count' => $reportedCount]
+        ];
+
+        $totalProducts = count($doctrine->getRepository(Produit::class)->findAll());
+
+        return new JsonResponse([
+            'success' => true,
+            'data' => [
+                'productsByCategory' => $productsByCategory,
+                'organizersByGender' => $organizersByGender,
+                'participantActivity' => $participantActivity,
+                'feedbackQuality' => $feedbackQuality,
+                'summary' => "La galerie contient actuellement $totalProducts produits répartis dans " . count($categories) . " catégories. " . 
+                             "L'activité des participants est dynamique avec $totalFeedbacks avis enregistrés, dont " . round(($normalCount / max($totalFeedbacks, 1)) * 100, 1) . "% sont jugés de bonne qualité."
+            ]
+        ]);
+    }
+
     // ─── ADMIN FEEDBACKS ───
 
     #[Route('/admin/feedbacks', name: 'api_admin_feedbacks', methods: ['GET'])]
-    public function getAdminFeedbacks(Request $request, ManagerRegistry $doctrine): JsonResponse
+    public function getAdminFeedbacks(Request $request, ManagerRegistry $doctrine, BadWordFilterService $filter): JsonResponse
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
@@ -2750,8 +2995,9 @@ SVG;
                 'produit' => $feedback->getProduit() ? $feedback->getProduit()->getNomProduit() : null,
                 'user' => $feedback->getUser() ? $feedback->getUser()->getNom() . ' ' . $feedback->getUser()->getPrenom() : null,
                 'note' => $feedback->getNote(),
-                'commentaire' => $feedback->getCommentaire(),
+                'commentaire' => $filter->highlightBadWords($feedback->getCommentaire()),
                 'dateCommentaire' => $feedback->getDateCommentaire()?->format('Y-m-d'),
+                'status' => $feedback->getStatus(),
             ];
         }
 
@@ -2773,6 +3019,31 @@ SVG;
         $entityManager->flush();
 
         return new JsonResponse(['success' => true, 'message' => 'Avis supprimé']);
+    }
+
+    #[Route('/admin/feedbacks/{id}/report', name: 'api_admin_feedback_report', methods: ['GET'])]
+    public function generateFeedbackReport(int $id, ManagerRegistry $doctrine, Pdf $pdf): Response
+    {
+        $this->denyAccessUnlessGranted('ROLE_ADMIN');
+
+        $feedback = $doctrine->getRepository(Feedback::class)->find($id);
+        if (!$feedback) {
+            return new JsonResponse(['success' => false, 'message' => 'Avis non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        $html = $this->renderView('admin/pdf_report.html.twig', [
+            'feedback' => $feedback,
+            'date' => new \DateTime()
+        ]);
+
+        return new Response(
+            $pdf->getOutputFromHtml($html),
+            200,
+            [
+                'Content-Type' => 'application/pdf',
+                'Content-Disposition' => 'attachment; filename="rapport_feedback_' . $id . '.pdf"'
+            ]
+        );
     }
 
     // ══════════════════════════════════════════════════════════════════════

@@ -36,7 +36,9 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/"
+            "App\\": "src/",
+            "Knp\\Bundle\\SnappyBundle\\": "lib/KnpSnappyBundle/src/",
+            "Knp\\Snappy\\": "lib/knp-snappy/src/Knp/Snappy/"
         }
     },
     "autoload-dev": {

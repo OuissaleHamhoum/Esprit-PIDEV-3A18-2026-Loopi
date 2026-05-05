@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Loopi — Administration</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
 :root{--bg:#F7F5F0;--cream:#FDFCF9;--light:#FAFAF7;--card:#FFFFFF;--forest:#1E3A2F;--moss:#3D6B4F;--sage:#7A9E7E;--sand:#C9A96E;--rust:#B05A2F;--danger:#DC3545;--warn:#F59E0B;--success:#10B981;--info:#3B82F6;--muted:#6B7468;--border:rgba(30,58,47,0.09);--dark:#111510;--text:#1A2218;--loopi-mint:#3D6B4F}
 *{margin:0;padding:0;box-sizing:border-box}
@@ -285,6 +286,7 @@ select.filter{padding:7px 10px;border:1.5px solid var(--border);border-radius:9p
     {% include 'admin/coupons.html.twig' %}
     {% include 'admin/feedbacks.html.twig' %}
     {% include 'admin/analytics.html.twig' %}
+    {% include 'admin/gallery-analysis.html.twig' %}
     {% include 'admin/settings.html.twig' %}
     {% include 'admin/notifs.html.twig' %}
   </div><!-- end content -->
@@ -512,6 +514,43 @@ button:focus-visible {
 <div class="toast" id="toast"></div>
 
 <!-- ADMIN COLL MODAL -->
+<!-- PRODUCT DETAILS MODAL -->
+<div class="modal-overlay" id="productDetailsModal" onclick="if(event.target===this)closeProductModal()">
+  <div class="modal" style="max-width:600px">
+    <div class="modal-header">
+      <div class="modal-title" id="pModalTitle">Détails du Produit</div>
+      <button class="modal-close" onclick="closeProductModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="pModalContent" style="display:flex; flex-direction:column; gap:20px">
+        <div style="display:flex; gap:20px">
+          <div id="pModalImage" style="width:180px; height:180px; border-radius:12px; background:#F7F5F0; background-size:cover; background-position:center; border:1px solid var(--border)"></div>
+          <div style="flex:1">
+            <h3 id="pModalName" style="margin-bottom:8px; color:var(--forest)"></h3>
+            <span id="pModalCategory" class="badge b-org"></span>
+            <div style="margin-top:12px; font-size:.85rem; color:var(--muted)">
+              <div>👤 Organisateur: <span id="pModalOrg" style="font-weight:600"></span></div>
+              <div>📅 Créé le: <span id="pModalDate"></span></div>
+              <div id="pModalStats" style="margin-top:10px; display:flex; gap:15px; font-weight:700">
+                <span style="color:var(--sand)">★ <span id="pModalNote"></span>/5</span>
+                <span style="color:var(--danger)">♥ <span id="pModalFavs"></span></span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4 style="font-size:.8rem; text-transform:uppercase; color:var(--muted); margin-bottom:8px; letter-spacing:1px">Description</h4>
+          <p id="pModalDesc" style="font-size:.9rem; line-height:1.6; color:var(--text)"></p>
+        </div>
+      </div>
+      <div class="modal-footer" style="margin-top:20px">
+        <a id="pModalReportBtn" href="#" target="_blank" class="btn-report-pdf">📄 Télécharger Rapport</a>
+        <button type="button" class="btn btn-ghost" onclick="closeProductModal()">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="adminCollModal" onclick="if(event.target===this)closeAdminCollModal()">
   <div class="modal">
     <div class="modal-header">
@@ -573,9 +612,9 @@ button:focus-visible {
 
 <script>
 const breadcrumbs = {
-  dashboard:'Vue d\'ensemble', analytics:'Analytique', users:'Utilisateurs', events:'Événements',
+  dashboard:'Vue d\'ensemble', analytics:'Analytique', 'gallery-analysis':'Analyse Galerie', users:'Utilisateurs', events:'Événements',
   'events-map':'Carte Événements', products:'Produits', collections:'Collections', donations:'Donations', coupons:'Coupons',
-  feedbacks:'Avis & Feedbacks', settings:'Paramètres', notifs:'Notifications'
+  feedbacks:'Feedbacks', settings:'Paramètres', notifs:'Notifications'
 };
 let adminUsers = [];
 let adminEvents = [];
@@ -667,6 +706,9 @@ function goPage(name, navEl) {
       break;
     case 'feedbacks':
       refreshFeedbacksTable();
+      break;
+    case 'gallery-analysis':
+      refreshGalleryAnalysis();
       break;
   }
 }
@@ -1246,6 +1288,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
 // ─── PRODUCTS MANAGEMENT ───
 
+let allProducts = [];
+
 async function refreshProductTable() {
   const search = document.getElementById('productSearch').value.trim();
   const category = document.getElementById('productCategoryFilter').value;
@@ -1261,6 +1305,7 @@ async function refreshProductTable() {
     const result = await response.json();
 
     if (result.success) {
+      allProducts = result.data;
       populateProductsTable(result.data);
       populateProductFilters(result.data);
       document.getElementById('productsSummary').textContent = `${result.data.length} œuvres en galerie`;
@@ -1295,7 +1340,8 @@ function populateProductsTable(products) {
       <td style="color:var(--sand)">★ ${product.noteMoyenne}</td>
       <td>
         <div style="display:flex;gap:5px">
-          <button class="btn btn-ghost btn-sm" onclick="showToast('Voir détails')">Voir</button>
+          <a href="/api/admin/products/${product.id}/report" class="btn-report-pdf" target="_blank">📄 Rapport</a>
+          <button class="btn btn-ghost btn-sm" onclick="showProductDetails(${product.id})">Voir</button>
           <button class="btn btn-danger btn-sm" onclick="deleteProduct(${product.id})">Suppr.</button>
         </div>
       </td>
@@ -1335,6 +1381,34 @@ async function deleteProduct(id) {
     showToast('Erreur réseau');
   }
 }
+
+function showProductDetails(id) {
+  const p = allProducts.find(x => x.id === id);
+  if (!p) return;
+
+  document.getElementById('pModalName').textContent = p.nomProduit;
+  document.getElementById('pModalCategory').textContent = p.category || 'N/A';
+  document.getElementById('pModalOrg').textContent = p.organisateur || 'N/A';
+  document.getElementById('pModalDate').textContent = p.createdAt || 'N/A';
+  document.getElementById('pModalNote').textContent = p.noteMoyenne || '0';
+  document.getElementById('pModalFavs').textContent = p.favoris || '0';
+  document.getElementById('pModalDesc').textContent = p.description || 'Aucune description.';
+  document.getElementById('pModalReportBtn').href = `/api/admin/products/${p.id}/report`;
+  
+  const imgEl = document.getElementById('pModalImage');
+  if (p.imageProduit) {
+    imgEl.style.backgroundImage = `url('/uploads/${p.imageProduit}')`;
+  } else {
+    imgEl.style.backgroundImage = 'none';
+  }
+
+  openModal('productDetailsModal');
+}
+
+function closeProductModal() {
+  closeModal('productDetailsModal');
+}
+
 
 // ─── COLLECTIONS MANAGEMENT ───
 
@@ -1716,16 +1790,27 @@ function populateFeedbacksTable(feedbacks) {
 
   emptyState.style.display = 'none';
 
-  tbody.innerHTML = feedbacks.map(feedback => `
-    <tr>
+  tbody.innerHTML = feedbacks.map(feedback => {
+    const isFlagged = feedback.status === 'flagged';
+    return `
+    <tr style="${isFlagged ? 'background:rgba(220,53,69,0.05)' : ''}">
       <td style="font-weight:600">${feedback.produit || 'N/A'}</td>
       <td style="color:var(--muted)">${feedback.user || 'Anonyme'}</td>
-      <td style="color:var(--sand)">★ ${feedback.note}/5</td>
-      <td style="color:var(--muted);font-size:.75rem;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${feedback.commentaire}">${feedback.commentaire}</td>
+      <td style="color:var(--sand)">⭐ ${feedback.note}/5</td>
+      <td style="color:${isFlagged ? 'var(--danger)' : 'var(--muted)'};font-size:.75rem;max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" 
+          title="${(feedback.commentaire || '').replace(/<[^>]*>?/gm, '').replace(/"/g, '&quot;')}">
+        ${isFlagged ? '⚠️ ' : ''}${feedback.commentaire}
+      </td>
       <td style="color:var(--muted)">${feedback.dateCommentaire || 'N/A'}</td>
-      <td><button class="btn btn-danger btn-sm" onclick="deleteFeedback(${feedback.id})">Suppr.</button></td>
+      <td style="text-align:right">
+        <div style="display:flex;gap:6px;justify-content:flex-end;align-items:center">
+          ${isFlagged ? `<span class="badge b-danger">Signalé</span>` : ''}
+          <a href="/api/admin/feedbacks/${feedback.id}/report" class="btn-report-pdf" target="_blank">📄 Rapport</a>
+          <button class="btn btn-danger btn-sm" onclick="deleteFeedback(${feedback.id})" style="border-radius:8px">Suppr.</button>
+        </div>
+      </td>
     </tr>
-  `).join('');
+  `;}).join('');
 }
 
 async function deleteFeedback(id) {

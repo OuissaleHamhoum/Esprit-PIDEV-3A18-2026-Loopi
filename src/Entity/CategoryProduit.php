@@ -14,7 +14,7 @@ class CategoryProduit
     #[ORM\Column(name: 'id_cat')]
     private ?int $id = null;
 
-    #[ORM\Column(length: 100, unique: true)]
+    #[ORM\Column(name: 'nom_cat', length: 100, unique: true)]
     private ?string $nomCat = null;
 
     public function getId(): ?int

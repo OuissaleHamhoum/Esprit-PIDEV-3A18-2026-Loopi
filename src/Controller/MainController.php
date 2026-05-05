@@ -10,6 +10,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
+use App\Service\BadWordFilterService;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class MainController extends AbstractController
@@ -142,8 +143,51 @@ class MainController extends AbstractController
         return $referer ? $this->redirect($referer) : $this->redirectToRoute('app_product_details', ['id' => $id]);
     }
 
+    #[Route('/feedback/add/{id}', name: 'app_feedback_add', methods: ['POST'])]
+    public function addFeedback(int $id, ManagerRegistry $doctrine, Request $request, BadWordFilterService $filter): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('error', 'Vous devez être connecté pour laisser un avis');
+            return $this->redirectToRoute('app_login');
+        }
+
+        $product = $doctrine->getRepository(Produit::class)->find($id);
+        if (!$product) {
+            throw new NotFoundHttpException('Produit non trouvé');
+        }
+
+        $note = $request->request->get('note');
+        $commentaire = $request->request->get('commentaire');
+
+        if ($note && $commentaire) {
+            $feedback = new \App\Entity\Feedback();
+            $feedback->setUser($user);
+            $feedback->setProduit($product);
+            $feedback->setNote((int)$note);
+            $feedback->setCommentaire($commentaire);
+            $feedback->setDateCommentaire(new \DateTime());
+
+            if ($filter->isInappropriate($commentaire)) {
+                $feedback->setStatus('flagged');
+                $this->addFlash('warning', 'Votre avis a été publié mais contient des termes inappropriés et sera examiné par nos modérateurs.');
+            } else {
+                $feedback->setStatus('published');
+                $this->addFlash('success', 'Merci pour votre avis !');
+            }
+
+            $em = $doctrine->getManager();
+            $em->persist($feedback);
+            $em->flush();
+        }
+
+        $referer = $request->headers->get('referer');
+        return $referer ? $this->redirect($referer) : $this->redirectToRoute('app_product_details', ['id' => $id]);
+    }
+
+
     #[Route('/feedback/edit/{id}', name: 'app_feedback_edit', methods: ['POST'])]
-    public function editFeedback(int $id, ManagerRegistry $doctrine, Request $request): Response
+    public function editFeedback(int $id, ManagerRegistry $doctrine, Request $request, BadWordFilterService $filter): Response
     {
         $user = $this->getUser();
         if (!$user) {
@@ -164,10 +208,15 @@ class MainController extends AbstractController
             $feedback->setCommentaire($commentaire);
             $feedback->setDateCommentaire(new \DateTime());
 
-            $entityManager = $doctrine->getManager();
-            $entityManager->flush();
+            if ($filter->isInappropriate($commentaire)) {
+                $feedback->setStatus('flagged');
+                $this->addFlash('warning', 'Votre avis a été modifié mais contient des termes inappropriés.');
+            } else {
+                $feedback->setStatus('published');
+                $this->addFlash('success', 'Avis mis à jour !');
+            }
 
-            $this->addFlash('success', 'Avis modifié avec succès');
+            $doctrine->getManager()->flush();
         }
 
         $referer = $request->headers->get('referer');

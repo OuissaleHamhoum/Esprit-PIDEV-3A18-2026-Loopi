@@ -23,10 +23,7 @@ class Favoris
     #[ORM\JoinColumn(name: 'id_produit', referencedColumnName: 'id_produit')]
     private ?Produit $produit = null;
 
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
-    private ?\DateTimeInterface $dateAjout = null;
-
-    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    #[ORM\Column(name: 'date_ajout', type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $createdAt = null;
 
     public function getId(): ?int
@@ -56,16 +53,7 @@ class Favoris
         return $this;
     }
 
-    public function getDateAjout(): ?\DateTimeInterface
-    {
-        return $this->dateAjout;
-    }
 
-    public function setDateAjout(?\DateTimeInterface $dateAjout): static
-    {
-        $this->dateAjout = $dateAjout;
-        return $this;
-    }
 
     public function getCreatedAt(): ?\DateTimeInterface
     {
