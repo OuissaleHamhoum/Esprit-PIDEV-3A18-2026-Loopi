@@ -26,6 +26,9 @@ class Favoris
     #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
     private ?\DateTimeInterface $dateAjout = null;
 
+    #[ORM\Column(type: Types::DATETIME_MUTABLE, nullable: true)]
+    private ?\DateTimeInterface $createdAt = null;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -61,6 +64,17 @@ class Favoris
     public function setDateAjout(?\DateTimeInterface $dateAjout): static
     {
         $this->dateAjout = $dateAjout;
+        return $this;
+    }
+
+    public function getCreatedAt(): ?\DateTimeInterface
+    {
+        return $this->createdAt;
+    }
+
+    public function setCreatedAt(?\DateTimeInterface $createdAt): static
+    {
+        $this->createdAt = $createdAt;
         return $this;
     }
 }

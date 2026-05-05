@@ -2306,6 +2306,214 @@ SVG;
         return new JsonResponse(['success' => true, 'message' => 'Produit supprimé']);
     }
 
+    // ─── PUBLIC GALLERY ───
+
+    #[Route('/gallery', name: 'api_public_gallery', methods: ['GET'])]
+    public function getPublicGallery(Request $request, ManagerRegistry $doctrine): JsonResponse
+    {
+        $search = $request->query->get('search', '');
+        $category = $request->query->get('category', '');
+
+        $qb = $doctrine->getRepository(Produit::class)->createQueryBuilder('p')
+            ->leftJoin('p.category', 'c')
+            ->leftJoin('p.user', 'u')
+            ->addSelect('c', 'u')
+            ->where('p.imageProduit IS NOT NULL')
+            ->orderBy('p.createdAt', 'DESC');
+
+        if ($search) {
+            $qb->andWhere('p.nomProduit LIKE :search OR p.description LIKE :search')
+               ->setParameter('search', '%' . $search . '%');
+        }
+
+        if ($category) {
+            $qb->andWhere('c.nomCat = :category')
+               ->setParameter('category', $category);
+        }
+
+        $products = $qb->getQuery()->getResult();
+
+        $data = [];
+        foreach ($products as $product) {
+            $feedbacks = $doctrine->getRepository(Feedback::class)->findBy(['produit' => $product]);
+            $avgRating = count($feedbacks) > 0 ? array_sum(array_map(fn($f) => $f->getNote(), $feedbacks)) / count($feedbacks) : 0;
+
+            $data[] = [
+                'id' => $product->getId(),
+                'nomProduit' => $product->getNomProduit(),
+                'description' => $product->getDescription(),
+                'imageProduit' => $product->getImageProduit(),
+                'category' => $product->getCategory() ? $product->getCategory()->getNomCat() : null,
+                'organisateur' => $product->getUser() ? $product->getUser()->getNom() . ' ' . $product->getUser()->getPrenom() : null,
+                'createdAt' => $product->getCreatedAt()?->format('Y-m-d'),
+                'favoris' => count($doctrine->getRepository(Favoris::class)->findBy(['produit' => $product])),
+                'noteMoyenne' => round($avgRating, 1),
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $data]);
+    }
+
+    #[Route('/gallery/categories', name: 'api_gallery_categories', methods: ['GET'])]
+    public function getGalleryCategories(ManagerRegistry $doctrine): JsonResponse
+    {
+        $categories = $doctrine->getRepository(CategoryProduit::class)->findAll();
+        
+        $data = [];
+        foreach ($categories as $category) {
+            $data[] = [
+                'id' => $category->getId(),
+                'nomCat' => $category->getNomCat(),
+            ];
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $data]);
+    }
+
+    // ─── FAVORIS & RECOMMENDATIONS ───
+
+    #[Route('/favorites', name: 'api_user_favorites', methods: ['GET'])]
+    public function getUserFavorites(ManagerRegistry $doctrine): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            // Return empty favorites for non-authenticated users
+            return new JsonResponse(['success' => true, 'data' => []]);
+        }
+
+        $favorites = $doctrine->getRepository(Favoris::class)->findBy(['user' => $user]);
+        
+        $data = [];
+        foreach ($favorites as $favorite) {
+            $product = $favorite->getProduit();
+            if ($product) {
+                $feedbacks = $doctrine->getRepository(Feedback::class)->findBy(['produit' => $product]);
+                $avgRating = count($feedbacks) > 0 ? array_sum(array_map(fn($f) => $f->getNote(), $feedbacks)) / count($feedbacks) : 0;
+
+                $data[] = [
+                    'id' => $product->getId(),
+                    'nomProduit' => $product->getNomProduit(),
+                    'description' => $product->getDescription(),
+                    'imageProduit' => $product->getImageProduit(),
+                    'category' => $product->getCategory() ? $product->getCategory()->getNomCat() : null,
+                    'organisateur' => $product->getUser() ? $product->getUser()->getNom() . ' ' . $product->getUser()->getPrenom() : null,
+                    'createdAt' => $product->getCreatedAt()?->format('Y-m-d'),
+                    'favoris' => count($doctrine->getRepository(Favoris::class)->findBy(['produit' => $product])),
+                    'noteMoyenne' => round($avgRating, 1),
+                    'addedAt' => $favorite->getCreatedAt()?->format('Y-m-d H:i:s'),
+                ];
+            }
+        }
+
+        return new JsonResponse(['success' => true, 'data' => $data]);
+    }
+
+    #[Route('/favorites/{productId}', name: 'api_toggle_favorite', methods: ['POST'])]
+    public function toggleFavorite(int $productId, ManagerRegistry $doctrine): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            // For demo purposes, simulate toggle for non-authenticated users
+            $product = $doctrine->getRepository(Produit::class)->find($productId);
+            if (!$product) {
+                return new JsonResponse(['success' => false, 'message' => 'Produit non trouvé'], Response::HTTP_NOT_FOUND);
+            }
+
+            // Get current favorites count
+            $favoritesCount = count($doctrine->getRepository(Favoris::class)->findBy(['produit' => $product]));
+            
+            return new JsonResponse([
+                'success' => true, 
+                'message' => 'Action simulée (connexion requise pour sauvegarder)',
+                'isFavorite' => false,
+                'favoritesCount' => $favoritesCount
+            ]);
+        }
+
+        $product = $doctrine->getRepository(Produit::class)->find($productId);
+        if (!$product) {
+            return new JsonResponse(['success' => false, 'message' => 'Produit non trouvé'], Response::HTTP_NOT_FOUND);
+        }
+
+        $entityManager = $doctrine->getManager();
+        $existingFavorite = $doctrine->getRepository(Favoris::class)->findOneBy(['user' => $user, 'produit' => $product]);
+
+        if ($existingFavorite) {
+            // Remove from favorites
+            $entityManager->remove($existingFavorite);
+            $isFavorite = false;
+            $message = 'Retiré des favoris';
+        } else {
+            // Add to favorites
+            $favorite = new Favoris();
+            $favorite->setUser($user);
+            $favorite->setProduit($product);
+            $favorite->setCreatedAt(new \DateTime());
+            $entityManager->persist($favorite);
+            $isFavorite = true;
+            $message = 'Ajouté aux favoris';
+        }
+
+        $entityManager->flush();
+
+        // Get updated favorites count
+        $favoritesCount = count($doctrine->getRepository(Favoris::class)->findBy(['produit' => $product]));
+
+        return new JsonResponse([
+            'success' => true, 
+            'message' => $message,
+            'isFavorite' => $isFavorite,
+            'favoritesCount' => $favoritesCount
+        ]);
+    }
+
+    #[Route('/recommendations', name: 'api_recommendations', methods: ['GET'])]
+    public function getRecommendations(ManagerRegistry $doctrine): JsonResponse
+    {
+        $user = $this->getUser();
+        
+        // Get all products with ratings
+        $qb = $doctrine->getRepository(Produit::class)->createQueryBuilder('p')
+            ->leftJoin('p.category', 'c')
+            ->leftJoin('p.user', 'u')
+            ->addSelect('c', 'u')
+            ->where('p.imageProduit IS NOT NULL')
+            ->orderBy('p.createdAt', 'DESC')
+            ->setMaxResults(12);
+
+        $products = $qb->getQuery()->getResult();
+
+        $data = [];
+        foreach ($products as $product) {
+            $feedbacks = $doctrine->getRepository(Feedback::class)->findBy(['produit' => $product]);
+            $avgRating = count($feedbacks) > 0 ? array_sum(array_map(fn($f) => $f->getNote(), $feedbacks)) / count($feedbacks) : 0;
+            $favoritesCount = count($doctrine->getRepository(Favoris::class)->findBy(['produit' => $product]));
+
+            // Prioritize products with high ratings and favorites
+            $score = ($avgRating * 0.7) + (min($favoritesCount / 10, 1) * 0.3);
+
+            $data[] = [
+                'id' => $product->getId(),
+                'nomProduit' => $product->getNomProduit(),
+                'description' => $product->getDescription(),
+                'imageProduit' => $product->getImageProduit(),
+                'category' => $product->getCategory() ? $product->getCategory()->getNomCat() : null,
+                'organisateur' => $product->getUser() ? $product->getUser()->getNom() . ' ' . $product->getUser()->getPrenom() : null,
+                'createdAt' => $product->getCreatedAt()?->format('Y-m-d'),
+                'favoris' => $favoritesCount,
+                'noteMoyenne' => round($avgRating, 1),
+                'score' => round($score, 2),
+            ];
+        }
+
+        // Sort by recommendation score
+        usort($data, function($a, $b) {
+            return $b['score'] <=> $a['score'];
+        });
+
+        return new JsonResponse(['success' => true, 'data' => array_slice($data, 0, 8)]);
+    }
+
     // ─── ADMIN COLLECTIONS ───
 
     #[Route('/admin/collections', name: 'api_admin_collections', methods: ['GET'])]

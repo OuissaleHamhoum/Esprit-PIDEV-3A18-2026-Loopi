@@ -1940,8 +1940,10 @@ footer {
   <div class="mobile-nav-panel">
     <button class="mobile-nav-close" onclick="closeMobileNavDirect()"><i class="fas fa-times"></i></button>
     <div class="mobile-nav-logo"><i class="fas fa-leaf" style="color:var(--sage)"></i> Loopi</div>
-    <div class="mobile-nav-item active" onclick="showSection('accueil',this);closeMobileNavDirect()"><i class="fas fa-chart-line"></i> Tableau de bord</div>
+    <div class="mobile-nav-item active" onclick="showSection('accueil',this);closeMobileNavDirect()"><i class="fas fa-home"></i> Tableau de bord</div>
     <div class="mobile-nav-item" onclick="showSection('galerie',this);closeMobileNavDirect()"><i class="fas fa-palette"></i> Galerie</div>
+    <div class="mobile-nav-item" onclick="showSection('favoris',this);closeMobileNavDirect()"><i class="fas fa-heart"></i> Favoris</div>
+    <div class="mobile-nav-item" onclick="showSection('recommandations',this);closeMobileNavDirect()"><i class="fas fa-star"></i> Recommandations</div>
     <div class="mobile-nav-item" onclick="showSection('evenements',this);closeMobileNavDirect()"><i class="fas fa-calendar-alt"></i> Événements</div>
     <div class="mobile-nav-item" onclick="showSection('collections',this);closeMobileNavDirect()"><i class="fas fa-recycle"></i> Collections</div>
     <div class="mobile-nav-item" onclick="showSection('dons',this);closeMobileNavDirect()"><i class="fas fa-hand-holding-heart"></i> Dons</div>
@@ -1961,6 +1963,8 @@ footer {
   <ul class="nav-links">
     <li><a href="#" class="active" onclick="showSection('accueil',this);return false"><i class="fas fa-home"></i> Accueil</a></li>
     <li><a href="#" onclick="showSection('galerie',this);return false"><i class="fas fa-palette"></i> Galerie</a></li>
+    <li><a href="#" onclick="showSection('favoris',this);return false"><i class="fas fa-heart"></i> Favoris</a></li>
+    <li><a href="#" onclick="showSection('recommandations',this);return false"><i class="fas fa-star"></i> Recommandations</a></li>
     <li><a href="#" onclick="showSection('evenements',this);return false"><i class="fas fa-calendar-alt"></i> Événements</a></li>
     <li><a href="#" onclick="showSection('collections',this);return false"><i class="fas fa-recycle"></i> Collections</a></li>
     <li><a href="#" onclick="showSection('dons',this);return false"><i class="fas fa-hand-holding-heart"></i> Dons</a></li>
@@ -2027,6 +2031,8 @@ footer {
   <div class="section-tabs">
     <button class="stab active" onclick="showSection('accueil',this)"><i class="fas fa-chart-line"></i> Tableau de bord</button>
     <button class="stab" onclick="showSection('galerie',this)"><i class="fas fa-palette"></i> Galerie</button>
+    <button class="stab" onclick="showSection('favoris',this)"><i class="fas fa-heart"></i> Favoris</button>
+    <button class="stab" onclick="showSection('recommandations',this)"><i class="fas fa-star"></i> Recommandations</button>
     <button class="stab" onclick="showSection('evenements',this)"><i class="fas fa-calendar-alt"></i> Événements</button>
     <button class="stab" onclick="showSection('collections',this)"><i class="fas fa-recycle"></i> Collections</button>
     <button class="stab" onclick="showSection('dons',this)"><i class="fas fa-hand-holding-heart"></i> Dons</button>
@@ -2124,26 +2130,73 @@ footer {
     <div class="section-sub">Toutes les œuvres créées par nos artistes partenaires</div>
   </div>
 
-  <div class="card" style="margin-bottom:28px;padding:18px">
-    <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">
-      <div style="position:relative;flex:1;min-width:200px">
-        <i class="fas fa-search" style="position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:0.85rem"></i>
-        <input type="text" id="gallerySearch" placeholder="Rechercher une œuvre…" oninput="filterGallery()"
-          style="padding:10px 12px 10px 40px;border:1.5px solid var(--border);border-radius:var(--radius-full);width:100%;font-family:'DM Sans';font-size:0.84rem;outline:none;background:var(--bg);transition:all .2s"
-          onfocus="this.style.borderColor='var(--moss)';this.style.background='white'"
-          onblur="this.style.borderColor='';this.style.background=''">
+  <!-- Filters -->
+  <div class="card" style="margin-bottom:24px;padding:16px 20px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;justify-content:space-between">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+        <input type="text" id="gallerySearch" oninput="applyFilters()" placeholder="🔍 Rechercher une œuvre…" style="padding:8px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;background:var(--bg);width:220px;margin-right:8px">
+        <button class="btn btn-primary btn-sm cat-btn" onclick="filterGalleryByCat('all')">Tous</button>
+        <button class="btn btn-outline btn-sm cat-btn" onclick="filterGalleryByCat('Mobilier')">Mobilier</button>
+        <button class="btn btn-outline btn-sm cat-btn" onclick="filterGalleryByCat('Installations')">Installations</button>
+        <button class="btn btn-outline btn-sm cat-btn" onclick="filterGalleryByCat('Décoratif')">Décoratif</button>
+        <button class="btn btn-outline btn-sm cat-btn" onclick="filterGalleryByCat('Mural')">Art mural</button>
       </div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn btn-primary btn-sm" onclick="filterGalleryByCat('all')"><i class="fas fa-th-large"></i> Tous</button>
-        <button class="btn btn-outline btn-sm" onclick="filterGalleryByCat('Mobilier')"><i class="fas fa-chair"></i> Mobilier</button>
-        <button class="btn btn-outline btn-sm" onclick="filterGalleryByCat('Installations')"><i class="fas fa-cubes"></i> Installations</button>
-        <button class="btn btn-outline btn-sm" onclick="filterGalleryByCat('Décoratif')"><i class="fas fa-gem"></i> Décoratif</button>
-        <button class="btn btn-outline btn-sm" onclick="filterGalleryByCat('Mural')"><i class="fas fa-image"></i> Art mural</button>
+      <div>
+        <select id="sortSelect" onchange="applyFilters()" style="padding:8px 14px;border:1.5px solid var(--border);border-radius:10px;font-family:'DM Sans',sans-serif;font-size:.83rem;outline:none;background:var(--bg);color:var(--forest);font-weight:600;cursor:pointer;">
+          <option value="newest">Plus récent</option>
+          <option value="az">De A à Z</option>
+          <option value="za">De Z à A</option>
+        </select>
       </div>
     </div>
   </div>
 
   <div class="grid-3" id="galleryContainer"></div>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- FAVORIS                                -->
+<!-- ════════════════════════════════════════ -->
+<section id="sec-favoris" class="page-section">
+  <div class="section-header">
+    <div class="section-pill"><i class="fas fa-heart"></i> Mes coups de cœur</div>
+    <div class="section-heading"><i class="fas fa-heart"></i> Mes Favoris</div>
+    <div class="section-sub">Toutes les œuvres que vous avez ajoutées à vos favoris</div>
+  </div>
+
+  <div class="grid-3" id="favoritesContainer"></div>
+</section>
+
+<!-- ════════════════════════════════════════ -->
+<!-- RECOMMANDATIONS                        -->
+<!-- ════════════════════════════════════════ -->
+<section id="sec-recommandations" class="page-section">
+  <div style="margin-bottom:28px">
+    <div class="section-heading">Recommandations</div>
+    <div class="section-sub">Découvrez des œuvres et des artistes qui pourraient vous plaire</div>
+  </div>
+
+  <div style="margin-bottom:40px">
+    <div class="card-title" style="margin-bottom:20px">Pour vous <span style="font-size:0.8rem;color:var(--muted);font-weight:500;margin-left:8px">Basé sur vos favoris</span></div>
+    <div class="grid-4" id="recom-foryou">
+      <!-- Squelette de chargement -->
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card-title" style="margin-bottom:20px">Les mieux notées <span style="font-size:0.8rem;color:var(--muted);font-weight:500;margin-left:8px">Populaire dans la communauté</span></div>
+    <div class="grid-4" id="recom-toprated">
+      <!-- Squelette de chargement -->
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+      <div class="card" style="height:220px;opacity:0.5;background:rgba(0,0,0,0.05);border:1px dashed var(--border)"></div>
+    </div>
+  </div>
 </section>
 
 <!-- ════════════════════════════════════════ -->
@@ -2828,8 +2881,16 @@ function showSection(name, triggerEl) {
   if (navLink) navLink.classList.add('active');
   if (stab) stab.classList.add('active');
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  // Load data for specific sections
   if (name === 'evenements') loadParticipantEvents();
-  else if (name === 'galerie') renderGallery();
+  else if (name === 'galerie') {
+    if (_allGalleryProducts.length === 0) loadGallery();
+  }
+  else if (name === 'favoris') {
+    if (_userFavorites.length === 0) loadUserFavorites();
+  }
+  else if (name === 'recommandations') loadRecommendations();
   else if (name === 'collections') loadParticipantCollections();
   else if (name === 'dons') loadDonationHistory();
   else if (name === 'leaderboard') loadLeaderboard();
@@ -3124,14 +3185,14 @@ function renderGallery(filterCat = 'all') {
           <button class="gal-overlay-btn" onclick="event.stopPropagation();showToast('${item.name} — Vue agrandie', 'info')" title="Voir"><i class="fas fa-expand-alt"></i></button>
           <button class="gal-overlay-btn" onclick="event.stopPropagation();showToast('Avis ajouté ⭐', 'success')" title="Avis"><i class="fas fa-star"></i></button>
         </div>
-        <button class="gal-heart" onclick="event.stopPropagation();toggleFavorite(this,'${item.name}')"><i class="far fa-heart"></i></button>
+        <button class="gal-heart" onclick="event.stopPropagation();showToast('Fonctionnalité bientôt disponible ❤️')"><i class="far fa-heart"></i></button>
       </div>
       <div class="gal-info">
         <div class="gal-name">${escapeHtml(item.name)}</div>
         <div class="gal-cat"><i class="fas fa-tag"></i> ${item.cat}</div>
         <div class="gal-actions">
-          <button class="btn btn-outline btn-sm" onclick="showToast('Ajouté aux favoris ❤️')"><i class="far fa-heart"></i> Favoris</button>
-          <button class="btn btn-outline btn-sm" onclick="showToast('Laisser un avis')"><i class="far fa-star"></i> Avis</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();showToast('Fonctionnalité bientôt disponible ❤️')"><i class="far fa-heart"></i> Favoris</button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();showToast('Fonctionnalité bientôt disponible ⭐')"><i class="far fa-star"></i> Avis</button>
         </div>
       </div>
     </div>
@@ -3159,7 +3220,7 @@ function filterGallery() {
     <div class="gal-item" data-cat="${item.cat}">
       <div class="gal-img" style="background:linear-gradient(135deg,${item.color},${item.color2});font-size:2.8rem">
         ${item.icon}
-        <button class="gal-heart" onclick="event.stopPropagation();toggleFavorite(this,'${item.name}')"><i class="far fa-heart"></i></button>
+        <button class="gal-heart" onclick="event.stopPropagation();showToast('Fonctionnalité bientôt disponible ❤️')"><i class="far fa-heart"></i></button>
       </div>
       <div class="gal-info">
         <div class="gal-name">${escapeHtml(item.name)}</div>
@@ -3181,16 +3242,6 @@ function filterGalleryByCat(cat) {
   renderGallery(cat);
 }
 
-function toggleFavorite(btn, itemName) {
-  const icon = btn.querySelector('i');
-  if (icon.classList.contains('far')) {
-    icon.classList.replace('far', 'fas');
-    showToast(`${itemName} ajouté aux favoris ❤️`, 'success');
-  } else {
-    icon.classList.replace('fas', 'far');
-    showToast(`${itemName} retiré des favoris`, 'info');
-  }
-}
 
 // ─────────────────────────────────────────────────────────────────
 // ── EVENTS FILTER / SEARCH ──
@@ -3956,6 +4007,573 @@ async function loadDonationHistory() {
   } catch {
     cont.innerHTML = '<div class="card" style="text-align:center;padding:40px">⚠️ Erreur de chargement de l\'historique.</div>';
   }
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ── GALLERY FUNCTIONS ──
+// ─────────────────────────────────────────────────────────────────
+
+let _allGalleryProducts = [];
+
+async function loadGallery() {
+  const container = document.getElementById('galleryContainer');
+  const recentContainer = document.getElementById('recentGallery');
+  
+  showLoading('galleryContainer', 'Chargement de la galerie...');
+  if (recentContainer) {
+    showLoading('recentGallery', 'Chargement...');
+  }
+
+  try {
+    const res = await fetch('/api/gallery');
+    const json = await res.json();
+    if (!json.success) {
+      throw new Error(json.message || 'Erreur de chargement');
+    }
+    _allGalleryProducts = json.data || [];
+    
+    renderGallery(_allGalleryProducts);
+    renderRecentGallery(_allGalleryProducts.slice(0, 6)); // Show 6 most recent
+  } catch (error) {
+    handleApiError(error, 'galleryContainer', 'Erreur de chargement de la galerie');
+    if (recentContainer) {
+      recentContainer.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">⚠️ Erreur de chargement</div>';
+    }
+  }
+}
+
+function renderGallery(products) {
+  const container = document.getElementById('galleryContainer');
+  if (!container) return;
+
+  if (products.length === 0) {
+    container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted)"><div style="font-size:3rem;margin-bottom:15px">🎨</div><div>Aucune œuvre dans la galerie pour le moment</div></div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  products.forEach(product => {
+    const card = createGalleryCard(product);
+    container.appendChild(card);
+  });
+}
+
+function renderRecentGallery(products) {
+  const container = document.getElementById('recentGallery');
+  if (!container) return;
+
+  if (products.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--muted)">Aucune œuvre récente</div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  products.forEach(product => {
+    const card = createGalleryCard(product, true); // Compact version for recent
+    container.appendChild(card);
+  });
+}
+
+function createGalleryCard(product, compact = false) {
+  const card = document.createElement('div');
+  card.className = compact ? 'gal-item' : 'card gallery-item';
+  card.style.cssText = compact ? '' : 'padding:0;overflow:hidden;cursor:pointer;border-radius:var(--radius-lg);transition:transform .2s, box-shadow .2s';
+  
+  // Add dataset attributes for filtering
+  card.dataset.id = product.id;
+  card.dataset.name = product.nomProduit.toLowerCase();
+  card.dataset.cat = product.category || 'Sans catégorie';
+  card.dataset.description = product.description || '';
+  card.dataset.image = product.imageProduit || '';
+  
+  const imageUrl = product.imageProduit ? `/uploads/products/${product.imageProduit}` : null;
+  const imageHtml = imageUrl 
+    ? `<div style="${compact ? 'height:120px' : 'height:200px'};overflow:hidden;background:var(--bg)"><img src="${imageUrl}" style="width:100%;height:100%;object-fit:cover" onerror="this.outerHTML='<div style=\\'height:100%;display:flex;align-items:center;justify-content:center;font-size:3rem;background:var(--bg);color:var(--muted)\\'>🎨</div>'"></div>`
+    : `<div style="${compact ? 'height:120px' : 'height:200px'};display:flex;align-items:center;justify-content:center;font-size:3rem;background:linear-gradient(135deg,var(--forest),var(--moss));color:white">🎨</div>`;
+
+  const categoryBadge = product.category ? `<span style="padding:3px 8px;border-radius:50px;font-size:.65rem;font-weight:600;background:rgba(61,107,79,.1);color:var(--moss)">${product.category}</span>` : '';
+  
+  // Check if this product is in favorites
+  const isFavorite = _userFavorites.some(fav => fav.id === product.id);
+  
+  card.innerHTML = `
+    ${imageHtml}
+    <div style="padding:${compact ? '10px 12px' : '16px 18px'}">
+      <div style="font-family:'Playfair Display',serif;font-size:${compact ? '.82rem' : '1rem'};font-weight:700;color:var(--forest);margin-bottom:${compact ? '4px' : '8px'}">${escH(product.nomProduit)}</div>
+      <div style="font-size:${compact ? '.68rem' : '.75rem'};color:var(--muted);margin-bottom:${compact ? '6px' : '10px'}">${escH(product.description || '').substring(0, 80)}${product.description && product.description.length > 80 ? '...' : ''}</div>
+      <div style="font-size:${compact ? '.65rem' : '.72rem'};color:var(--muted);margin-bottom:${compact ? '8px' : '12px'}">👤 ${escH(product.organisateur || 'Artiste')}</div>
+      ${categoryBadge ? `<div style="margin-bottom:${compact ? '8px' : '10px'}">${categoryBadge}</div>` : ''}
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px">
+        <div style="display:flex;gap:8px;align-items:center">
+          <span style="font-size:${compact ? '.7rem' : '.75rem'};color:var(--muted)">❤️ <span id="fav-count-${product.id}">${product.favoris || 0}</span></span>
+          <span style="font-size:${compact ? '.7rem' : '.75rem'};color:var(--muted)">⭐ ${product.noteMoyenne || 0}</span>
+        </div>
+        <div style="display:flex;gap:6px">
+          <button class="btn btn-sm" id="fav-btn-${product.id}" onclick="event.stopPropagation();toggleFavorite(${product.id})" style="font-size:${compact ? '.7rem' : '.75rem'};${isFavorite ? 'background:var(--rust);border-color:var(--rust);color:white;' : 'background:var(--forest);color:white;'}">
+            ${isFavorite ? '❤️' : '🤍'}
+          </button>
+          <button class="btn btn-outline btn-sm" onclick="event.stopPropagation();showProductDetails(${product.id})" style="font-size:${compact ? '.7rem' : '.75rem'}">Détails</button>
+        </div>
+      </div>
+    </div>
+  `;
+
+  if (!compact) {
+    card.onmouseover = () => card.style.transform = 'translateY(-3px)';
+    card.onmouseout = () => card.style.transform = 'translateY(0)';
+  }
+
+  return card;
+}
+
+// ── Gallery filter, search & sort ──
+let currentCat = 'Tous';
+
+function filterGallery() {
+  applyFilters();
+}
+
+function filterGalleryByCat(category) {
+  // Update button states
+  document.querySelectorAll('#sec-galerie .cat-btn').forEach(btn => {
+    btn.className = 'btn btn-outline btn-sm cat-btn';
+  });
+  event.target.className = 'btn btn-primary btn-sm cat-btn';
+  currentCat = category;
+  applyFilters();
+}
+
+function applyFilters() {
+  const searchInput = document.getElementById('gallerySearch');
+  const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
+  const sortSelect = document.getElementById('sortSelect');
+  const sortOption = sortSelect ? sortSelect.value : 'newest';
+  
+  const grid = document.getElementById('galleryContainer');
+  if (!grid) return;
+  
+  const cards = Array.from(grid.querySelectorAll('.gallery-item'));
+
+  cards.forEach(card => {
+    const name = card.dataset.name || '';
+    const cat = card.dataset.cat || '';
+    const description = card.dataset.description || '';
+    
+    const matchesSearch = name.includes(searchQuery) || description.includes(searchQuery);
+    const matchesCat = (currentCat === 'Tous' || currentCat === 'all' || cat === currentCat);
+    
+    if (matchesSearch && matchesCat) {
+      card.style.display = '';
+    } else {
+      card.style.display = 'none';
+    }
+  });
+
+  // Sorting
+  const visibleCards = cards.filter(card => card.style.display !== 'none');
+  
+  visibleCards.sort((a, b) => {
+    if (sortOption === 'az') {
+      return (a.dataset.name || '').localeCompare(b.dataset.name || '');
+    } else if (sortOption === 'za') {
+      return (b.dataset.name || '').localeCompare(a.dataset.name || '');
+    } else {
+      // newest (by id desc)
+      return parseInt(b.dataset.id || 0) - parseInt(a.dataset.id || 0);
+    }
+  });
+
+  // Re-append to DOM to apply sort visually
+  visibleCards.forEach(card => grid.appendChild(card));
+}
+
+function showProductDetails(productId) {
+  // Redirect to product details page or open modal
+  window.location.href = `/product/${productId}`;
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ── FAVORIS FUNCTIONS ──
+// ─────────────────────────────────────────────────────────────────
+
+let _userFavorites = [];
+
+async function toggleFavorite(productId) {
+  const btn = document.getElementById(`fav-btn-${productId}`);
+  const countSpan = document.getElementById(`fav-count-${productId}`);
+  
+  if (!btn || !countSpan) return;
+
+  // Disable button during request
+  btn.disabled = true;
+  const originalText = btn.textContent;
+  btn.textContent = '⏳';
+
+  try {
+    const response = await fetch(`/api/favorites/${productId}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    });
+
+    const result = await response.json();
+    
+    if (result.success) {
+      // Update button state
+      if (result.isFavorite) {
+        btn.textContent = '❤️';
+        btn.style.background = 'var(--rust)';
+        btn.style.borderColor = 'var(--rust)';
+        btn.style.color = 'white';
+      } else {
+        btn.textContent = '🤍';
+        btn.style.background = 'var(--forest)';
+        btn.style.color = 'white';
+      }
+      
+      // Update count
+      countSpan.textContent = result.favoritesCount;
+      
+      // Update global favorites count
+      updateFavoritesCount();
+      
+      // Show toast
+      showToast(result.message, result.isFavorite ? 'success' : 'info');
+      
+      // Reload favorites if user is on favorites page
+      if (document.getElementById('sec-favoris')?.classList.contains('active')) {
+        loadUserFavorites();
+      }
+      
+      // Update gallery cards if on gallery page
+      if (document.getElementById('sec-galerie')?.classList.contains('active')) {
+        // Update all cards for this product
+        document.querySelectorAll(`[data-id="${productId}"]`).forEach(card => {
+          const cardBtn = card.querySelector(`#fav-btn-${productId}`);
+          const cardCount = card.querySelector(`#fav-count-${productId}`);
+          if (cardBtn) {
+            cardBtn.textContent = result.isFavorite ? '❤️' : '🤍';
+            cardBtn.style.background = result.isFavorite ? 'var(--rust)' : 'var(--forest)';
+            cardBtn.style.color = 'white';
+          }
+          if (cardCount) cardCount.textContent = result.favoritesCount;
+        });
+      }
+      
+      // Update recommendation cards
+      document.querySelectorAll(`[onclick*="toggleFavorite(${productId})"]`).forEach(cardBtn => {
+        if (cardBtn.id !== `fav-btn-${productId}`) {
+          cardBtn.textContent = result.isFavorite ? '❤️' : '🤍';
+          cardBtn.style.background = result.isFavorite ? 'var(--rust)' : 'var(--forest)';
+          cardBtn.style.color = 'white';
+        }
+      });
+    } else {
+      throw new Error(result.message || 'Erreur');
+    }
+  } catch (error) {
+    console.error('Toggle favorite error:', error);
+    btn.textContent = originalText;
+    showToast('Erreur lors de la mise à jour des favoris', 'error');
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function loadUserFavorites() {
+  const container = document.getElementById('favoritesContainer');
+  showLoading('favoritesContainer', 'Chargement des favoris...');
+
+  try {
+    const response = await fetch('/api/favorites');
+    const result = await response.json();
+    
+    if (result.success) {
+      _userFavorites = result.data || [];
+      renderUserFavorites(_userFavorites);
+      updateFavoritesCount();
+    } else {
+      throw new Error(result.message || 'Erreur de chargement');
+    }
+  } catch (error) {
+    handleApiError(error, 'favoritesContainer', 'Erreur de chargement des favoris');
+  }
+}
+
+function renderUserFavorites(favorites) {
+  const container = document.getElementById('favoritesContainer');
+  if (!container) return;
+
+  if (favorites.length === 0) {
+    container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted)"><div style="font-size:3rem;margin-bottom:15px">❤️</div><div>Aucun favori pour le moment</div><div style="font-size:0.9rem;color:var(--muted);margin-top:10px">Explorez la galerie et ajoutez vos œuvres préférées</div></div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  favorites.forEach(favorite => {
+    const card = createGalleryCard(favorite);
+    container.appendChild(card);
+  });
+}
+
+function updateFavoritesCount() {
+  const count = _userFavorites.length;
+  const elements = ['heroFavCount', 'dashboardFavCount'];
+  elements.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = count;
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ── RECOMMENDATIONS FUNCTIONS ──
+// ─────────────────────────────────────────────────────────────────
+
+async function loadRecommendations() {
+  const containerForYou = document.getElementById('recom-foryou');
+  const containerTopRated = document.getElementById('recom-toprated');
+  
+  // Show loading states
+  if (containerForYou) {
+    showLoading('recom-foryou', 'Chargement des recommandations...');
+  }
+  if (containerTopRated) {
+    showLoading('recom-toprated', 'Chargement...');
+  }
+  
+  if (!containerForYou || !containerTopRated) {
+    // Fallback to old container
+    const container = document.getElementById('recommendationsContainer');
+    if (container) {
+      showLoading('recommendationsContainer', 'Chargement des recommandations...');
+    }
+  }
+
+  try {
+    const response = await fetch('/api/recommendations');
+    const result = await response.json();
+    
+    if (result.success) {
+      const recommendations = result.data || [];
+      
+      // Split recommendations: personalized vs top rated
+      const forYou = recommendations.slice(0, 4);
+      const topRated = recommendations.slice(0, 8);
+      
+      // Render "Pour vous"
+      if (containerForYou) {
+        containerForYou.innerHTML = forYou.length > 0 
+          ? forYou.map(p => renderRecomCard(p)).join('')
+          : '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">Ajoutez des produits à vos favoris pour obtenir des recommandations personnalisées !</div>';
+      }
+      
+      // Render "Les mieux notées"
+      if (containerTopRated) {
+        containerTopRated.innerHTML = topRated.length > 0 
+          ? topRated.map(p => renderRecomCard(p, true)).join('')
+          : '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--muted);">Aucun produit noté pour le moment.</div>';
+      }
+      
+      // Fallback to old container
+      if (!containerForYou || !containerTopRated) {
+        const container = document.getElementById('recommendationsContainer');
+        if (container) {
+          renderRecommendations(recommendations);
+        }
+      }
+    } else {
+      throw new Error(result.message || 'Erreur de chargement');
+    }
+  } catch (error) {
+    handleApiError(error, 'recom-foryou', 'Erreur de chargement des recommandations');
+    handleApiError(error, 'recom-toprated', 'Erreur de chargement');
+    
+    const container = document.getElementById('recommendationsContainer');
+    if (container) {
+      handleApiError(error, 'recommendationsContainer', 'Erreur de chargement des recommandations');
+    }
+  }
+}
+
+function renderRecomCard(p, showRating = false) {
+  const isFavorite = _userFavorites.some(fav => fav.id === p.id);
+  const imageUrl = p.imageProduit ? `/uploads/products/${p.imageProduit}` : null;
+  
+  return `
+    <div class="card" style="padding:0;overflow:hidden;cursor:pointer;border-radius:var(--radius-lg);transition:transform .2s, box-shadow .2s" onclick="showProductDetails(${p.id})">
+      <div style="height:150px;background:var(--bg);display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;">
+        ${imageUrl 
+          ? `<img src="${imageUrl}" style="width:100%;height:100%;object-fit:cover;transition:transform .5s;">` 
+          : '<span style="font-size:3rem;filter:grayscale(1);opacity:0.3;">🖼️</span>'
+        }
+        <div style="position:absolute;top:12px;right:12px;padding:4px 10px;background:rgba(255,255,255,0.95);border-radius:50px;font-size:0.65rem;font-weight:700;color:var(--forest);box-shadow:0 2px 8px rgba(0,0,0,0.1);backdrop-filter:blur(4px);">
+          ${p.category || 'Art'}
+        </div>
+      </div>
+      <div style="padding:18px;flex-grow:1;display:flex;flex-direction:column;justify-content:space-between;">
+        <div>
+          <div style="font-family:'Playfair Display',serif;font-size:1rem;font-weight:700;color:var(--forest);margin-bottom:6px;line-height:1.3;">${escH(p.nomProduit)}</div>
+          ${showRating 
+            ? `<div style="display:flex;align-items:center;gap:4px;color:#ffc107;font-size:0.85rem;">
+                <span style="letter-spacing:1px;">${'★'.repeat(Math.round(p.noteMoyenne || 0))}${'☆'.repeat(5 - Math.round(p.noteMoyenne || 0))}</span>
+                <span style="color:var(--muted);font-size:0.72rem;font-weight:500;">(${(p.noteMoyenne || 0).toFixed(1)})</span>
+               </div>`
+            : ''
+          }
+        </div>
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:16px">
+          <div style="display:flex;gap:8px;align-items:center">
+            <span style="font-size:.7rem;color:var(--muted)">❤️ <span id="fav-count-${p.id}">${p.favoris || 0}</span></span>
+            <span style="font-size:.7rem;color:var(--muted)">⭐ ${p.noteMoyenne || 0}</span>
+          </div>
+          <button class="btn btn-sm" id="fav-btn-${p.id}" onclick="event.stopPropagation();toggleFavorite(${p.id})" style="font-size:.75rem;${isFavorite ? 'background:var(--rust);border-color:var(--rust);color:white;' : 'background:var(--forest);color:white;'}">
+            ${isFavorite ? '❤️' : '🤍'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderRecommendations(recommendations) {
+  const container = document.getElementById('recommendationsContainer');
+  if (!container) return;
+
+  if (recommendations.length === 0) {
+    container.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted)"><div style="font-size:3rem;margin-bottom:15px">✨</div><div>Aucune recommandation disponible</div></div>';
+    return;
+  }
+
+  container.innerHTML = '';
+  recommendations.forEach(product => {
+    const card = createGalleryCard(product);
+    container.appendChild(card);
+  });
+}
+
+// ─────────────────────────────────────────────────────────────────
+// ── AUTO-LOAD FUNCTIONS ──
+// ─────────────────────────────────────────────────────────────────
+
+// Load favorites and recommendations when section is shown
+const originalShowSection = window.showSection;
+window.showSection = function(name, triggerEl) {
+  originalShowSection(name, triggerEl);
+  
+  if (name === 'galerie' && _allGalleryProducts.length === 0) {
+    loadGallery();
+  }
+  if (name === 'favoris' && _userFavorites.length === 0) {
+    loadUserFavorites();
+  }
+  if (name === 'recommandations') {
+    loadRecommendations();
+  }
+};
+
+// Auto-load on page load
+document.addEventListener('DOMContentLoaded', () => {
+  // Initialize data
+  initializeData();
+  
+  // Load gallery if it's the default section
+  if (document.getElementById('sec-galerie')?.classList.contains('active')) {
+    loadGallery();
+  }
+  
+  // Load favorites count
+  updateFavoritesCount();
+  
+  // Check if user has favorites section and load if active
+  if (document.getElementById('sec-favoris')?.classList.contains('active')) {
+    loadUserFavorites();
+  }
+  
+  // Initialize filtering
+  applyFilters();
+});
+
+// Initialize data on page load
+function initializeData() {
+  // Pre-load gallery data for better UX
+  if (_allGalleryProducts.length === 0) {
+    loadGallery();
+  }
+  
+  // Pre-load favorites data
+  if (_userFavorites.length === 0) {
+    loadUserFavorites();
+  }
+}
+
+// Error handling function
+function handleApiError(error, containerId, message) {
+  console.error(error);
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--rust)">
+        <div style="font-size:2rem;margin-bottom:10px">⚠️</div>
+        <div>${message}</div>
+        <button class="btn btn-primary btn-sm" style="margin-top:15px" onclick="location.reload()">Réessayer</button>
+      </div>
+    `;
+  }
+}
+
+// Enhanced loading states
+function showLoading(containerId, message = 'Chargement...') {
+  const container = document.getElementById(containerId);
+  if (container) {
+    container.innerHTML = `
+      <div style="grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted)">
+        <div style="font-size:2rem;margin-bottom:10px">⏳</div>
+        <div>${message}</div>
+      </div>
+    `;
+  }
+}
+
+// ── Toast function ──
+function showToast(msg, type = 'info') {
+  const t = document.getElementById('toast');
+  if (!t) {
+    // Create toast if it doesn't exist
+    const toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = 'toast';
+    toast.style.cssText = `
+      position: fixed;
+      bottom: 28px; right: 28px;
+      background: var(--forest);
+      color: white;
+      padding: 13px 22px;
+      border-radius: 13px;
+      font-size: .84rem;
+      font-weight: 600;
+      z-index: 9999;
+      transform: translateY(80px);
+      opacity: 0;
+      transition: all .3s cubic-bezier(.34,1.56,.64,1);
+      pointer-events: none;
+      box-shadow: var(--shadow-lg);
+    `;
+    document.body.appendChild(toast);
+  }
+  
+  const toast = document.getElementById('toast');
+  toast.textContent = msg;
+  toast.classList.add('show');
+  toast.style.transform = 'translateY(0)';
+  toast.style.opacity = '1';
+  
+  setTimeout(() => {
+    toast.classList.remove('show');
+    toast.style.transform = 'translateY(80px)';
+    toast.style.opacity = '0';
+  }, 2600);
 }
 
 // ── HTML escape ──

@@ -871,7 +871,7 @@ footer span { color: var(--sage); font-weight: 600; }
     <div class="grid-3">
       {% for sp in similarProducts %}
         <div class="sp-card">
-          <div class="sp-img-container" onclick="window.location.href='{{ path('app_detaile_produit', {'id': sp.id}) }}'" style="cursor:pointer">
+          <div class="sp-img-container" onclick="window.location.href='{{ path('app_product_details', {'id': sp.id}) }}'" style="cursor:pointer">
             {% if sp.imageProduit %}
               <img src="/uploads/{{ sp.imageProduit }}" alt="{{ sp.nomProduit }}">
             {% else %}
@@ -882,7 +882,7 @@ footer span { color: var(--sage); font-weight: 600; }
             <div class="sp-title">{{ sp.nomProduit }}</div>
             <div class="sp-meta">{{ sp.category ? sp.category.nomCat : 'Sans catégorie' }}</div>
             <div class="sp-actions">
-              <a href="{{ path('app_detaile_produit', {'id': sp.id}) }}" class="btn btn-primary" style="flex:1;text-decoration:none;">Voir détails</a>
+              <a href="{{ path('app_product_details', {'id': sp.id}) }}" class="btn btn-primary" style="flex:1;text-decoration:none;">Voir détails</a>
               <a href="{{ path('app_favoris_toggle', {'id': sp.id}) }}" class="btn btn-fav" style="text-decoration:none;display:flex;align-items:center;justify-content:center;" title="Ajouter aux favoris">❤️</a>
             </div>
           </div>

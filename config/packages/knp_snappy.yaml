@@ -1,9 +1,0 @@
-knp_snappy:
-    pdf:
-        enabled:    true
-        binary:     "C:\\Users\\MSI\\scoop\\apps\\wkhtmltopdf\\current\\wkhtmltopdf.exe"
-        options:    []
-    image:
-        enabled:    true
-        binary:     "C:\\Users\\MSI\\scoop\\apps\\wkhtmltopdf\\current\\wkhtmltoimage.exe"
-        options:    []
