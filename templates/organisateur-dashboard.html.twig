@@ -757,7 +757,10 @@ select option { background: var(--surface); color: white; }
           </select>
         </div>
         <div class="form-group">
-          <label>Description</label>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px">
+            <label style="margin-bottom:0">Description</label>
+            <button type="button" class="btn btn-ghost btn-sm" id="btnGenerateAI" onclick="generateAIDescription()" style="font-size:0.65rem; padding:2px 8px; border-color:var(--accent); color:var(--accent)">✨ Générer avec l'IA</button>
+          </div>
           <textarea id="p_description" name="description" rows="3" placeholder="Décrivez votre œuvre..."></textarea>
         </div>
         <div class="form-group">
@@ -2005,6 +2008,55 @@ function openProduitModal(id = null) {
 function closeProduitModal() {
   document.getElementById('produitModal').classList.remove('active');
 }
+
+async function generateAIDescription() {
+  const nom = document.getElementById('p_nom').value.trim();
+  const catSelect = document.getElementById('p_category');
+  const catName = catSelect.options[catSelect.selectedIndex]?.text || "cette catégorie";
+  const descArea = document.getElementById('p_description');
+  const btn = document.getElementById('btnGenerateAI');
+
+  if (!nom) {
+    showToast('Veuillez d\'abord saisir le nom de l\'œuvre', 'error');
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = '🪄 Génération...';
+  descArea.placeholder = 'L\'IA réfléchit à la description parfaite...';
+
+  // Simulation d'un délai d'IA pour le réalisme
+  await new Promise(r => setTimeout(r, 1500));
+
+  const templates = [
+    `Découvrez "${nom}", une pièce d'exception s'inscrivant dans la catégorie ${catName}. Cette œuvre unique allie une esthétique raffinée à un engagement profond pour le développement durable. Chaque détail a été pensé pour captiver le regard tout en racontant une histoire de transformation et de renouveau.`,
+    `"${nom}" est une création audacieuse de type ${catName} qui repousse les limites de l'artisanat traditionnel. Fabriquée avec passion, elle se distingue par ses lignes pures et son caractère intemporel. Une addition parfaite pour tout collectionneur cherchant à allier design moderne et éthique écologique.`,
+    `Plongez dans l'univers de "${nom}". Représentant fièrement le meilleur de ${catName}, cette œuvre est le fruit d'un travail minutieux visant à sublimer les matériaux de récupération. Une célébration de la créativité où chaque imperfection devient une force, offrant une présence visuelle inégalée.`,
+    `Avec "${nom}", l'élégance rencontre la durabilité. Cette œuvre de la gamme ${catName} a été conçue pour inspirer et transformer son environnement. Son design sophistiqué en fait une pièce maîtresse idéale, témoignant d'un futur où l'art et l'écologie ne font qu'un.`
+  ];
+
+  const randomDesc = templates[Math.floor(Math.random() * templates.length)];
+  
+  // Effet d'écriture progressive
+  descArea.value = "";
+  let i = 0;
+  const speed = 15; // ms par caractère
+  
+  function typeWriter() {
+    if (i < randomDesc.length) {
+      descArea.value += randomDesc.charAt(i);
+      i++;
+      setTimeout(typeWriter, speed);
+    } else {
+      btn.disabled = false;
+      btn.textContent = '✨ Générer avec l\'IA';
+      showToast('✨ Description générée avec succès !');
+    }
+  }
+  
+  typeWriter();
+}
+
 
 function previewProduitImage(input) {
   const preview = document.getElementById('produitImagePreview');
