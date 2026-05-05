@@ -33,15 +33,14 @@ class CertificateController extends AbstractController
 
         // ── SYMFONY BUNDLE: endroid/qr-code-bundle ──────────────────────────
         // Using SvgWriter — no PHP GD extension required
-        $builder = new Builder(
-            writer: new SvgWriter(),
-            data: 'Certificat Loopi — ' . $user->getNom() . ' ' . $user->getPrenom() . ' | Rang: ' . $title . ' | XP: ' . $xp,
-            encoding: new Encoding('UTF-8'),
-            errorCorrectionLevel: ErrorCorrectionLevel::High,
-            size: 220,
-            margin: 12,
-            validateResult: false
-        );
+        $builder = new Builder();
+        $builder->writer(new SvgWriter())
+            ->data('Certificat Loopi — ' . $user->getNom() . ' ' . $user->getPrenom() . ' | Rang: ' . $title . ' | XP: ' . $xp)
+            ->encoding(new Encoding('UTF-8'))
+            ->errorCorrectionLevel(ErrorCorrectionLevel::High)
+            ->size(220)
+            ->margin(12)
+            ->validateResult(false);
 
         $result   = $builder->build();
         $qrSvg    = $result->getString(); // Returns raw SVG markup

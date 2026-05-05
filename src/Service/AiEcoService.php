@@ -12,8 +12,8 @@ class AiEcoService
         // Checks both GEMINI_API_KEY and MISTRAL_API_KEY for maximum flexibility
         $apiKey = $_ENV['MISTRAL_API_KEY'] ?? ($_ENV['GEMINI_API_KEY'] ?? ($_SERVER['MISTRAL_API_KEY'] ?? ($_SERVER['GEMINI_API_KEY'] ?? getenv('MISTRAL_API_KEY'))));
         
-        $fallback = "🌍 Bravo ! Votre don de $amount kg de $material aide à sauver la planète !";
-
+        $fallback = "⚠️ [DEBUG] L'IA Mistral n'a pas pu générer de message (Clé manquante ou erreur réseau).";
+        
         if (empty($apiKey)) return $fallback;
 
         // Using Mistral-Small or Mistral-Tiny (Very fast and Free)

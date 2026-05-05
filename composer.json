@@ -10,9 +10,11 @@
         "doctrine/doctrine-bundle": "^2.18",
         "doctrine/doctrine-migrations-bundle": "^3.7",
         "doctrine/orm": "^3.6",
+        "dompdf/dompdf": "^3.1",
+        "endroid/qr-code-bundle": "^5.0",
+        "knplabs/knp-snappy-bundle": "^1.10",
         "knpuniversity/oauth2-client-bundle": "^2.20",
         "league/oauth2-google": "^5.0",
-        "endroid/qr-code-bundle": "^5.0",
         "symfony/console": "6.4.*",
         "symfony/dotenv": "6.4.*",
         "symfony/flex": "^2",
@@ -36,9 +38,7 @@
     },
     "autoload": {
         "psr-4": {
-            "App\\": "src/",
-            "Knp\\Bundle\\SnappyBundle\\": "lib/KnpSnappyBundle/src/",
-            "Knp\\Snappy\\": "lib/knp-snappy/src/Knp/Snappy/"
+            "App\\": "src/"
         }
     },
     "autoload-dev": {

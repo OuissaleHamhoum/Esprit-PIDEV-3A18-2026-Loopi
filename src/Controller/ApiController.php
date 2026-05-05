@@ -1056,7 +1056,7 @@ class ApiController extends AbstractController
         }
 
         $allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif'];
-        if (!in_array($uploadedFile->getMimeType(), $allowedTypes, true)) {
+        if (!in_array($uploadedFile->getClientMimeType(), $allowedTypes, true)) {
             return null;
         }
 
@@ -1066,7 +1066,7 @@ class ApiController extends AbstractController
             mkdir($uploadsDir, 0755, true);
         }
 
-        $extension = $uploadedFile->guessExtension() ?: $uploadedFile->getClientOriginalExtension();
+        $extension = $uploadedFile->getClientOriginalExtension();
         $filename = uniqid('event_', true) . '.' . ($extension ?: 'jpg');
 
         $uploadedFile->move($uploadsDir, $filename);
@@ -1106,13 +1106,17 @@ class ApiController extends AbstractController
             }
 
             if (!$dateEvenement) {
-                $errors['date_evenement'] = 'La date de l\'événement est requise.';
+                $errors['date'] = 'La date de l\'événement est requise.';
             } else {
                 try {
-                    $dateTimeString = $dateEvenement . ' ' . $heureEvenement;
-                    $dateObj = new \DateTime($dateTimeString);
+                    if (strpos($dateEvenement, 'T') !== false) {
+                        $dateObj = new \DateTime($dateEvenement);
+                    } else {
+                        $dateTimeString = $dateEvenement . ' ' . $heureEvenement;
+                        $dateObj = new \DateTime($dateTimeString);
+                    }
                 } catch (\Exception $e) {
-                    $errors['date_evenement'] = 'Format de date invalide.';
+                    $errors['date'] = 'Format de date invalide.';
                 }
             }
 
@@ -1123,9 +1127,9 @@ class ApiController extends AbstractController
             }
 
             if ($capaciteMax <= 0) {
-                $errors['capacite_max'] = 'La capacité maximale doit être supérieure à 0.';
+                $errors['capacite'] = 'La capacité maximale doit être supérieure à 0.';
             } elseif ($capaciteMax > 1000) {
-                $errors['capacite_max'] = 'La capacité maximale ne peut pas dépasser 1000 participants.';
+                $errors['capacite'] = 'La capacité maximale ne peut pas dépasser 1000 participants.';
             }
 
             if (!empty($errors)) {
@@ -1135,8 +1139,7 @@ class ApiController extends AbstractController
             $event = new \App\Entity\Evenement();
             $event->setTitre($titre);
             $event->setDescription($description);
-            $dateTimeString = $dateEvenement . ' ' . $heureEvenement;
-            $event->setDateEvenement(new \DateTime($dateTimeString));
+            $event->setDateEvenement($dateObj);
             $event->setLieu($lieu);
             $event->setIdOrganisateur($userId);
             $event->setCapaciteMax($capaciteMax);
@@ -1294,16 +1297,20 @@ class ApiController extends AbstractController
                 $errors['description'] = 'La description doit contenir au moins 10 caractères.';
             }
             if (!$dateEvenement) {
-                $errors['date_evenement'] = 'La date de l\'événement est requise.';
+                $errors['date'] = 'La date de l\'événement est requise.';
             } else {
                 try {
-                    $dateTimeString = $dateEvenement . ' ' . $heureEvenement;
-                    $dateObj = new \DateTime($dateTimeString);
+                    if (strpos($dateEvenement, 'T') !== false) {
+                        $dateObj = new \DateTime($dateEvenement);
+                    } else {
+                        $dateTimeString = $dateEvenement . ' ' . $heureEvenement;
+                        $dateObj = new \DateTime($dateTimeString);
+                    }
                     if ($dateObj < new \DateTime() && $event->getStatutValidation() === 'en_attente') {
-                        $errors['date_evenement'] = 'La date de l\'événement ne peut pas être dans le passé.';
+                        $errors['date'] = 'La date de l\'événement ne peut pas être dans le passé.';
                     }
                 } catch (\Exception $e) {
-                    $errors['date_evenement'] = 'Format de date invalide.';
+                    $errors['date'] = 'Format de date invalide.';
                 }
             }
             if (!$lieu) {
@@ -1312,9 +1319,9 @@ class ApiController extends AbstractController
                 $errors['lieu'] = 'Le lieu ne peut pas dépasser 200 caractères.';
             }
             if ($capaciteMax <= 0) {
-                $errors['capacite_max'] = 'La capacité maximale doit être supérieure à 0.';
+                $errors['capacite'] = 'La capacité maximale doit être supérieure à 0.';
             } elseif ($capaciteMax > 1000) {
-                $errors['capacite_max'] = 'La capacité maximale ne peut pas dépasser 1000 participants.';
+                $errors['capacite'] = 'La capacité maximale ne peut pas dépasser 1000 participants.';
             }
             if (!empty($errors)) {
                 return new JsonResponse(['success' => false, 'errors' => $errors], Response::HTTP_BAD_REQUEST);
@@ -1322,8 +1329,7 @@ class ApiController extends AbstractController
 
             $event->setTitre($titre);
             $event->setDescription($description);
-            $dateTimeString = $dateEvenement . ' ' . $heureEvenement;
-            $event->setDateEvenement(new \DateTime($dateTimeString));
+            $event->setDateEvenement($dateObj);
             $event->setLieu($lieu);
             $event->setCapaciteMax($capaciteMax);
             $event->setUpdatedAt(new \DateTime());
@@ -2292,7 +2298,7 @@ SVG;
     }
 
     #[Route('/admin/products/{id}/report', name: 'api_admin_product_report', methods: ['GET'])]
-    public function generateProductReport(int $id, ManagerRegistry $doctrine, Pdf $pdf): Response
+    public function generateProductReport(int $id, ManagerRegistry $doctrine): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
@@ -2314,8 +2320,13 @@ SVG;
             'date' => new \DateTime()
         ]);
 
+        $dompdf = new \Dompdf\Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
         return new Response(
-            $pdf->getOutputFromHtml($html),
+            $dompdf->output(),
             200,
             [
                 'Content-Type' => 'application/pdf',
@@ -2554,30 +2565,34 @@ SVG;
     #[Route('/organisateur/produits', name: 'api_org_produits_list', methods: ['GET'])]
     public function getOrgProduits(ManagerRegistry $doctrine): JsonResponse
     {
-        $user = $this->getUser();
-        if (!$user) return new JsonResponse(['success' => false, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
+        try {
+            $user = $this->getUser();
+            if (!$user) return new JsonResponse(['success' => false, 'message' => 'Non authentifié'], Response::HTTP_UNAUTHORIZED);
 
-        $produits = $doctrine->getRepository(Produit::class)->findBy(['user' => $user]);
-        $data = [];
-        foreach ($produits as $p) {
-            $feedbacks = $doctrine->getRepository(Feedback::class)->findBy(['produit' => $p]);
-            $avgRating = count($feedbacks) > 0 ? array_sum(array_map(fn($f) => $f->getNote(), $feedbacks)) / count($feedbacks) : 0;
-            $favoritesCount = count($doctrine->getRepository(Favoris::class)->findBy(['produit' => $p]));
+            $produits = $doctrine->getRepository(Produit::class)->findBy(['user' => $user]);
+            $data = [];
+            foreach ($produits as $p) {
+                $feedbacks = $doctrine->getRepository(Feedback::class)->findBy(['produit' => $p]);
+                $avgRating = count($feedbacks) > 0 ? array_sum(array_map(fn($f) => $f->getNote(), $feedbacks)) / count($feedbacks) : 0;
+                $favoritesCount = count($doctrine->getRepository(Favoris::class)->findBy(['produit' => $p]));
 
-            $data[] = [
-                'id' => $p->getId(),
-                'nomProduit' => $p->getNomProduit(),
-                'description' => $p->getDescription(),
-                'imageProduit' => $p->getImageProduit(),
-                'category' => $p->getCategory() ? ['id' => $p->getCategory()->getId(), 'nom' => $p->getCategory()->getNomCat()] : null,
-                'createdAt' => $p->getCreatedAt()?->format('Y-m-d'),
-                'favoris' => $favoritesCount,
-                'noteMoyenne' => round($avgRating, 1),
-                'totalFeedbacks' => count($feedbacks),
-                'status' => $p->getStatus()
-            ];
+                $data[] = [
+                    'id' => $p->getId(),
+                    'nomProduit' => $p->getNomProduit(),
+                    'description' => $p->getDescription(),
+                    'imageProduit' => $p->getImageProduit(),
+                    'category' => $p->getCategory() ? ['id' => $p->getCategory()->getId(), 'nom' => $p->getCategory()->getNomCat()] : null,
+                    'createdAt' => $p->getCreatedAt()?->format('Y-m-d'),
+                    'favoris' => $favoritesCount,
+                    'noteMoyenne' => round($avgRating, 1),
+                    'totalFeedbacks' => count($feedbacks),
+                    'status' => $p->getStatus()
+                ];
+            }
+            return new JsonResponse(['success' => true, 'data' => $data]);
+        } catch (\Exception $e) {
+            return new JsonResponse(['success' => false, 'message' => 'Erreur: ' . $e->getMessage() . ' at line ' . $e->getLine()]);
         }
-        return new JsonResponse(['success' => true, 'data' => $data]);
     }
 
     #[Route('/organisateur/produits', name: 'api_org_produits_create', methods: ['POST'])]
@@ -3022,7 +3037,7 @@ SVG;
     }
 
     #[Route('/admin/feedbacks/{id}/report', name: 'api_admin_feedback_report', methods: ['GET'])]
-    public function generateFeedbackReport(int $id, ManagerRegistry $doctrine, Pdf $pdf): Response
+    public function generateFeedbackReport(int $id, ManagerRegistry $doctrine): Response
     {
         $this->denyAccessUnlessGranted('ROLE_ADMIN');
 
@@ -3036,8 +3051,13 @@ SVG;
             'date' => new \DateTime()
         ]);
 
+        $dompdf = new \Dompdf\Dompdf();
+        $dompdf->loadHtml($html);
+        $dompdf->setPaper('A4', 'portrait');
+        $dompdf->render();
+
         return new Response(
-            $pdf->getOutputFromHtml($html),
+            $dompdf->output(),
             200,
             [
                 'Content-Type' => 'application/pdf',

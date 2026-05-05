@@ -2323,61 +2323,37 @@ footer {
     </button>
   </div>
 
-  <div class="grid-2">
-    <div class="card">
-      <div class="card-title"><span><i class="fas fa-history" style="color:var(--moss);margin-right:8px"></i>Historique des dons</span></div>
-      <div id="donationsHistory">
-        <div class="don-row">
-          <div class="don-av" style="background:linear-gradient(135deg,var(--moss),var(--forest))"><i class="fas fa-leaf"></i></div>
-          <div>
-            <div class="don-coll">Piece Mario</div>
-            <div class="don-date"><i class="fas fa-calendar" style="opacity:.5"></i> 12 jan. 2025</div>
-          </div>
-          <span class="don-amount">24.6 kg</span>
-          <span class="don-status status-confirmed">Confirmé</span>
-        </div>
-        <div class="don-row">
-          <div class="don-av" style="background:linear-gradient(135deg,var(--sand),#a08040)"><i class="fas fa-wine-bottle"></i></div>
-          <div>
-            <div class="don-coll">Collection Verre</div>
-            <div class="don-date"><i class="fas fa-calendar" style="opacity:.5"></i> 5 jan. 2025</div>
-          </div>
-          <span class="don-amount">5.8 kg</span>
-          <span class="don-status status-confirmed">Confirmé</span>
-        </div>
-        <div class="don-row">
-          <div class="don-av" style="background:linear-gradient(135deg,#7a6a5a,#5a4a3d)"><i class="fas fa-wine-bottle"></i></div>
-          <div>
-            <div class="don-coll">Collection Verre</div>
-            <div class="don-date"><i class="fas fa-calendar" style="opacity:.5"></i> 28 déc. 2024</div>
-          </div>
-          <span class="don-amount">2.4 kg</span>
-          <span class="don-status status-confirmed">Confirmé</span>
+  <div id="donsContainer">
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title"><span><i class="fas fa-history" style="color:var(--moss);margin-right:8px"></i>Historique des dons</span></div>
+        <div id="donationsHistory">
+          <div style="text-align:center;padding:40px;color:var(--muted)">Chargement de l'historique...</div>
         </div>
       </div>
-    </div>
-    <div class="card">
-      <div class="card-title"><span><i class="fas fa-lightbulb" style="color:var(--sand);margin-right:8px"></i>Comment ça marche ?</span></div>
-      <div style="display:flex;flex-direction:column;gap:22px">
-        <div class="how-step">
-          <div class="how-step-icon" style="background:rgba(58,99,71,0.1)"><i class="fas fa-recycle" style="color:var(--moss)"></i></div>
-          <div class="how-step-text">
-            <strong>Apportez vos matériaux</strong>
-            <span>Déposez vos matériaux recyclables lors d'un événement ou directement dans un centre Loopi.</span>
+      <div class="card">
+        <div class="card-title"><span><i class="fas fa-lightbulb" style="color:var(--sand);margin-right:8px"></i>Comment ça marche ?</span></div>
+        <div style="display:flex;flex-direction:column;gap:22px">
+          <div class="how-step">
+            <div class="how-step-icon" style="background:rgba(58,99,71,0.1)"><i class="fas fa-recycle" style="color:var(--moss)"></i></div>
+            <div class="how-step-text">
+              <strong>Apportez vos matériaux</strong>
+              <span>Déposez vos matériaux recyclables lors d'un événement ou directement dans un centre Loopi.</span>
+            </div>
           </div>
-        </div>
-        <div class="how-step">
-          <div class="how-step-icon" style="background:rgba(201,164,85,0.12)"><i class="fas fa-check-circle" style="color:var(--sand)"></i></div>
-          <div class="how-step-text">
-            <strong>Votre don est confirmé</strong>
-            <span>Après pesage et validation, votre contribution est enregistrée automatiquement.</span>
+          <div class="how-step">
+            <div class="how-step-icon" style="background:rgba(201,164,85,0.12)"><i class="fas fa-check-circle" style="color:var(--sand)"></i></div>
+            <div class="how-step-text">
+              <strong>Votre don est confirmé</strong>
+              <span>Après pesage et validation, votre contribution est enregistrée automatiquement.</span>
+            </div>
           </div>
-        </div>
-        <div class="how-step">
-          <div class="how-step-icon" style="background:rgba(176,90,47,0.1)"><i class="fas fa-ticket-alt" style="color:var(--rust)"></i></div>
-          <div class="how-step-text">
-            <strong>Recevez un coupon</strong>
-            <span>Chaque donation confirmée génère un coupon de réduction utilisable dans la boutique Loopi.</span>
+          <div class="how-step">
+            <div class="how-step-icon" style="background:rgba(176,90,47,0.1)"><i class="fas fa-ticket-alt" style="color:var(--rust)"></i></div>
+            <div class="how-step-text">
+              <strong>Recevez un coupon</strong>
+              <span>Chaque donation confirmée génère un coupon de réduction utilisable dans la boutique Loopi.</span>
+            </div>
           </div>
         </div>
       </div>
