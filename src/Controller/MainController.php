@@ -174,6 +174,53 @@ class MainController extends AbstractController
         return $referer ? $this->redirect($referer) : $this->redirectToRoute('app_product_details', ['id' => $feedback->getProduit()->getId()]);
     }
 
+    #[Route('/feedback/add/{id}', name: 'app_feedback_add', methods: ['POST'])]
+    public function addFeedback(int $id, ManagerRegistry $doctrine, Request $request): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('error', 'Vous devez être connecté pour donner un avis');
+            return $this->redirectToRoute('app_login');
+        }
+
+        $product = $doctrine->getRepository(\App\Entity\Produit::class)->find($id);
+        if (!$product) {
+            throw new NotFoundHttpException('Produit non trouvé');
+        }
+
+        // Check if user already gave feedback for this product
+        $existingFeedback = $doctrine->getRepository(\App\Entity\Feedback::class)->findOneBy([
+            'produit' => $product,
+            'user' => $user
+        ]);
+
+        if ($existingFeedback) {
+            $this->addFlash('error', 'Vous avez déjà donné un avis pour ce produit');
+            return $this->redirectToRoute('app_product_details', ['id' => $id]);
+        }
+
+        $note = $request->request->get('note');
+        $commentaire = $request->request->get('commentaire');
+
+        if ($note && $commentaire) {
+            $feedback = new \App\Entity\Feedback();
+            $feedback->setProduit($product);
+            $feedback->setUser($user);
+            $feedback->setNote((int)$note);
+            $feedback->setCommentaire($commentaire);
+            $feedback->setDateCommentaire(new \DateTime());
+
+            $entityManager = $doctrine->getManager();
+            $entityManager->persist($feedback);
+            $entityManager->flush();
+
+            $this->addFlash('success', 'Avis ajouté avec succès');
+        }
+
+        $referer = $request->headers->get('referer');
+        return $referer ? $this->redirect($referer) : $this->redirectToRoute('app_product_details', ['id' => $id]);
+    }
+
     #[Route('/feedback/delete/{id}', name: 'app_feedback_delete', methods: ['POST'])]
     public function deleteFeedback(int $id, ManagerRegistry $doctrine, Request $request): Response
     {
