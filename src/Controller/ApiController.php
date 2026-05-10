@@ -1761,7 +1761,7 @@ SVG;
         $generatedImage = $data['generatedImage'] ?? null;
         
         // Si une image a été générée et envoyée
-        if ($generatedImage && !empty($generatedImage)) {
+        if (!empty($generatedImage)) {
             $savedImage = $this->saveGeneratedImage($generatedImage, $titre);
             if ($savedImage) {
                 $event->setImageEvenement($savedImage);

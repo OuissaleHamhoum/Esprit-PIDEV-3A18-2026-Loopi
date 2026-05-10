@@ -37,7 +37,7 @@ class Collection
     private ?string $status = 'active';
 
     #[ORM\ManyToOne]
-    #[ORM\JoinColumn(name: 'id_user', referencedColumnName: 'id')]
+    #[ORM\JoinColumn(name: 'id_user_id', referencedColumnName: 'id')]
     private ?User $user = null;
 
     #[ORM\Column(name: 'created_at', type: Types::DATETIME_MUTABLE, nullable: true)]
